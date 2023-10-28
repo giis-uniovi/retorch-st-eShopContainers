@@ -22,9 +22,7 @@
 	</properties>
 
 	<modules>
-		<module>samples-giis-template-m1</module>
-		<module>samples-giis-template-m2</module>
-		<module>samples-giis-template-bom</module>
+		<module>eshopcontainers-e2etestsuite</module>
 	</modules>
 
 	<dependencyManagement>
@@ -187,6 +185,14 @@
 			<name>Javier Tuya</name>
 			<url>http://giis.uniovi.es</url>
 		</developer>
+		<developer>
+			<name>Claudio de la Riva</name>
+			<url>http://giis.uniovi.es</url>
+		</developer>
+		<developer>
+			<name>Cristian Augusto</name>
+			<url>http://giis.uniovi.es</url>
+		</developer>
 	</developers>
 	<licenses>
 		<license>
@@ -195,7 +201,7 @@
 		</license>
 	</licenses>
 	<scm>
-		<url>https://github.com/giis-uniovi/samples-giis-template</url>
+		<url>https://github.com/giis-uniovi/retorch-st-eShopContainers</url>
 	</scm>
 
 	<!-- To publish packages (mvn deploy) a profile must be specified (github for snapsots and maven central for releases) -->
@@ -206,7 +212,7 @@
 				<snapshotRepository>
 					<id>github</id>
 					<name>GitHub Apache Maven Packages</name>
-					<url>https://maven.pkg.github.com/giis-uniovi/samples-giis-template</url>
+					<url>https://maven.pkg.github.com/giis-uniovi/retorch-st-eShopContainers</url>
 				</snapshotRepository>
 			</distributionManagement>
 		</profile>
