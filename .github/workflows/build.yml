@@ -23,5 +23,13 @@ jobs:
           java-version: '11'
           cache: 'maven'
 
+      - name: Init jenkins commit status (optional)
+        run: |
+          curl -L -X POST  https://api.github.com/repos/${{ github.repository }}/statuses/${{ github.sha }} \
+             -H "Accept: application/vnd.github+json" \
+             -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+             -H "X-GitHub-Api-Version: 2022-11-28" \
+             -d "{\"state\":\"pending\", \"context\":\"Jenkins CI\"}"
+
       - name: Build only, tests run in on-premises Jenkins
         run: mvn test -U --no-transfer-progress
