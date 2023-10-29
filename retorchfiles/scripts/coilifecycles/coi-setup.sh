@@ -7,7 +7,6 @@ mkdir -p "$WORKSPACE/retorchcostestimationdata/exec$BUILD_NUMBER"
 mkdir -p "$WORKSPACE/artifacts"
 #Here goes the COI set-up
 
-git clone "https://github.com/augustocristian/retorch-st-eShopOnContainers.git" sut
 cd "$SUT_URL/src"
 git checkout retorch
 
