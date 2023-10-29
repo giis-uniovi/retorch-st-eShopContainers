@@ -9,7 +9,7 @@ cd "$SUT_URL/src"
 docker compose --env-file .env  down
 cd $WORKSPACE
 
-sh '$E2ESUITE_URL/retorchfiles/scripts/saveTJobLifecycledata.sh'
+$E2ESUITE_URL/retorchfiles/scripts/saveTJobLifecycledata.sh
 COITEARDOWNEND="$(date +%s%3N)"
 
 OUTPUTDIRCOI="$WORKSPACE/retorchcostestimationdata/exec$BUILD_NUMBER/COI.data"
