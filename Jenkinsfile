@@ -23,30 +23,35 @@ pipeline {
         stage('SETUP-Infrastructure') {
             steps {
                 sh 'chmod +x -R "$E2ESUITE_URL/retorchfiles/scripts"'
-                sh '$E2ESUITE_URL/retorchfiles/scripts/coilifecycles/coi-setup.sh'
+                sh "$E2ESUITE_URL/retorchfiles/scripts/coilifecycles/coi-setup.sh"
             }
         }
 
         stage('Test') {
             steps {
-                sh '$E2ESUITE_URL/retorchfiles/scripts/testexecution.sh tjobA 0'
+                sh "$E2ESUITE_URL/retorchfiles/scripts/testexecution.sh tjobA 0"
+
+            }
+        }
+
+
+        stage('Tear-down Infrastructure') {
+            steps {
+                sh "$E2ESUITE_URL/retorchfiles/scripts/coilifecycles/coi-teardown.sh"
+
             }
         }
     }
 
     post {
         always {
-         archiveArtifacts artifacts: 'eshopcontainers-e2etestsuite/artifacts/*.csv', onlyIfSuccessful: true
+         archiveArtifacts artifacts: "artifacts/*.csv", onlyIfSuccessful: true
         }
         cleanup {
-             cleanWs(cleanWhenNotBuilt: false,
-                                deleteDirs: true,
-                                disableDeferredWipeout: true,
-                                notFailBuild: true,
-                                patterns: [[pattern: '.gitignore', type: 'INCLUDE'],
-                                           [pattern: '.propsfile', type: 'EXCLUDE']])
+             cleanWs()
             sh """(eval \$CURRENT_DATE ; echo "Cleaning Environment ") | cat | tr '\n' ' ' """
-            sh '$E2ESUITE_URL/retorchfiles/scripts/coilifecycles/coi-teardown.sh'
+
+
 
         }
     }

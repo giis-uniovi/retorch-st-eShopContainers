@@ -1,14 +1,13 @@
 #!/bin/bash
 OUTPUTDIRCOI="$WORKSPACE/retorchcostestimationdata/exec$BUILD_NUMBER/COI.data"
 COISETUPSTART=$(date +%s%3N)
-ls -la ..
+
 #Directories to store the data
 mkdir -p "$WORKSPACE/retorchcostestimationdata/exec$BUILD_NUMBER"
 mkdir -p "$WORKSPACE/artifacts"
 #Here goes the COI set-up
 
 cd "$SUT_URL/src"
-git checkout retorch
 
 docker compose --env-file .env  build
 docker compose --env-file .env  up -d
