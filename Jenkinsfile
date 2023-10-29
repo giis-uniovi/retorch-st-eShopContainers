@@ -6,7 +6,7 @@ pipeline {
     environment {
         ET_EUS_API = "http://selenoid:4444/wd/hub"
         SUT_URL = "$WORKSPACE/sut"
-        E2ESUITE_URL = "$WORKSPACE/eshopcontainers-e2etestsuite"
+        E2ESUITE_URL = "$WORKSPACE"
     }
 
     options {
