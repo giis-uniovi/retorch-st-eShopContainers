@@ -1,9 +1,11 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
+
 	<groupId>io.github.giis-uniovi</groupId>
 	<artifactId>retorch-st-eShopContainers</artifactId>
 	<version>1.0.0-SNAPSHOT</version>
-	<packaging>pom</packaging>
+	<packaging>jar</packaging>
 
 	<name>retorch-st-eShopContainers</name>
 	<description>RETORCH eShopContainers End-to-End Test Suite</description>
@@ -20,14 +22,6 @@
 
 		<surefire.version>3.2.1</surefire.version>
 	</properties>
-
-	<modules>
-		<module>samples-giis-template-m1</module>
-		<module>samples-giis-template-m2</module>
-		<module>samples-giis-template-bom</module>
-	</modules>
-
-	<dependencyManagement>
 		<dependencies>
 			<dependency>
 				<groupId>junit</groupId>
@@ -41,13 +35,12 @@
 				<version>2.0.9</version>
 			</dependency>
 			<dependency>
-    			<groupId>org.apache.logging.log4j</groupId>
-    			<artifactId>log4j-slf4j2-impl</artifactId>
-    			<version>2.21.1</version>
-    			<scope>test</scope>
+				<groupId>org.apache.logging.log4j</groupId>
+				<artifactId>log4j-slf4j2-impl</artifactId>
+				<version>2.21.1</version>
+				<scope>test</scope>
 			</dependency>
 		</dependencies>
-	</dependencyManagement>
 
 	<build>
 		<pluginManagement>
@@ -121,11 +114,14 @@
 							<configuration>
 								<target unless="skipTests">
 									<junitreport>
-										<fileset dir="${project.basedir}/target/surefire-reports" erroronmissingdir="false">
-											<include name="**/*.xml" />
+										<fileset dir="${project.basedir}/target/surefire-reports"
+												 erroronmissingdir="false">
+											<include name="**/*.xml"/>
 										</fileset>
-										<report format="frames" todir="${project.reporting.outputDirectory}/junit-frames" />
-										<report format="noframes" todir="${project.reporting.outputDirectory}/junit-noframes" />
+										<report format="frames"
+												todir="${project.reporting.outputDirectory}/junit-frames"/>
+										<report format="noframes"
+												todir="${project.reporting.outputDirectory}/junit-noframes"/>
 									</junitreport>
 								</target>
 							</configuration>
@@ -187,6 +183,14 @@
 			<name>Javier Tuya</name>
 			<url>http://giis.uniovi.es</url>
 		</developer>
+		<developer>
+			<name>Claudio de la Riva</name>
+			<url>http://giis.uniovi.es</url>
+		</developer>
+		<developer>
+			<name>Cristian Augusto</name>
+			<url>http://giis.uniovi.es</url>
+		</developer>
 	</developers>
 	<licenses>
 		<license>
@@ -195,7 +199,7 @@
 		</license>
 	</licenses>
 	<scm>
-		<url>https://github.com/giis-uniovi/samples-giis-template</url>
+		<url>https://github.com/giis-uniovi/retorch-st-eShopContainers</url>
 	</scm>
 
 	<!-- To publish packages (mvn deploy) a profile must be specified (github for snapsots and maven central for releases) -->
@@ -206,7 +210,7 @@
 				<snapshotRepository>
 					<id>github</id>
 					<name>GitHub Apache Maven Packages</name>
-					<url>https://maven.pkg.github.com/giis-uniovi/samples-giis-template</url>
+					<url>https://maven.pkg.github.com/giis-uniovi/retorch-st-eShopContainers</url>
 				</snapshotRepository>
 			</distributionManagement>
 		</profile>

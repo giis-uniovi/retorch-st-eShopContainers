@@ -1,0 +1,12 @@
+{
+  "profiles": {
+    "Microsoft.eShopOnContainers.WebMVC": {
+      "commandName": "Project",
+      "launchBrowser": true,
+      "applicationUrl": "http://localhost:5331",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      }
+    }
+  }
+}
