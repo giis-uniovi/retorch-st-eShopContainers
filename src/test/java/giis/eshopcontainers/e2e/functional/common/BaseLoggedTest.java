@@ -1,19 +1,24 @@
 package giis.eshopcontainers.e2e.functional.common;
 
+import giis.eshopcontainers.e2e.functional.common.exceptions.ElementNotFoundException;
+import giis.eshopcontainers.e2e.functional.model.EShopUser;
+import giis.eshopcontainers.e2e.functional.utils.Click;
+import giis.eshopcontainers.e2e.functional.utils.Navigation;
 import io.github.bonigarcia.wdm.managers.ChromeDriverManager;
 import io.github.bonigarcia.wdm.managers.FirefoxDriverManager;
 import org.junit.Rule;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.rules.TestName;
+import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
-import org.junit.jupiter.api.*;
-
-import static java.lang.invoke.MethodHandles.lookup;
-import static org.openqa.selenium.logging.LogType.BROWSER;
-import static org.slf4j.LoggerFactory.getLogger;
-
+import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.logging.LogEntries;
+import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,6 +27,8 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.Properties;
 
+import static org.openqa.selenium.logging.LogType.BROWSER;
+
 public class BaseLoggedTest {
     protected static final Class<? extends WebDriver> chrome = ChromeDriver.class;
     protected static final Class<? extends WebDriver> firefox = FirefoxDriver.class;
@@ -29,10 +36,10 @@ public class BaseLoggedTest {
     public static final String CHROME = "chrome";
     protected static String SUT_URL;
     protected static Properties properties;
-    public WebDriver driver;
     public static String CLIENT_BROWSER;
     public static String LOCALHOST = "http://156.35.119.57:5100";
     protected BrowserUser user;
+    private static EShopUser logged_user;
     protected static String TEST_NAME = "DEFAULT";
     protected static String TJOB_NAME = "DEFAULTTJOB";
 
@@ -42,6 +49,7 @@ public class BaseLoggedTest {
     @BeforeAll()
     static void setupAll() { //28 lines
         properties = new Properties();
+        logged_user= new EShopUser("alice","Pass123$");
         try {
             // load a properties file for reading
             properties.load(new FileInputStream("src/test/resources/inputs/test.properties"));
@@ -73,7 +81,6 @@ public class BaseLoggedTest {
         TJOB_NAME = System.getProperty("dirtarget");
 
         user = setupBrowser(TJOB_NAME,1);
-        driver = user.getDriver();
     }
 
     protected BrowserUser setupBrowser(String tJobName,
@@ -97,11 +104,43 @@ public class BaseLoggedTest {
 
         return u;
     }
-    protected void logout(BrowserUser user) { //43 lines
+
+    protected void login(BrowserUser user, boolean slow) throws ElementNotFoundException, InterruptedException {
+        user.setOnSession(true);
+        log.info("Logging in user {} with mail '{}'", user.getClientData(), logged_user.getEmail());
+
+        user.waitUntil(ExpectedConditions.elementToBeClickable(By.xpath("//a[contains(text(),'Login')]")), "The button searched by xPath //a[contains(text(),'Login')] is not clickable");
+        Click.element(user,user.getDriver().findElement(By.xpath("//a[contains(text(),'Login')]")));
+        user.waitUntil(ExpectedConditions.presenceOfElementLocated(By.id("Username")), "The Username login field is not present");
+        WebElement userNameField = user.getDriver().findElement(By.id("Username"));
+        user.waitUntil(ExpectedConditions.presenceOfElementLocated(By.id("Password")), "The Password login is not present");
+        WebElement userPassField = user.getDriver().findElement(By.id("Password"));
+        if (slow) Thread.sleep(3000);
+        userNameField.sendKeys(logged_user.getEmail());
+        userPassField.sendKeys(logged_user.getPassword());
+        user.waitUntil(ExpectedConditions.elementToBeClickable(By.xpath("//button[contains(.,'Login')]")), "The button searched by xpath //button[contains(.,'Login')] is not clickable");
+        Click.element(user,user.getDriver().findElement(By.xpath("//button[contains(.,'Login')]")));
+
+        log.info("Logging in successful for user {}", user.getClientData());
+
+
+    }
+    protected void logout(BrowserUser user) throws ElementNotFoundException { //43 lines
+
+        Navigation.toMainMenu(user);
+        //Click.element(user,user.getDriver().findElement();
+        Actions a= new Actions(user.getDriver());
+        WebElement mainmenu=user.getDriver().findElement(By.cssSelector("#logoutForm > section.esh-identity-drop"));
+        //user.getDriver().findElement(By.xpath(
+        //Click.element(user,user.getDriver().findElement(By.xpath("//form[@id='logoutForm']/section[2]/a[2]/div")));
+        a.moveToElement(mainmenu).build().perform();
+        WebElement Sub = user.getDriver().findElement(By.xpath("//form[@id='logoutForm']/section[2]/a[2]/div"));
+        Click.element(user,Sub);
+
         log.info("Logging out");
     }
     @AfterEach
-    void tearDown() { //13 lines
+    void tearDown() throws ElementNotFoundException { //13 lines
 
         if (user != null) {
             log.info("##### Finish test: {} - Driver {}", TEST_NAME, this.user.getDriver());
@@ -113,12 +152,15 @@ public class BaseLoggedTest {
             if (user.isOnSession()) {
                 this.logout(user);
             }
-
             user.dispose();
         }
 
 
+
+
+
     }
+
 
 
 
