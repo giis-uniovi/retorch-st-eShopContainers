@@ -12,7 +12,8 @@ cd "$SUT_LOCATION/src"
 docker compose --env-file .env  build
 docker compose --env-file .env  up -d
 
-$WORKSPACE/retorchfiles/scripts/waitforeShopContainers.sh
+sleep 60
+#$WORKSPACE/retorchfiles/scripts/waitforeShopContainers.sh
 
 cd $WORKSPACE
 
