@@ -4,8 +4,8 @@ pipeline {
     }
 
     environment {
-        ET_EUS_API = "http://selenoid:4444/wd/hub"
-        SUT_URL = "$WORKSPACE/sut"
+        SELENOID_URL = "http://selenoid:4444/wd/hub"
+        SUT_LOCATION = "$WORKSPACE/sut"
         E2ESUITE_URL = "$WORKSPACE"
     }
 
@@ -14,6 +14,11 @@ pipeline {
     }
 
     stages {
+         stage('Clean Workspace') {
+                steps {
+                cleanWs()
+                }
+            }
         stage('Clone eShopContainers Project') {
             steps {
                 checkout scm
@@ -48,7 +53,7 @@ pipeline {
          archiveArtifacts artifacts: "artifacts/*.csv", onlyIfSuccessful: true
         }
         cleanup {
-             cleanWs()
+
             sh """(eval \$CURRENT_DATE ; echo "Cleaning Environment ") | cat | tr '\n' ' ' """
 
 

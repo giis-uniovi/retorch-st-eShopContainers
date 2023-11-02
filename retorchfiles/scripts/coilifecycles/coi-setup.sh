@@ -7,10 +7,13 @@ mkdir -p "$WORKSPACE/retorchcostestimationdata/exec$BUILD_NUMBER"
 mkdir -p "$WORKSPACE/artifacts"
 #Here goes the COI set-up
 
-cd "$SUT_URL/src"
+cd "$SUT_LOCATION/src"
 
 docker compose --env-file .env  build
 docker compose --env-file .env  up -d
+
+$WORKSPACE/retorchfiles/scripts/waitforeShopContainers.sh
+
 cd $WORKSPACE
 
 #Here ends the COI set-up

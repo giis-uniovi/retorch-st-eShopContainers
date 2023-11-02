@@ -5,7 +5,7 @@ COITEARDOWNSTART="$(date +%s%3N)"
 echo 'Switch off all containers...'
 docker stop "$(docker ps | grep eShopContainers | awk '{print \$1}')" || echo 'All the containers are stopped!'
 docker rm --volumes "$(docker ps -a | grep eShopContainers | awk '{print \$1}')" || echo 'All the containers are removed!'
-cd "$SUT_URL/src"
+cd "$SUT_LOCATION/src"
 docker compose --env-file .env  down
 cd $WORKSPACE
 
