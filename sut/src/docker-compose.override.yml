@@ -173,15 +173,15 @@ services:
     volumes:
       - ./ApiGateways/Envoy/config/mobileshopping:/etc/envoy
     ports:
-    - "5200:80"
-    - "15200:8001"
+      - "5200:80"
+      - "15200:8001"
 
   webshoppingapigw:
     volumes:
       - ./ApiGateways/Envoy/config/webshopping:/etc/envoy
     ports:
-    - "5202:80"
-    - "15202:8001"
+      - "5202:80"
+      - "15202:8001"
 
   mobileshoppingagg:
     environment:
@@ -318,4 +318,3 @@ volumes:
     external: false
   eshop-basketdata:
     external: false
-

@@ -8,12 +8,12 @@ mkdir -p "$WORKSPACE/artifacts"
 #Here goes the COI set-up
 
 cd "$SUT_LOCATION/src"
+ls -la
+docker compose -f docker-compose.yml -f docker-compose.override.yml build
+docker compose -f docker-compose.yml -f docker-compose.override.yml up -d
 
-docker compose --env-file .env  build
-docker compose --env-file .env  up -d
 
-sleep 60
-#$WORKSPACE/retorchfiles/scripts/waitforeShopContainers.sh
+$WORKSPACE/retorchfiles/scripts/waitforeShopContainers.sh "156.35.119.57"
 
 cd $WORKSPACE
 

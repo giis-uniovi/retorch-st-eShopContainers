@@ -64,7 +64,9 @@ public class BaseLoggedTest {
             FirefoxDriverManager.getInstance(firefox).setup();
         }
         if (System.getenv("SUT_URL") != null) {
-            SUT_URL = "https://" + System.getenv("SUT_URL") + ":" + System.getenv("SUT_PORT") + "/";
+
+            SUT_URL = "http://" + System.getenv("SUT_URL") + ":" + System.getenv("SUT_PORT") + "/";
+            log.info("Configuring CI system SUT: "+SUT_URL);
         } else {
                 SUT_URL = LOCALHOST;
 
