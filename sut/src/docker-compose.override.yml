@@ -12,7 +12,8 @@ services:
       - ACCEPT_EULA=Y
     ports:
       - "5340:80"
-
+    networks:
+      - jenkins_network
   sqldata:
     environment:
       - SA_PASSWORD=Pass@word
@@ -21,23 +22,28 @@ services:
       - "5433:1433"
     volumes:
       - eshop-sqldata:/var/opt/mssql
-
+    networks:
+      - jenkins_network
   nosqldata:
     ports:
       - "27017:27017"
     volumes:
       - eshop-nosqldata:/data/db
-
+    networks:
+      - jenkins_network
   basketdata:
     ports:
       - "6379:6379"
     volumes:
       - eshop-basketdata:/data
+    networks:
+      - jenkins_network
   rabbitmq:
     ports:
       - "15672:15672"
       - "5672:5672"
-
+    networks:
+      - jenkins_network
   identity-api:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
@@ -57,7 +63,8 @@ services:
       - OrchestratorType=${ORCHESTRATOR_TYPE}
     ports:
       - "5105:80"
-
+    networks:
+      - jenkins_network
   basket-api:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
@@ -77,7 +84,8 @@ services:
     ports:
       - "5103:80"
       - "9103:81"
-
+    networks:
+      - jenkins_network
   catalog-api:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
@@ -99,7 +107,8 @@ services:
     ports:
       - "5101:80"
       - "9101:81"
-
+    networks:
+      - jenkins_network
   ordering-api:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
@@ -124,7 +133,8 @@ services:
     ports:
       - "5102:80"
       - "9102:81"
-
+    networks:
+      - jenkins_network
   ordering-backgroundtasks:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
@@ -142,7 +152,8 @@ services:
       - UseLoadTest=${USE_LOADTEST:-False}
     ports:
       - "5111:80"
-
+    networks:
+      - jenkins_network
   payment-api:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
@@ -155,7 +166,8 @@ services:
       - OrchestratorType=${ORCHESTRATOR_TYPE}
     ports:
       - "5108:80"
-
+    networks:
+      - jenkins_network
   webhooks-api:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
@@ -168,21 +180,24 @@ services:
       - Identity__ExternalUrl=http://${ESHOP_EXTERNAL_DNS_NAME_OR_IP}:5105
     ports:
       - "5113:80"
-
+    networks:
+      - jenkins_network
   mobileshoppingapigw:
     volumes:
       - ./ApiGateways/Envoy/config/mobileshopping:/etc/envoy
     ports:
     - "5200:80"
     - "15200:8001"
-
+    networks:
+      - jenkins_network
   webshoppingapigw:
     volumes:
       - ./ApiGateways/Envoy/config/webshopping:/etc/envoy
     ports:
     - "5202:80"
     - "15202:8001"
-
+    networks:
+      - jenkins_network
   mobileshoppingagg:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
@@ -202,7 +217,8 @@ services:
       - Identity__ExternalUrl=http://${ESHOP_EXTERNAL_DNS_NAME_OR_IP}:5105
     ports:
       - "5120:80"
-
+    networks:
+      - jenkins_network
   webshoppingagg:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
@@ -226,7 +242,8 @@ services:
       - Identity__ExternalUrl=http://${ESHOP_EXTERNAL_DNS_NAME_OR_IP}:5105
     ports:
       - "5121:80"
-
+    networks:
+      - jenkins_network
   ordering-signalrhub:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
@@ -240,7 +257,8 @@ services:
       - Identity__Url=http://identity-api
     ports:
       - "5112:80"
-
+    networks:
+      - jenkins_network
   webstatus:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
@@ -271,7 +289,8 @@ services:
       - OrchestratorType=${ORCHESTRATOR_TYPE}
     ports:
       - "5107:80"
-
+    networks:
+      - jenkins_network
   webspa:
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
@@ -285,8 +304,10 @@ services:
       - OrchestratorType=${ORCHESTRATOR_TYPE}
     ports:
       - "5104:80"
-
+    networks:
+      - jenkins_network
   webmvc:
+    container_name: webmvc
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://0.0.0.0:80
@@ -300,6 +321,8 @@ services:
       - UseLoadTest=${USE_LOADTEST:-False}
     ports:
       - "5100:80"
+    networks:
+      - jenkins_network
 
   webhooks-client:
     environment:
@@ -311,6 +334,8 @@ services:
       - SelfUrl=http://webhooks-client/
     ports:
       - "5114:80"
+    networks:
+      - jenkins_network
 volumes:
   eshop-sqldata:
     external: false
@@ -318,4 +343,7 @@ volumes:
     external: false
   eshop-basketdata:
     external: false
+networks:
+  jenkins_network:
+    external: true
 
