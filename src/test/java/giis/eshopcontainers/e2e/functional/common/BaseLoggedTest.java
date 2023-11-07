@@ -12,11 +12,11 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.rules.TestName;
 import org.openqa.selenium.By;
+import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
-import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.logging.LogEntries;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.slf4j.Logger;
@@ -24,6 +24,8 @@ import org.slf4j.LoggerFactory;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Date;
 import java.util.Properties;
 
@@ -52,7 +54,7 @@ public class BaseLoggedTest {
         logged_user= new EShopUser("alice","Pass123$");
         try {
             // load a properties file for reading
-            properties.load(new FileInputStream("src/test/resources/inputs/test.properties"));
+            properties.load(Files.newInputStream(Paths.get("src/test/resources/inputs/test.properties")));
         } catch (IOException ex) {
             ex.printStackTrace();
         }
@@ -128,15 +130,23 @@ public class BaseLoggedTest {
     protected void logout(BrowserUser user) throws ElementNotFoundException { //43 lines
 
         Navigation.toMainMenu(user);
-        //Click.element(user,user.getDriver().findElement();
-        Actions a= new Actions(user.getDriver());
-        WebElement mainmenu=user.getDriver().findElement(By.cssSelector("#logoutForm > section.esh-identity-drop"));
-        //user.getDriver().findElement(By.xpath(
-        //Click.element(user,user.getDriver().findElement(By.xpath("//form[@id='logoutForm']/section[2]/a[2]/div")));
-        a.moveToElement(mainmenu).build().perform();
-        WebElement Sub = user.getDriver().findElement(By.xpath("//form[@id='logoutForm']/section[2]/a[2]/div"));
-        Click.element(user,Sub);
 
+        WebElement elementOfInterest;
+        try {
+            //trying to get the "select option"
+            elementOfInterest = user.getDriver().findElement(By.xpath("//*[@id=\"logoutForm\"]/section[2]/a[2]/div"));
+
+        } catch (NoSuchElementException e) {
+            //so options are not visible, meaning we need to click first
+            WebElement mainmenu=user.getDriver().findElement(By.className("esh-identity-drop"));
+            Click.element(user,mainmenu);
+
+            //good idea would be to put "wait for element" here
+            elementOfInterest = mainmenu.findElement(By.xpath("//*[@id=\"logoutForm\"]/section[2]/a[2]/div"));
+                }
+//this would select the option
+        Click.element(user,elementOfInterest);
+        user.setOnSession(false);
         log.info("Logging out");
     }
     @AfterEach
