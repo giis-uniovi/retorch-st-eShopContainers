@@ -9,6 +9,7 @@ pipeline {
         E2ESUITE_URL = "$WORKSPACE"
         SUT_URL="webmvc"
         SUT_PORT="5100"
+        TJOB_NAME="tjobe"
     }
 
     options {
@@ -30,7 +31,7 @@ pipeline {
         stage('SETUP-Infrastructure') {
             steps {
                 sh 'chmod +x -R "$E2ESUITE_URL/retorchfiles/scripts"'
-                sh "$E2ESUITE_URL/retorchfiles/scripts/coilifecycles/coi-setup.sh"
+                sh "$E2ESUITE_URL/retorchfiles/scripts/coilifecycles/coi-setup.sh $TJOB_NAME"
             }
         }
 
@@ -44,7 +45,7 @@ pipeline {
 
         stage('Tear-down Infrastructure') {
             steps {
-                sh "$E2ESUITE_URL/retorchfiles/scripts/coilifecycles/coi-teardown.sh"
+                sh "$E2ESUITE_URL/retorchfiles/scripts/coilifecycles/coi-teardown.sh $TJOB_NAME"
 
             }
         }

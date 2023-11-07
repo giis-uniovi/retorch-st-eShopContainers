@@ -10,10 +10,10 @@ mkdir -p "$WORKSPACE/artifacts"
 cd "$SUT_LOCATION/src"
 ls -la
 docker compose  -f docker-compose.yml -f docker-compose.override.yml  --env-file .env  build
-docker compose -f docker-compose.yml -f docker-compose.override.yml --env-file .env  up
+docker compose -f docker-compose.yml -f docker-compose.override.yml --env-file .env  up -d
 
 
-$WORKSPACE/retorchfiles/scripts/waitforeShopContainers.sh "http://156.35.119.57:5100/"
+$WORKSPACE/retorchfiles/scripts/waitforeShopContainers.sh "webmvc-$1"
 
 cd $WORKSPACE
 

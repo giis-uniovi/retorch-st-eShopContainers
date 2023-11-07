@@ -1,8 +1,9 @@
 #!/bin/bash
 COUNTER=0
 sleep 15
-until curl --insecure -s "${1}" | grep -q "<div class=\"esh-catalog-item col-md-4\">"; do
-  echo "waiting $COUNTER for $1 wit URL"
+URL="http://${1}:5100/"
+until curl --insecure -s "${URL}" | grep -q "<div class=\"esh-catalog-item col-md-4\">"; do
+  echo "waiting $COUNTER for $1 with URL $URL"
   sleep 4
   COUNTER=$(expr $COUNTER + 1)
   if test "$COUNTER" -gt 80; then

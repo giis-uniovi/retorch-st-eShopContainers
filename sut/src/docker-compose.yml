@@ -3,21 +3,27 @@ version: '3.4'
 services:
 
   seq:
+    container_name: seq-${TJOB_NAME}
     image: datalust/seq:latest
 
   sqldata:
+    container_name: sqldata-${TJOB_NAME}
     image: mcr.microsoft.com/mssql/server:2019-latest 
 
   nosqldata:
+    container_name: nosqldata-${TJOB_NAME}
     image: mongo
 
   basketdata:
+    container_name: basketdata-${TJOB_NAME}
     image: redis:alpine
 
   rabbitmq:
+    container_name: rabbitmq-${TJOB_NAME}
     image: rabbitmq:3-management-alpine
 
   identity-api:
+    container_name: identity-api-${TJOB_NAME}
     image: ${REGISTRY:-eshop}/identity.api:${PLATFORM:-linux}-${TAG:-latest}
     build:
       context: .
@@ -26,6 +32,7 @@ services:
       - sqldata
 
   basket-api:
+    container_name: basket-api-${TJOB_NAME}
     image: ${REGISTRY:-eshop}/basket.api:${PLATFORM:-linux}-${TAG:-latest}
     build:
       context: .
@@ -36,6 +43,7 @@ services:
       - rabbitmq
 
   catalog-api:
+    container_name: catalog-api-${TJOB_NAME}
     image: ${REGISTRY:-eshop}/catalog.api:${PLATFORM:-linux}-${TAG:-latest}
     build:
       context: .
@@ -45,6 +53,7 @@ services:
       - rabbitmq
 
   ordering-api:
+    container_name: ordering-api-${TJOB_NAME}
     image: ${REGISTRY:-eshop}/ordering.api:${PLATFORM:-linux}-${TAG:-latest}
     build:
       context: .
@@ -54,6 +63,7 @@ services:
       - rabbitmq
 
   ordering-backgroundtasks:
+    container_name: ordering-backgroundtasks-${TJOB_NAME}
     image: ${REGISTRY:-eshop}/ordering.backgroundtasks:${PLATFORM:-linux}-${TAG:-latest}
     build:
       context: .
@@ -63,6 +73,7 @@ services:
       - rabbitmq
 
   payment-api:
+    container_name: payment-api-${TJOB_NAME}
     image: ${REGISTRY:-eshop}/payment.api:${PLATFORM:-linux}-${TAG:-latest}
     build:
       context: .
@@ -71,6 +82,7 @@ services:
       - rabbitmq
 
   webhooks-api:
+    container_name: webhooks-api-${TJOB_NAME}
     image: ${REGISTRY:-eshop}/webhooks.api:${PLATFORM:-linux}-${TAG:-latest}
     build:
       context: .
@@ -79,9 +91,11 @@ services:
       - sqldata
 
   mobileshoppingapigw:
+    container_name: mobileshoppingagg-${TJOB_NAME}
     image: envoyproxy/envoy:v1.11.1
 
   mobileshoppingagg:
+    container_name: mobileshoppingagg-${TJOB_NAME}
     image: ${REGISTRY:-eshop}/mobileshoppingagg:${PLATFORM:-linux}-${TAG:-latest}
     build:
       context: .
@@ -96,6 +110,7 @@ services:
       - basket-api
 
   webshoppingagg:
+    container_name: webshoppingagg-${TJOB_NAME}
     image: ${REGISTRY:-eshop}/webshoppingagg:${PLATFORM:-linux}-${TAG:-latest}
     build:
       context: .
@@ -110,6 +125,7 @@ services:
       - basket-api
 
   ordering-signalrhub:
+    container_name: ordering-signalrhub-${TJOB_NAME}
     image: ${REGISTRY:-eshop}/ordering.signalrhub:${PLATFORM:-linux}-${TAG:-latest}
     build:
       context: .
@@ -124,12 +140,14 @@ services:
       - basket-api
 
   webstatus:
+    container_name: webstatus-${TJOB_NAME}
     image: ${REGISTRY:-eshop}/webstatus:${PLATFORM:-linux}-${TAG:-latest}
     build:
       context: .
       dockerfile: Web/WebStatus/Dockerfile
 
   webspa:
+    container_name: webspa-${TJOB_NAME}
     image: ${REGISTRY:-eshop}/webspa:${PLATFORM:-linux}-${TAG:-latest}
     build:
       context: .
@@ -140,6 +158,7 @@ services:
       - webshoppingagg
 
   webmvc:
+    container_name: webmvc-${TJOB_NAME}
     image: ${REGISTRY:-eshop}/webmvc:${PLATFORM:-linux}-${TAG:-latest}
     build:
       context: .
@@ -148,6 +167,7 @@ services:
       - webshoppingagg
 
   webhooks-client:
+    container_name: webhooks-client-${TJOB_NAME}
     image: ${REGISTRY:-eshop}/webhooks.client:${PLATFORM:-linux}-${TAG:-latest}
     build:
       context: .
@@ -156,4 +176,5 @@ services:
       - webhooks-api
 
   webshoppingapigw:
+    container_name: webshoppingapigw-${TJOB_NAME}
     image: envoyproxy/envoy:v1.11.1
