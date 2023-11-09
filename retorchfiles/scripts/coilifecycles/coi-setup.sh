@@ -9,11 +9,11 @@ mkdir -p "$WORKSPACE/artifacts"
 
 cd "$SUT_LOCATION/src"
 ls -la
-docker compose  -f docker-compose.yml -f docker-compose.override.yml  --env-file .env  build
-docker compose -f docker-compose.yml -f docker-compose.override.yml --env-file .env  up -d
+docker compose -f docker-compose.yml -f docker-compose.override.yml build
+docker compose -f docker-compose.yml -f docker-compose.override.yml up -d
 
 
-$WORKSPACE/retorchfiles/scripts/waitforeShopContainers.sh "webmvc-$1"
+$WORKSPACE/retorchfiles/scripts/waitforeShopContainers.sh "156.35.119.57"
 
 cd $WORKSPACE
 

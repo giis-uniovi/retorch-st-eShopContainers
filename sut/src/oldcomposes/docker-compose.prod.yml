@@ -19,7 +19,7 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://0.0.0.0:80
-      - ConnectionString=${ESHOP_AZURE_REDIS_BASKET_DB:-basket.data}
+      - ConnectionString=${ESHOP_AZURE_REDIS_BASKET_DB:-basketdata}
       - identityUrl=http://identity-api              #Local: You need to open your local dev-machine firewall at range 5100-5110.
       - Identity__Url=http://${ESHOP_EXTERNAL_DNS_NAME_OR_IP}:5105
       - EventBusConnection=${ESHOP_AZURE_SERVICE_BUS:-rabbitmq}
@@ -89,7 +89,7 @@ services:
     ports:
       - "80"   # The API Gateway redirects and access through the internal port (80).
 
-  ordering.backgroundtasks:
+  ordering-backgroundtasks:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://0.0.0.0:80
@@ -182,7 +182,7 @@ services:
     ports:
       - "27017:27017"  # Important: In a production environment your should remove the external port
 
-  basket.data:
+  basketdata:
     ports:
       - "6379:6379"    # Important: In a production environment your should remove the external port
 

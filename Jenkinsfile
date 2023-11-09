@@ -7,6 +7,7 @@ pipeline {
         SELENOID_URL = "http://selenoid:4444/wd/hub"
         SUT_LOCATION = "$WORKSPACE/sut"
         E2ESUITE_URL = "$WORKSPACE"
+        IP_SERVER="156.35.119.57"
         SUT_URL="webmvc"
         SUT_PORT="5100"
         TJOB_NAME="tjobe"
