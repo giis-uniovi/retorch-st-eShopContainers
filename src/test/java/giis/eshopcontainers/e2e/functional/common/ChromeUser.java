@@ -1,10 +1,13 @@
 package giis.eshopcontainers.e2e.functional.common;
+
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.logging.LoggingPreferences;
 import org.openqa.selenium.remote.LocalFileDetector;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -20,18 +23,25 @@ import java.util.Map;
 import static java.util.logging.Level.ALL;
 import static org.openqa.selenium.logging.LogType.BROWSER;
 
-public class ChromeUser extends BrowserUser{
-    ChromeOptions options = new ChromeOptions();
+public class ChromeUser extends BrowserUser {
+    ChromeOptions options;
+    private static final Logger log= LoggerFactory.getLogger(BaseLoggedTest.class);
+    /**
+     * Configures a Chrome web driver for two different scenarios:
+     * 1. A remote web driver deployed with Selenoid, if the SELENOID_URL environment variable is present,
+     *    with the necessary capabilities to record and store the session.
+     * 2. A local web driver for performing the E2E test case.
+     * @param timeOfWaitInSeconds The timeout to configure the default driver waiter.
+     * @param testName A string containing the test name for video storage.
+     */
+    public ChromeUser(int timeOfWaitInSeconds, String testName,String username) {
+        super(username, timeOfWaitInSeconds);
 
-    public ChromeUser(int timeOfWaitInSeconds, String testName) {
-        super(testName, timeOfWaitInSeconds);
-        log.info("Starting the configuration of the web browser");
-        log.debug(String.format("The Test names are: %s", testName));
 
-
+        log.info("Starting the configuration of the web browser for the test "+ testName);
         LoggingPreferences logPrefs = new LoggingPreferences();
         logPrefs.enable(BROWSER, ALL);
-
+        options = new ChromeOptions();
 
         options.setCapability("goog:loggingPrefs", logPrefs);
 
@@ -63,17 +73,17 @@ public class ChromeUser extends BrowserUser{
                 log.info("Using the remote WebDriver (Selenoid)");
                 SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd_HH:mm");
                 log.debug("Adding all the extra capabilities needed: {testName,enableVideo,enableVNC,name,enableLog,videoName,screenResolution}");
-
+                String tjobName=System.getProperty("tjob_name");
                 selenoidOptions.put("testName", testName + "_" + format.format(new Date()));
                 //CAPABILITIES FOR SELENOID RETORCH
                 selenoidOptions.put("enableVideo", true);
                 selenoidOptions.put("enableVNC", true);
-                selenoidOptions.put("name", testName );
+                selenoidOptions.put("name", testName);
 
                 DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yy-MM-dd-HH:mm");
                 LocalDateTime now = LocalDateTime.now();
-                String logName = dtf.format(now) + "-" + testName + "-"  + ".log";
-                String videoName = dtf.format(now) + "_" + testName  + ".mp4";
+                String logName = dtf.format(now) + "-" + tjobName+"-"+testName  + ".log";
+                String videoName = dtf.format(now) + "_" + tjobName+"-"+testName + ".mp4";
                 log.debug("The data of this test would be stored into: video name " + videoName + " and the log is " + logName);
 
                 selenoidOptions.put("enableLog", true);

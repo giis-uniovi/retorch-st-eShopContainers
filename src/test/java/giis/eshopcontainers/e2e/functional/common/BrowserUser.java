@@ -5,13 +5,12 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.support.ui.ExpectedCondition;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
 
-import static org.slf4j.LoggerFactory.getLogger;
-import static java.lang.invoke.MethodHandles.lookup;
 public class BrowserUser {
-    static final Logger log = BaseLoggedTest.log;
+    private static final Logger log= LoggerFactory.getLogger(BaseLoggedTest.class);
     protected final String clientData;
     protected final int timeOfWaitInSeconds;
     protected WebDriver driver;

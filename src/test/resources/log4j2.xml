@@ -13,9 +13,9 @@
             <AppenderRef ref="ConsoleAppender"/>
             <AppenderRef ref="FileAppender"/>
         </Root>
-    	<Logger name="giis" level="debug" additivity="false">
+        <Logger name="giis" level="debug" additivity="false">
             <AppenderRef ref="ConsoleAppender"/>
             <AppenderRef ref="FileAppender"/>
-    	</Logger>
+        </Logger>
     </Loggers>
 </Configuration>

@@ -1,6 +1,5 @@
 #!/bin/bash
 COUNTER=0
-sleep 15
 URL="http://${1}:5100/"
 until curl --insecure -s "${URL}" | grep -q "<div class=\"esh-catalog-item col-md-4\">"; do
   echo "waiting $COUNTER for $1 with URL $URL"

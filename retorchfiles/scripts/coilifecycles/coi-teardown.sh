@@ -6,7 +6,7 @@ echo 'Switch off all containers...'
 docker stop "$(docker ps | grep eShopContainers | awk '{print \$1}')" || echo 'All the containers are stopped!'
 docker rm --volumes "$(docker ps -a | grep eShopContainers | awk '{print \$1}')" || echo 'All the containers are removed!'
 cd "$SUT_LOCATION/src"
-docker compose -f docker-compose.yml -f docker-compose.override.yml down
+docker compose -f docker-compose.yml -f docker-compose.retorch.yml down
 cd $WORKSPACE
 
 $E2ESUITE_URL/retorchfiles/scripts/saveTJobLifecycledata.sh
