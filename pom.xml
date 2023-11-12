@@ -18,71 +18,57 @@
 	<properties>
 		<maven.compiler.source>1.8</maven.compiler.source>
 		<maven.compiler.target>1.8</maven.compiler.target>
-		<junit.jupiter.version>5.5.2</junit.jupiter.version>
-		<junit.platform.version>1.0.0</junit.platform.version>
-		<selenium-jupiter.version>4.3.7</selenium-jupiter.version>
-		<webdriver.version>4.14.1</webdriver.version>
-		<webdrivermanager.version>5.5.3</webdrivermanager.version>
-		<junit-jupiter-params.version>5.10.0</junit-jupiter-params.version>
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <!--Separate all dependencies by a blank line to avoid problems creating combined dependencies in dependabot.-->
 
-		<surefire.version>3.2.1</surefire.version>
+        <surefire.version>3.2.1</surefire.version>
+
+        <junit.version>4.13.2</junit.version>
+
+        <slf4j-api.version>2.0.9</slf4j-api.version>
+
+        <log4j-slf4j2-impl.version>2.21.1</log4j-slf4j2-impl.version>
+
+        <junit.jupiter.version>5.5.2</junit.jupiter.version>
+
+        <junit.platform.version>1.0.0</junit.platform.version>
+
+        <junit-jupiter-api.version>5.10.0</junit-jupiter-api.version>
+
+        <selenium-java.version>4.14.1</selenium-java.version>
+
 	</properties>
 		<dependencies>
 			<dependency>
 				<groupId>junit</groupId>
 				<artifactId>junit</artifactId>
-				<version>4.13.2</version>
+				<version>${junit.version}</version>
 				<scope>test</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.slf4j</groupId>
 				<artifactId>slf4j-api</artifactId>
-				<version>2.0.9</version>
+				<version>${slf4j-api.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.logging.log4j</groupId>
 				<artifactId>log4j-slf4j2-impl</artifactId>
-				<version>2.21.1</version>
+				<version>${log4j-slf4j2-impl.version}</version>
 				<scope>test</scope>
 			</dependency>
-			<!--Dependencies Selenium and webdrivers-->
-
-			<dependency>
-				<groupId>io.github.bonigarcia</groupId>
-				<artifactId>selenium-jupiter</artifactId>
-				<version>${selenium-jupiter.version}</version>
-				<scope>test</scope>
-			</dependency>
-
-			<dependency>
-				<groupId>org.junit.jupiter</groupId>
-				<artifactId>junit-jupiter-params</artifactId>
-				<version>${junit-jupiter-params.version}</version>
-				<scope>test</scope>
-			</dependency>
-			<dependency>
-				<groupId>io.github.bonigarcia</groupId>
-				<artifactId>webdrivermanager</artifactId>
-				<version>${webdrivermanager.version}</version>
-				<scope>test</scope>
-			</dependency>
-
 			<!--	As of version 4, Selenium-Jupiter does not include Selenium WebDriver as a transitive dependency.-->
 			<dependency>
 				<groupId>org.seleniumhq.selenium</groupId>
 				<artifactId>selenium-java</artifactId>
-				<version>${webdriver.version}</version>
+				<version>${selenium-java.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.junit.jupiter</groupId>
 				<artifactId>junit-jupiter-api</artifactId>
-				<version>5.10.0</version>
+				<version>${junit-jupiter-api.version}</version>
 				<scope>test</scope>
 			</dependency>
-
 		</dependencies>
-
 	<build>
 		<pluginManagement>
 			<plugins>

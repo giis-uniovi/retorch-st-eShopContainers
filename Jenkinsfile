@@ -4,10 +4,9 @@ pipeline {
     }
 
     environment {
-        SELENOID_URL = "http://selenoid:4444/wd/hub"
+        SELENOID_PRESENT = "TRUE"
         SUT_LOCATION = "$WORKSPACE/sut"
         E2ESUITE_URL = "$WORKSPACE"
-        IP_SERVER="156.35.119.57"
         TJOB_NAME="tjobe"
     }
 
