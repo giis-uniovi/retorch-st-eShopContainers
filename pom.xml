@@ -37,6 +37,8 @@
 
         <selenium-java.version>4.14.1</selenium-java.version>
 
+		<selema.version>3.1.1</selema.version>
+
 	</properties>
 		<dependencies>
 			<dependency>
@@ -67,6 +69,11 @@
 				<artifactId>junit-jupiter-api</artifactId>
 				<version>${junit-jupiter-api.version}</version>
 				<scope>test</scope>
+			</dependency>
+			<dependency>
+				<groupId>io.github.javiertuya</groupId>
+				<artifactId>selema</artifactId>
+				<version>${selema.version}</version>
 			</dependency>
 		</dependencies>
 	<build>
