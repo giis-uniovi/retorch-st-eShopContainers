@@ -20,7 +20,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Properties;
@@ -33,7 +32,6 @@ import java.util.Properties;
  */
 @ExtendWith(LifecycleJunit5.class)
 public class BaseLoggedClass {
-
     public static final Logger log = LoggerFactory.getLogger(BaseLoggedClass.class);
     protected static String sutUrl;
     protected static String tjobName = "DEFAULT_TJOB";
@@ -43,7 +41,6 @@ public class BaseLoggedClass {
     private static SeleManager seleManager = new SeleManager();
     private String userName;
     private String password;
-
     private boolean isLogged = false;
 
     @BeforeAll()
@@ -60,22 +57,24 @@ public class BaseLoggedClass {
             sutUrl = "http://" + System.getProperty("SUT_URL") + ":" + System.getProperty("SUT_PORT") + "/";
             log.debug("Configuring the browser to connect to the remote System Under Test (SUT) at the following URL: " + sutUrl);
         }
-        log.info("Ending global setup for all test cases.");
         setupBrowser();
+        log.info("Ending global setup for all test cases.");
 
     }
 
     @BeforeEach
     void setup(TestInfo testInfo) { //65 lines
+        log.info("Starting Individual Set-up for the test:" + testInfo.getDisplayName() + ".");
+
         driver = seleManager.getDriver();
         this.waiter = new Waiter(driver);
-        driver.get(sutUrl);
-        log.info("Starting Individual Set-up for the test:" + testInfo.getDisplayName() + ".");
         tjobName = System.getProperty("tjob_name");
-        log.info("Individual Set-up finished, starting test" + testInfo.getDisplayName() + "...");
         userName = properties.getProperty("USER_ESHOP");
         password = properties.getProperty("USER_ESHOP_PASSWORD");
+        log.debug("Navigating to {}", sutUrl);
+        driver.get(sutUrl);
 
+        log.info("Individual Set-up finished, starting test" + testInfo.getDisplayName() + "...");
     }
 
     protected static void setupBrowser() {
@@ -85,12 +84,11 @@ public class BaseLoggedClass {
             log.info("Configuring Chrome WebDriver (Local)");
             seleManager.setBrowser("chrome").setArguments(new String[]{"--start-maximized"});
         } else {
-            seleManager.setDriverUrl("http://selenoid:4444/wd/hub").add(new SelenoidService().setVideo().setVnc());
-
+            log.info("Configuring Remote Chrome WebDriver (Selenoid)");
+            seleManager.setDriverUrl("http://selenoid:4444/wd/hub").setArguments(new String[]{"--start-maximized"}).add(new SelenoidService().setVideo().setVnc());
         }
-        log.debug("Navigating to {}", sutUrl);
 
-
+        log.debug("Finishing set-up browser ({})", properties.getProperty("BROWSER_USER"));
     }
 
     /**
@@ -98,7 +96,6 @@ public class BaseLoggedClass {
      */
     protected void login() throws ElementNotFoundException {
         Navigation.toMainMenu(driver, waiter);
-
         isLogged = true;
         log.debug("Logging in user {} ", userName);
         waiter.waitUntil(ExpectedConditions.elementToBeClickable(By.xpath("//a[contains(text(),'Login')]")), "The button searched by xPath //a[contains(text(),'Login')] is not clickable");
@@ -140,10 +137,11 @@ public class BaseLoggedClass {
 
     @AfterEach
     void tearDown(TestInfo testInfo) throws ElementNotFoundException { //13 lines
+        log.info("Disposing user and releasing/closing browser for the test" + testInfo.getDisplayName());
         if (isLogged) {
+            log.debug("User {0} logged, proceeding to log-out" + this.userName);
             this.logout();
         }
-        log.info("Disposing user and releasing/closing browser for the test" + testInfo.getDisplayName());
     }
 
 }
