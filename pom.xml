@@ -23,15 +23,9 @@
 
         <surefire.version>3.2.1</surefire.version>
 
-        <junit.version>4.13.2</junit.version>
-
         <slf4j-api.version>2.0.9</slf4j-api.version>
 
         <log4j-slf4j2-impl.version>2.21.1</log4j-slf4j2-impl.version>
-
-        <junit.jupiter.version>5.5.2</junit.jupiter.version>
-
-        <junit.platform.version>1.0.0</junit.platform.version>
 
         <junit-jupiter-api.version>5.10.0</junit-jupiter-api.version>
 
@@ -41,12 +35,6 @@
 
 	</properties>
 		<dependencies>
-			<dependency>
-				<groupId>junit</groupId>
-				<artifactId>junit</artifactId>
-				<version>${junit.version}</version>
-				<scope>test</scope>
-			</dependency>
 			<dependency>
 				<groupId>org.slf4j</groupId>
 				<artifactId>slf4j-api</artifactId>
@@ -58,8 +46,7 @@
 				<version>${log4j-slf4j2-impl.version}</version>
 				<scope>test</scope>
 			</dependency>
-			<!--	As of version 4, Selenium-Jupiter does not include Selenium WebDriver as a transitive dependency.-->
-			<dependency>
+				<dependency>
 				<groupId>org.seleniumhq.selenium</groupId>
 				<artifactId>selenium-java</artifactId>
 				<version>${selenium-java.version}</version>
