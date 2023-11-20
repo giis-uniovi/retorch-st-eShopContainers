@@ -48,13 +48,15 @@ public class BaseLoggedClass {
         log.info("Starting Global Set-up for all the Test Cases");
         properties = new Properties();
         // load a properties file for reading
-        properties.load(Files.newInputStream(Paths.get("src/test/resources/inputs/test.properties")));
-        if (System.getProperty("SUT_URL") == null) {
+        properties.load(Files.newInputStream(Paths.get("src/test/resources/test.properties")));
+        String envUrl=System.getProperty("SUT_URL");
+        String envParameterUrl=System.getenv("SUT_URL");
+        if ( envUrl== null & envParameterUrl==null) {
             // Outside CI
             sutUrl = properties.getProperty("LOCALHOST_URL");
             log.debug("Configuring the local browser to connect to a local System Under Test (SUT) at: " + sutUrl);
         } else {
-            sutUrl = "http://" + System.getProperty("SUT_URL") + ":" + System.getProperty("SUT_PORT") + "/";
+            sutUrl = envUrl!=null ? "http://" +envUrl + ":5100/" : "http://" +envParameterUrl + ":5100/";
             log.debug("Configuring the browser to connect to the remote System Under Test (SUT) at the following URL: " + sutUrl);
         }
         setupBrowser();
@@ -79,15 +81,10 @@ public class BaseLoggedClass {
 
     protected static void setupBrowser() {
         log.debug("Starting browser ({})", properties.getProperty("BROWSER_USER"));
-
-        if (System.getenv("SELENOID_PRESENT") == null) {
-            log.info("Configuring Chrome WebDriver (Local)");
-            seleManager.setBrowser("chrome").setArguments(new String[]{"--start-maximized"});
-        } else {
-            log.info("Configuring Remote Chrome WebDriver (Selenoid)");
-            seleManager.setDriverUrl("http://selenoid:4444/wd/hub").setArguments(new String[]{"--start-maximized"}).add(new SelenoidService().setVideo().setVnc());
+        seleManager.setBrowser("chrome").setArguments(new String[]{"--start-maximized"});
+        if (System.getenv("SELENOID_PRESENT") != null) {
+            seleManager.setDriverUrl("http://selenoid:4444/wd/hub").add(new SelenoidService().setVideo().setVnc());
         }
-
         log.debug("Finishing set-up browser ({})", properties.getProperty("BROWSER_USER"));
     }
 
