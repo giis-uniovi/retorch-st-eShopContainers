@@ -20,19 +20,19 @@ services:
     ports:
       - "5433:1433"
     volumes:
-      - eshop-sqldata-${tjobname}:/var/opt/mssql
+      - eshop-sqldata:/var/opt/mssql
 
   nosqldata:
     ports:
       - "27017:27017"
     volumes:
-      - eshop-nosqldata-${tjobname}:/data/db
+      - eshop-nosqldata:/data/db
 
   basketdata:
     ports:
       - "6379:6379"
     volumes:
-      - eshop-basketdata-${tjobname}:/data
+      - eshop-basketdata:/data
   rabbitmq:
     ports:
       - "15672:15672"
@@ -313,11 +313,11 @@ services:
       - "5114:80"
 volumes:
   eshop-sqldata:
-    name: eshop-sqldata-${tjobname}
+    name: eshop-sqldata
     external: false
   eshop-nosqldata:
-    name: eshop-nosqldata-${tjobname}
+    name: eshop-nosqldata
     external: false
   eshop-basketdata:
-    name: eshop-basketdata-${tjobname}
+    name: eshop-basketdata
     external: false
