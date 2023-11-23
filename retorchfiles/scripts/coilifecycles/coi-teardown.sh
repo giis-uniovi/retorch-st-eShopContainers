@@ -7,6 +7,7 @@ docker stop "$(docker ps | grep eShopContainers | awk '{print \$1}')" || echo 'A
 docker rm --volumes "$(docker ps -a | grep eShopContainers | awk '{print \$1}')" || echo 'All the containers are removed!'
 cd "$SUT_LOCATION/src"
 docker compose -f docker-compose.yml -f docker-compose.retorch.yml down
+
 cd $WORKSPACE
 
 $E2ESUITE_URL/retorchfiles/scripts/saveTJobLifecycledata.sh
