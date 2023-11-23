@@ -2,176 +2,176 @@ version: '3.4'
 
 services:
 
-  seq-${tjobname}:
+  seq:
     container_name: seq-${tjobname}
     image: datalust/seq:latest
     networks:
       - jenkins_network
 
-  sqldata-${tjobname}:
+  sqldata:
     container_name: sqldata-${tjobname}
     image: mcr.microsoft.com/mssql/server:2019-latest
     networks:
       - jenkins_network
 
-  nosqldata-${tjobname}:
+  nosqldata:
     container_name: nosqldata-${tjobname}
     image: mongo
     networks:
       - jenkins_network
 
-  basketdata-${tjobname}:
+  basketdata:
     container_name: basketdata-${tjobname}
     image: redis:alpine
     networks:
       - jenkins_network
 
-  rabbitmq-${tjobname}:
+  rabbitmq:
     container_name: rabbitmq-${tjobname}
     image: rabbitmq:3-management-alpine
     networks:
       - jenkins_network
 
-  identity-api-${tjobname}:
+  identity-api:
     container_name: identity-api-${tjobname}
     image: ${REGISTRY:-eshop}/identity.api:${PLATFORM:-linux}-${TAG:-latest}
     build:
       context: .
       dockerfile: Services/Identity/Identity.API/Dockerfile
     depends_on:
-      - sqldata-${tjobname}
+      - sqldata
     networks:
       - jenkins_network
 
-  basket-api-${tjobname}:
+  basket-api:
     container_name: basket-api-${tjobname}
     image: ${REGISTRY:-eshop}/basket.api:${PLATFORM:-linux}-${TAG:-latest}
     build:
       context: .
       dockerfile: Services/Basket/Basket.API/Dockerfile
     depends_on:
-      - basketdata-${tjobname}
-      - identity-api-${tjobname}
-      - rabbitmq-${tjobname}
+      - basketdata
+      - identity-api
+      - rabbitmq
     networks:
       - jenkins_network
 
-  catalog-api-${tjobname}:
+  catalog-api:
     container_name: catalog-api-${tjobname}
     image: ${REGISTRY:-eshop}/catalog.api:${PLATFORM:-linux}-${TAG:-latest}
     build:
       context: .
       dockerfile: Services/Catalog/Catalog.API/Dockerfile
     depends_on:
-      - sqldata-${tjobname}
-      - rabbitmq-${tjobname}
+      - sqldata
+      - rabbitmq
     networks:
       - jenkins_network
 
-  ordering-api-${tjobname}:
+  ordering-api:
     container_name: ordering-api-${tjobname}
     image: ${REGISTRY:-eshop}/ordering.api:${PLATFORM:-linux}-${TAG:-latest}
     build:
       context: .
       dockerfile: Services/Ordering/Ordering.API/Dockerfile
     depends_on:
-      - sqldata-${tjobname}
-      - rabbitmq-${tjobname}
+      - sqldata
+      - rabbitmq
     networks:
       - jenkins_network
 
-  ordering-backgroundtasks-${tjobname}:
+  ordering-backgroundtasks:
     container_name: ordering-backgroundtasks-${tjobname}
     image: ${REGISTRY:-eshop}/ordering.backgroundtasks:${PLATFORM:-linux}-${TAG:-latest}
     build:
       context: .
       dockerfile: Services/Ordering/Ordering.BackgroundTasks/Dockerfile
     depends_on:
-      - sqldata-${tjobname}
-      - rabbitmq-${tjobname}
+      - sqldata
+      - rabbitmq
     networks:
       - jenkins_network
 
-  payment-api-${tjobname}:
+  payment-api:
     container_name: payment-api-${tjobname}
     image: ${REGISTRY:-eshop}/payment.api:${PLATFORM:-linux}-${TAG:-latest}
     build:
       context: .
       dockerfile: Services/Payment/Payment.API/Dockerfile
     depends_on:
-      - rabbitmq-${tjobname}
+      - rabbitmq
     networks:
       - jenkins_network
 
-  webhooks-api-${tjobname}:
+  webhooks-api:
     container_name: webhooks-api-${tjobname}
     image: ${REGISTRY:-eshop}/webhooks.api:${PLATFORM:-linux}-${TAG:-latest}
     build:
       context: .
       dockerfile: Services/Webhooks/Webhooks.API/Dockerfile
     depends_on:
-      - sqldata-${tjobname}
+      - sqldata
     networks:
       - jenkins_network
 
-  mobileshoppingapigw-${tjobname}:
+  mobileshoppingapigw:
     container_name: mobileshoppingapigw-${tjobname}
     image: envoyproxy/envoy:v1.11.1
     networks:
       - jenkins_network
 
-  mobileshoppingagg-${tjobname}:
+  mobileshoppingagg:
     container_name: mobileshoppingagg-${tjobname}
     image: ${REGISTRY:-eshop}/mobileshoppingagg:${PLATFORM:-linux}-${TAG:-latest}
     build:
       context: .
       dockerfile: ApiGateways/Mobile.Bff.Shopping/aggregator/Dockerfile
     depends_on:
-      - nosqldata-${tjobname}
-      - sqldata-${tjobname}
-      - identity-api-${tjobname}
-      - rabbitmq-${tjobname}
-      - ordering-api-${tjobname}
-      - catalog-api-${tjobname}
-      - basket-api-${tjobname}
+      - nosqldata
+      - sqldata
+      - identity-api
+      - rabbitmq
+      - ordering-api
+      - catalog-api
+      - basket-api
     networks:
       - jenkins_network
 
-  webshoppingagg-${tjobname}:
+  webshoppingagg:
     container_name: webshoppingagg-${tjobname}
     image: ${REGISTRY:-eshop}/webshoppingagg:${PLATFORM:-linux}-${TAG:-latest}
     build:
       context: .
       dockerfile: ApiGateways/Web.Bff.Shopping/aggregator/Dockerfile
     depends_on:
-      - nosqldata-${tjobname}
-      - sqldata-${tjobname}
-      - identity-api-${tjobname}
-      - rabbitmq-${tjobname}
-      - ordering-api-${tjobname}
-      - catalog-api-${tjobname}
-      - basket-api-${tjobname}
+      - nosqldata
+      - sqldata
+      - identity-api
+      - rabbitmq
+      - ordering-api
+      - catalog-api
+      - basket-api
     networks:
       - jenkins_network
 
-  ordering-signalrhub-${tjobname}:
+  ordering-signalrhub:
     container_name: ordering-signalrhub
     image: ${REGISTRY:-eshop}/ordering.signalrhub:${PLATFORM:-linux}-${TAG:-latest}
     build:
       context: .
       dockerfile: Services/Ordering/Ordering.SignalrHub/Dockerfile
     depends_on:
-      - nosqldata-${tjobname}
-      - sqldata-${tjobname}
-      - identity-api-${tjobname}
-      - rabbitmq-${tjobname}
-      - ordering-api-${tjobname}
-      - catalog-api-${tjobname}
-      - basket-api-${tjobname}
+      - nosqldata
+      - sqldata
+      - identity-api
+      - rabbitmq
+      - ordering-api
+      - catalog-api
+      - basket-api
     networks:
       - jenkins_network
 
-  webstatus-${tjobname}:
+  webstatus:
     container_name: webstatus-${tjobname}
     image: ${REGISTRY:-eshop}/webstatus:${PLATFORM:-linux}-${TAG:-latest}
     build:
@@ -180,7 +180,7 @@ services:
     networks:
       - jenkins_network
 
-  webspa-${tjobname}:
+  webspa:
     container_name: webspa-${tjobname}
     image: ${REGISTRY:-eshop}/webspa:${PLATFORM:-linux}-${TAG:-latest}
     build:
@@ -189,33 +189,33 @@ services:
       args:
         NODE_IMAGE: ${NODE_IMAGE:-node:16-bullseye}
     depends_on:
-      - webshoppingagg-${tjobname}
+      - webshoppingagg
     networks:
       - jenkins_network
 
-  webmvc-${tjobname}:
+  webmvc:
     container_name: webmvc-${tjobname}
     image: ${REGISTRY:-eshop}/webmvc:${PLATFORM:-linux}-${TAG:-latest}
     build:
       context: .
       dockerfile: Web/WebMVC/Dockerfile
     depends_on:
-      - webshoppingagg-${tjobname}
+      - webshoppingagg
     networks:
       - jenkins_network
 
-  webhooks-client-${tjobname}:
+  webhooks-client:
     container_name: webhooks-client-${tjobname}
     image: ${REGISTRY:-eshop}/webhooks.client:${PLATFORM:-linux}-${TAG:-latest}
     build:
       context: .
       dockerfile: Web/WebhookClient/Dockerfile
     depends_on:
-      - webhooks-api-${tjobname}
+      - webhooks-api
     networks:
       - jenkins_network
 
-  webshoppingapigw-${tjobname}:
+  webshoppingapigw:
     container_name: webshoppingapigw
     image: envoyproxy/envoy:v1.11.1
     networks:
