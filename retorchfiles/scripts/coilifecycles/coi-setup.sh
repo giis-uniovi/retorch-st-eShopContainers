@@ -15,7 +15,7 @@ echo "Desploying containers"
 docker compose -f docker-compose.yml -f docker-compose.retorch.yml up -d
 echo "Waiting for the system up..."
 
-$WORKSPACE/retorchfiles/scripts/waitforeShopContainers.sh "webmvc"
+$WORKSPACE/retorchfiles/scripts/waitforeShopContainers.sh "webmvc-tjobeShopContainers"
 
 cd $WORKSPACE
 

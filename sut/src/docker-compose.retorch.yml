@@ -312,9 +312,12 @@ services:
     ports:
       - "5114:80"
 volumes:
-  eshop-sqldata-${tjobname}:
+  eshop-sqldata:
+    name: eshop-sqldata-${tjobname}
     external: false
-  eshop-nosqldata-${tjobname}:
+  eshop-nosqldata:
+    name: eshop-nosqldata-${tjobname}
     external: false
-  eshop-basketdata-${tjobname}:
+  eshop-basketdata:
+    name: eshop-basketdata-${tjobname}
     external: false
