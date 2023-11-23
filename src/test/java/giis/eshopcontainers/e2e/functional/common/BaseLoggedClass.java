@@ -56,7 +56,7 @@ public class BaseLoggedClass {
             sutUrl = properties.getProperty("LOCALHOST_URL");
             log.debug("Configuring the local browser to connect to a local System Under Test (SUT) at: " + sutUrl);
         } else {
-            sutUrl = envUrl!=null ? "http://" +envUrl + ":5100/" : "http://" +envParameterUrl + ":5100/";
+            sutUrl = envUrl!=null ? "http://" +envUrl + ":80/" : "http://" +envParameterUrl + ":80/";
             log.debug("Configuring the browser to connect to the remote System Under Test (SUT) at the following URL: " + sutUrl);
         }
         setupBrowser();
