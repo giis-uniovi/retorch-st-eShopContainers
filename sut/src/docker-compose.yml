@@ -2,37 +2,37 @@ version: '3.4'
 
 services:
 
-  seq:
+  seq-${tjobname}:
     container_name: seq-${tjobname}
     image: datalust/seq:latest
     networks:
       - jenkins_network
 
-  sqldata:
+  sqldata-${tjobname}:
     container_name: sqldata-${tjobname}
     image: mcr.microsoft.com/mssql/server:2019-latest
     networks:
       - jenkins_network
 
-  nosqldata:
+  nosqldata-${tjobname}:
     container_name: nosqldata-${tjobname}
     image: mongo
     networks:
       - jenkins_network
 
-  basketdata:
+  basketdata-${tjobname}:
     container_name: basketdata-${tjobname}
     image: redis:alpine
     networks:
       - jenkins_network
 
-  rabbitmq:
+  rabbitmq-${tjobname}:
     container_name: rabbitmq-${tjobname}
     image: rabbitmq:3-management-alpine
     networks:
       - jenkins_network
 
-  identity-api:
+  identity-api-${tjobname}:
     container_name: identity-api-${tjobname}
     image: ${REGISTRY:-eshop}/identity.api:${PLATFORM:-linux}-${TAG:-latest}
     build:
@@ -43,7 +43,7 @@ services:
     networks:
       - jenkins_network
 
-  basket-api:
+  basket-api-${tjobname}:
     container_name: basket-api-${tjobname}
     image: ${REGISTRY:-eshop}/basket.api:${PLATFORM:-linux}-${TAG:-latest}
     build:
@@ -56,7 +56,7 @@ services:
     networks:
       - jenkins_network
 
-  catalog-api:
+  catalog-api-${tjobname}:
     container_name: catalog-api-${tjobname}
     image: ${REGISTRY:-eshop}/catalog.api:${PLATFORM:-linux}-${TAG:-latest}
     build:
@@ -68,7 +68,7 @@ services:
     networks:
       - jenkins_network
 
-  ordering-api:
+  ordering-api-${tjobname}:
     container_name: ordering-api-${tjobname}
     image: ${REGISTRY:-eshop}/ordering.api:${PLATFORM:-linux}-${TAG:-latest}
     build:
@@ -80,7 +80,7 @@ services:
     networks:
       - jenkins_network
 
-  ordering-backgroundtasks:
+  ordering-backgroundtasks-${tjobname}:
     container_name: ordering-backgroundtasks-${tjobname}
     image: ${REGISTRY:-eshop}/ordering.backgroundtasks:${PLATFORM:-linux}-${TAG:-latest}
     build:
@@ -92,7 +92,7 @@ services:
     networks:
       - jenkins_network
 
-  payment-api:
+  payment-api-${tjobname}:
     container_name: payment-api-${tjobname}
     image: ${REGISTRY:-eshop}/payment.api:${PLATFORM:-linux}-${TAG:-latest}
     build:
@@ -103,7 +103,7 @@ services:
     networks:
       - jenkins_network
 
-  webhooks-api:
+  webhooks-api-${tjobname}:
     container_name: webhooks-api-${tjobname}
     image: ${REGISTRY:-eshop}/webhooks.api:${PLATFORM:-linux}-${TAG:-latest}
     build:
@@ -114,13 +114,13 @@ services:
     networks:
       - jenkins_network
 
-  mobileshoppingapigw:
+  mobileshoppingapigw-${tjobname}:
     container_name: mobileshoppingapigw-${tjobname}
     image: envoyproxy/envoy:v1.11.1
     networks:
       - jenkins_network
 
-  mobileshoppingagg:
+  mobileshoppingagg-${tjobname}:
     container_name: mobileshoppingagg-${tjobname}
     image: ${REGISTRY:-eshop}/mobileshoppingagg:${PLATFORM:-linux}-${TAG:-latest}
     build:
@@ -137,7 +137,7 @@ services:
     networks:
       - jenkins_network
 
-  webshoppingagg:
+  webshoppingagg-${tjobname}:
     container_name: webshoppingagg-${tjobname}
     image: ${REGISTRY:-eshop}/webshoppingagg:${PLATFORM:-linux}-${TAG:-latest}
     build:
@@ -154,7 +154,7 @@ services:
     networks:
       - jenkins_network
 
-  ordering-signalrhub:
+  ordering-signalrhub-${tjobname}:
     container_name: ordering-signalrhub
     image: ${REGISTRY:-eshop}/ordering.signalrhub:${PLATFORM:-linux}-${TAG:-latest}
     build:
@@ -171,7 +171,7 @@ services:
     networks:
       - jenkins_network
 
-  webstatus:
+  webstatus-${tjobname}:
     container_name: webstatus-${tjobname}
     image: ${REGISTRY:-eshop}/webstatus:${PLATFORM:-linux}-${TAG:-latest}
     build:
@@ -180,7 +180,7 @@ services:
     networks:
       - jenkins_network
 
-  webspa:
+  webspa-${tjobname}:
     container_name: webspa-${tjobname}
     image: ${REGISTRY:-eshop}/webspa:${PLATFORM:-linux}-${TAG:-latest}
     build:
@@ -193,7 +193,7 @@ services:
     networks:
       - jenkins_network
 
-  webmvc:
+  webmvc-${tjobname}:
     container_name: webmvc-${tjobname}
     image: ${REGISTRY:-eshop}/webmvc:${PLATFORM:-linux}-${TAG:-latest}
     build:
@@ -204,7 +204,7 @@ services:
     networks:
       - jenkins_network
 
-  webhooks-client:
+  webhooks-client-${tjobname}:
     container_name: webhooks-client-${tjobname}
     image: ${REGISTRY:-eshop}/webhooks.client:${PLATFORM:-linux}-${TAG:-latest}
     build:
@@ -215,7 +215,7 @@ services:
     networks:
       - jenkins_network
 
-  webshoppingapigw:
+  webshoppingapigw-${tjobname}:
     container_name: webshoppingapigw
     image: envoyproxy/envoy:v1.11.1
     networks:
