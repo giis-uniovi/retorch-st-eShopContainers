@@ -4,6 +4,5 @@ TJOB_NAME="$1"
 $E2ESUITE_URL/retorchfiles/scripts/writetime.sh "$2" "$1" #$2 is the stage, $1 tjob
 export DOCKER_HOST_IP=$(/sbin/ip route|awk '/default/ { print $3 }')
 echo "The HOST_IP is: $DOCKER_HOST_IP"
-
 mvn test -Ddirtarget=TJOBExample -Dtjob_name=tjobe -DSUT_URL=$DOCKER_HOST_IP:5100
 $E2ESUITE_URL/retorchfiles/scripts/writetime.sh "$2" "$1" #$2 is the stage, $1 tjob
