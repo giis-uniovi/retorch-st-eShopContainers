@@ -49,14 +49,14 @@ public class BaseLoggedClass {
         properties = new Properties();
         // load a properties file for reading
         properties.load(Files.newInputStream(Paths.get("src/test/resources/test.properties")));
-        String envUrl=System.getProperty("SUT_URL");
-        String envParameterUrl=System.getenv("SUT_URL");
-        if ( envUrl== null & envParameterUrl==null) {
+        String envUrl = System.getProperty("SUT_URL");
+        String envParameterUrl = System.getenv("SUT_URL");
+        if (envUrl == null & envParameterUrl == null) {
             // Outside CI
             sutUrl = properties.getProperty("LOCALHOST_URL");
             log.debug("Configuring the local browser to connect to a local System Under Test (SUT) at: " + sutUrl);
         } else {
-            sutUrl = envUrl!=null ? "http://" +envUrl + "/" : "http://" +envParameterUrl + "/";
+            sutUrl = envUrl != null ? "http://" + envUrl + "/" : "http://" + envParameterUrl + "/";
             log.debug("Configuring the browser to connect to the remote System Under Test (SUT) at the following URL: " + sutUrl);
         }
         setupBrowser();
@@ -93,7 +93,7 @@ public class BaseLoggedClass {
      */
     protected void login() throws ElementNotFoundException {
         Navigation.toMainMenu(driver, waiter);
-        isLogged = true;
+
         log.debug("Logging in user {} ", userName);
         waiter.waitUntil(ExpectedConditions.elementToBeClickable(By.xpath("//a[contains(text(),'Login')]")), "The button searched by xPath //a[contains(text(),'Login')] is not clickable");
         Click.element(driver, waiter, driver.findElement(By.xpath("//a[contains(text(),'Login')]")));
@@ -107,6 +107,7 @@ public class BaseLoggedClass {
 
         waiter.waitUntil(ExpectedConditions.elementToBeClickable(By.xpath("//button[contains(.,'Login')]")), "The button searched by xpath //button[contains(.,'Login')] is not clickable");
         Click.element(driver, waiter, driver.findElement(By.xpath("//button[contains(.,'Login')]")));
+        isLogged = true;
         log.debug("Logging in successful for user {}", userName);
     }
 
