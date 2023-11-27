@@ -42,16 +42,16 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://0.0.0.0:80
-      - SpaClient=http://${ESHOP_EXTERNAL_DNS_NAME_OR_IP}:5104
-      - XamarinCallback=http://${ESHOP_PROD_EXTERNAL_DNS_NAME_OR_IP}:5105/xamarincallback
+      - SpaClient=http://webspa-${tjobname}
+      - XamarinCallback=http://identity-api-${tjobname}/xamarincallback
       - ConnectionStrings__IdentityDb=${ESHOP_AZURE_IDENTITY_DB:-Server=sqldata;Database=Microsoft.eShopOnContainers.Service.IdentityDb;User Id=sa;Password=Pass@word;Encrypt=False;TrustServerCertificate=true}
-      - MvcClient=http://${ESHOP_EXTERNAL_DNS_NAME_OR_IP}:5100
-      - BasketApiClient=http://${ESHOP_EXTERNAL_DNS_NAME_OR_IP}:5103
-      - OrderingApiClient=http://${ESHOP_EXTERNAL_DNS_NAME_OR_IP}:5102
-      - MobileShoppingAggClient=http://${ESHOP_EXTERNAL_DNS_NAME_OR_IP}:5120
-      - WebShoppingAggClient=http://${ESHOP_EXTERNAL_DNS_NAME_OR_IP}:5121
-      - WebhooksApiClient=http://${ESHOP_EXTERNAL_DNS_NAME_OR_IP}:5113
-      - WebhooksWebClient=http://${ESHOP_EXTERNAL_DNS_NAME_OR_IP}:5114
+      - MvcClient=http://webmvc-${tjobname}
+      - BasketApiClient=http://basket-api-${tjobname}
+      - OrderingApiClient=http://ordering-api-${tjobname}
+      - MobileShoppingAggClient=http://mobileshoppingagg-${tjobname}
+      - WebShoppingAggClient=http://webshoppingagg-${tjobname}
+      - WebhooksApiClient=http://webhooks-api-${tjobname}
+      - WebhooksWebClient=http://webhooks-client-${tjobname}
       - UseCustomizationData=True
       - ApplicationInsights__InstrumentationKey=${INSTRUMENTATION_KEY}
       - OrchestratorType=${ORCHESTRATOR_TYPE}
@@ -73,7 +73,7 @@ services:
       - ApplicationInsights__InstrumentationKey=${INSTRUMENTATION_KEY}
       - OrchestratorType=${ORCHESTRATOR_TYPE}
       - UseLoadTest=${USE_LOADTEST:-False}
-      - PATH_BASE=/basket-api
+      - PATH_BASE=/basket-api-${tjobname}
     ports:
       - "5103:80"
       - "9103:81"
@@ -95,7 +95,7 @@ services:
       - AzureStorageEnabled=False
       - ApplicationInsights__InstrumentationKey=${INSTRUMENTATION_KEY}
       - OrchestratorType=${ORCHESTRATOR_TYPE}
-      - PATH_BASE=/catalog-api
+      - PATH_BASE=/catalog-api-${tjobname}
     ports:
       - "5101:80"
       - "9101:81"
@@ -118,7 +118,7 @@ services:
       - ApplicationInsights__InstrumentationKey=${INSTRUMENTATION_KEY}
       - OrchestratorType=${ORCHESTRATOR_TYPE}
       - UseLoadTest=${USE_LOADTEST:-False}
-      - PATH_BASE=/ordering-api
+      - PATH_BASE=/ordering-api-${tjobname}
       - GRPC_PORT=81
       - PORT=80
     ports:
@@ -276,10 +276,10 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
       - ASPNETCORE_URLS=http://0.0.0.0:80
-      - IdentityUrl=http://${ESHOP_EXTERNAL_DNS_NAME_OR_IP}:5105
-      - PurchaseUrl=http://${ESHOP_EXTERNAL_DNS_NAME_OR_IP}:5121
+      - IdentityUrl=http://identity-api-${tjobname}
+      - PurchaseUrl=http://webshoppingagg-${tjobname}
       - IdentityUrlHC=http://identity-api-${tjobname}/hc
-      - SignalrHubUrl=http://${ESHOP_EXTERNAL_DNS_NAME_OR_IP}:5121
+      - SignalrHubUrl=http://webshoppingagg-${tjobname}
       - UseCustomizationData=True
       - ApplicationInsights__InstrumentationKey=${INSTRUMENTATION_KEY}
       - OrchestratorType=${ORCHESTRATOR_TYPE}
@@ -290,9 +290,9 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://0.0.0.0:80
-      - PurchaseUrl=http://webshoppingagg
-      - IdentityUrl=http://${ESHOP_EXTERNAL_DNS_NAME_OR_IP}:5105
-      - SignalrHubUrl=http://${ESHOP_EXTERNAL_DNS_NAME_OR_IP}:5121
+      - PurchaseUrl=http://webshoppingagg-${tjobname}
+      - IdentityUrl=http://identity-api-${tjobname}
+      - SignalrHubUrl=http://webshoppingagg-${tjobname}
       - IdentityUrlHC=http://identity-api-${tjobname}/hc
       - UseCustomizationData=True
       - ApplicationInsights__InstrumentationKey=${INSTRUMENTATION_KEY}
@@ -305,19 +305,19 @@ services:
     environment:
       - ASPNETCORE_URLS=http://0.0.0.0:80
       - Token=6168DB8D-DC58-4094-AF24-483278923590      # Webhooks are registered with this token (any value is valid) but the client won't check it
-      - IdentityUrl=http://${ESHOP_EXTERNAL_DNS_NAME_OR_IP}:5105
-      - CallBackUrl=http://${ESHOP_EXTERNAL_DNS_NAME_OR_IP}:5114
+      - IdentityUrl=http://identity-api-${tjobname}
+      - CallBackUrl=http://webhooks-client-${tjobname}
       - WebhooksUrl=http://webhooks-api-${tjobname}
-      - SelfUrl=http://webhooks-client/
+      - SelfUrl=http://webhooks-client-${tjobname}/
     ports:
       - "5114:80"
 volumes:
   eshop-sqldata:
-    name: eshop-sqldata
+    name: eshop-sqldata-${tjobname}
     external: false
   eshop-nosqldata:
-    name: eshop-nosqldata
+    name: eshop-nosqldata-${tjobname}
     external: false
   eshop-basketdata:
-    name: eshop-basketdata
+    name: eshop-basketdata-${tjobname}
     external: false

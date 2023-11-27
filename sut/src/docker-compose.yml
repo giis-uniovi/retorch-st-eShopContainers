@@ -155,7 +155,7 @@ services:
       - jenkins_network
 
   ordering-signalrhub:
-    container_name: ordering-signalrhub
+    container_name: ordering-signalrhub-${tjobname}
     image: ${REGISTRY:-eshop}/ordering.signalrhub:${PLATFORM:-linux}-${TAG:-latest}
     build:
       context: .
@@ -216,7 +216,7 @@ services:
       - jenkins_network
 
   webshoppingapigw:
-    container_name: webshoppingapigw
+    container_name: webshoppingapigw-${tjobname}
     image: envoyproxy/envoy:v1.11.1
     networks:
       - jenkins_network

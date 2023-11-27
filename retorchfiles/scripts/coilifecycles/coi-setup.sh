@@ -1,21 +1,24 @@
 #!/bin/bash
 OUTPUTDIRCOI="$WORKSPACE/retorchcostestimationdata/exec$BUILD_NUMBER/COI.data"
 COISETUPSTART=$(date +%s%3N)
-
+TJOB_NAME="$1"
 #Directories to store the data
 mkdir -p "$WORKSPACE/retorchcostestimationdata/exec$BUILD_NUMBER"
 mkdir -p "$WORKSPACE/artifacts"
 #Here goes the COI set-up
 
 cd "$SUT_LOCATION/src"
-ls -la
+echo "Removing volumes and old containers"
+docker stop "$(docker ps | grep tjob | awk '{print \$1}')" || echo "All the containers of the TJobs are stopped!"
+docker rm --volumes "$(docker ps -a | grep tjob | awk '{print \$1}')" || echo "All the containers of th TJobs are removed!"
+
 echo "Building images"
 docker compose -f docker-compose.yml -f docker-compose.retorch.yml build
 echo "Desploying containers"
 docker compose -f docker-compose.yml -f docker-compose.retorch.yml up -d
 echo "Waiting for the system up..."
 
-$WORKSPACE/retorchfiles/scripts/waitforeShopContainers.sh "webmvc-tjobeShopContainers"
+$WORKSPACE/retorchfiles/scripts/waitforeShopContainers.sh "webmvc-tjobeshopcontainers"
 
 cd $WORKSPACE
 

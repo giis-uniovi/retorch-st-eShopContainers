@@ -7,7 +7,7 @@ pipeline {
         SELENOID_PRESENT = "TRUE"
         SUT_LOCATION = "$WORKSPACE/sut"
         E2ESUITE_URL = "$WORKSPACE"
-        TJOB_NAME="tjobe"
+        TJOB_NAME="tjobeshopcontainers"
     }
 
     options {
@@ -35,7 +35,7 @@ pipeline {
 
         stage('Test') {
             steps {
-                sh "$E2ESUITE_URL/retorchfiles/scripts/testexecution.sh tjobA 0"
+                sh "$E2ESUITE_URL/retorchfiles/scripts/testexecution.sh $TJOB_NAME 0"
 
             }
         }
