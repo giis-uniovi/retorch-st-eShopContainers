@@ -15,10 +15,12 @@ class ShoppingBasketTests extends BaseLoggedClass {
     @Test
     @DisplayName("AddProductsToBasket")
     void addProductsToBasket() throws ElementNotFoundException {
+        WebElement productCupButton = driver.findElement(By.xpath("/html/body/div/div[3]/div[1]/form/input[1]"));
+        Assertions.assertEquals("esh-catalog-button is-disabled", productCupButton.getAttribute("class"), "Before Login the eShop product button was expected for being disabled and was enabled");
         this.login();
         WebElement loggedUser = driver.findElement(By.xpath("//*[@id=\"logoutForm\"]/section[1]/div"));
         Assertions.assertEquals("alice", loggedUser.getText(), "The user logged is not the expected, the expected was alice and the obtained is " + loggedUser.getText());
-        WebElement productCupButton = driver.findElement(By.xpath("/html/body/div/div[3]/div[1]/form/input[1]"));
+        productCupButton = driver.findElement(By.xpath("/html/body/div/div[3]/div[1]/form/input[1]"));
         Assertions.assertEquals("esh-catalog-button ", productCupButton.getAttribute("class"), "The eShop product button was expected for being enabled and was disabled");
         Click.element(driver, waiter, productCupButton);
         Assertions.assertEquals(1, getNumShoppingItems(driver, waiter));
@@ -30,21 +32,27 @@ class ShoppingBasketTests extends BaseLoggedClass {
         Assertions.assertEquals(3, getNumShoppingItems(driver, waiter));
         eraseShoppingBasket(driver, waiter);
         this.logout();
+        productCupButton = driver.findElement(By.xpath("/html/body/div/div[3]/div[1]/form/input[1]"));
+        Assertions.assertEquals("esh-catalog-button is-disabled", productCupButton.getAttribute("class"), "After Log-Out the eShop product buttons was expected for being disabled and was enabled");
     }
 
     @Test
     @DisplayName("FilterProductsByBrand")
-    void FilterProductsByBrand() throws ElementNotFoundException {
+    void FilterProductsByBrandType() throws ElementNotFoundException {
+        int[] brands = {1, 2, 3};
+        int[] types = {1, 2, 3, 4};
+        int[][] numItems = {{14, 4, 7, 3}, {7, 2, 3, 2}, {7, 2, 4, 1}};
+        for (int numBrand : brands) {
+            selectBrandFilter(driver, waiter, numBrand);
+            for (int numType : types) {
+                selectTypeFilter(driver, waiter, numType);
+                clickApplyFilterButton(driver, waiter);
+                Assertions.assertEquals(numItems[numBrand - 1][numType - 1], numberCatalogDisplayedItems(driver, waiter),
+                        "Brand:" + new String[]{"All Brands", "Net Core", "Others"}[numBrand - 1] + " Type:" +
+                                new String[]{"All Types", "Mug", "TShirt", "Pin"}[numType - 1] + " Num items exp:" + numItems[numBrand - 1][numType - 1]);
+            }
 
-        selectBrandFilter(driver, waiter, 2);
-        selectTypeFilter(driver, waiter, 3);
-        //Assertions.assertEquals(2, numberCatalogDisplayedItems(driver));
-        selectBrandFilter(driver, waiter, 2);
-        selectTypeFilter(driver, waiter, 2);
-
-        selectBrandFilter(driver, waiter, 3);
-        selectTypeFilter(driver, waiter, 1);
+        }
     }
-
 
 }
