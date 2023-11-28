@@ -4,9 +4,10 @@ pipeline {
     }
 
     environment {
-        ET_EUS_API = "http://selenoid:4444/wd/hub"
-        SUT_URL = "$WORKSPACE/sut"
+        SELENOID_PRESENT = "TRUE"
+        SUT_LOCATION = "$WORKSPACE/sut"
         E2ESUITE_URL = "$WORKSPACE"
+        TJOB_NAME="tjobeshopcontainers"
     }
 
     options {
@@ -14,6 +15,11 @@ pipeline {
     }
 
     stages {
+         stage('Clean Workspace') {
+                steps {
+                cleanWs()
+                }
+            }
         stage('Clone eShopContainers Project') {
             steps {
                 checkout scm
@@ -23,13 +29,13 @@ pipeline {
         stage('SETUP-Infrastructure') {
             steps {
                 sh 'chmod +x -R "$E2ESUITE_URL/retorchfiles/scripts"'
-                sh "$E2ESUITE_URL/retorchfiles/scripts/coilifecycles/coi-setup.sh"
+                sh "$E2ESUITE_URL/retorchfiles/scripts/coilifecycles/coi-setup.sh $TJOB_NAME"
             }
         }
 
         stage('Test') {
             steps {
-                sh "$E2ESUITE_URL/retorchfiles/scripts/testexecution.sh tjobA 0"
+                sh "$E2ESUITE_URL/retorchfiles/scripts/testexecution.sh $TJOB_NAME 0"
 
             }
         }
@@ -37,7 +43,7 @@ pipeline {
 
         stage('Tear-down Infrastructure') {
             steps {
-                sh "$E2ESUITE_URL/retorchfiles/scripts/coilifecycles/coi-teardown.sh"
+                sh "$E2ESUITE_URL/retorchfiles/scripts/coilifecycles/coi-teardown.sh $TJOB_NAME"
 
             }
         }
@@ -48,7 +54,7 @@ pipeline {
          archiveArtifacts artifacts: "artifacts/*.csv", onlyIfSuccessful: true
         }
         cleanup {
-             cleanWs()
+
             sh """(eval \$CURRENT_DATE ; echo "Cleaning Environment ") | cat | tr '\n' ' ' """
 
 
