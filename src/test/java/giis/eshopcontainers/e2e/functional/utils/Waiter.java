@@ -10,7 +10,7 @@ import java.time.Duration;
 
 public class Waiter {
     private static final Logger log = LoggerFactory.getLogger(Waiter.class);
-    private WebDriverWait waiter;
+    private final WebDriverWait waiter;
     public Waiter(WebDriver driver){
        waiter= new WebDriverWait(driver, Duration.ofSeconds(1));
     }

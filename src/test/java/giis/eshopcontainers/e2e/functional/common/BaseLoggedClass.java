@@ -6,10 +6,7 @@ import giis.eshopcontainers.e2e.functional.utils.Waiter;
 import giis.selema.framework.junit5.LifecycleJunit5;
 import giis.selema.manager.SeleManager;
 import giis.selema.services.impl.SelenoidService;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.TestInfo;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.openqa.selenium.By;
 import org.openqa.selenium.NoSuchElementException;
@@ -34,11 +31,11 @@ import java.util.Properties;
 public class BaseLoggedClass {
     public static final Logger log = LoggerFactory.getLogger(BaseLoggedClass.class);
     protected static String sutUrl;
-    protected static String tjobName = "DEFAULT_TJOB";
+    protected static String tJobName = "DEFAULT_TJOB";
     protected static Properties properties;
     protected WebDriver driver;
     protected Waiter waiter;
-    private static SeleManager seleManager = new SeleManager();
+    private static final SeleManager seleManager = new SeleManager();
     private String userName;
     private String password;
     private boolean isLogged = false;
@@ -65,82 +62,110 @@ public class BaseLoggedClass {
     }
 
     @BeforeEach
-    void setup(TestInfo testInfo) { //65 lines
-        log.info("Starting Individual Set-up for the test:" + testInfo.getDisplayName() + ".");
+    void setup(TestInfo testInfo) {
+        log.info("Starting Individual Set-up for the test: {}.", testInfo.getDisplayName());
 
+        // Initialize WebDriver and Waiter instances
         driver = seleManager.getDriver();
-        this.waiter = new Waiter(driver);
-        tjobName = System.getProperty("tjob_name");
+        waiter = new Waiter(driver);
+        // Retrieve test job name
+        tJobName = System.getProperty("tjob_name");
+        // Retrieve user credentials
         userName = properties.getProperty("USER_ESHOP");
         password = properties.getProperty("USER_ESHOP_PASSWORD");
-        log.debug("Navigating to {}", sutUrl);
+        // Navigate to SUT URL
+        log.debug("Navigating to {}.", sutUrl);
         driver.get(sutUrl);
 
-        log.info("Individual Set-up finished, starting test" + testInfo.getDisplayName() + "...");
+        log.info("Individual Set-up for the TJob {} finished, starting test: {}.", tJobName, testInfo.getDisplayName());
     }
 
+    /**
+     * Configures and initializes the browser for testing.
+     * <p>
+     * The method sets up the browser using SeleManager with necessary arguments if, SELENOID_PRESENT is not set.
+     * If Selenoid is present, it  configures the Selenoid service for video recording and VNC support.
+     * </p>
+     */
     protected static void setupBrowser() {
-        log.debug("Starting browser ({})", properties.getProperty("BROWSER_USER"));
+        String browserUser = properties.getProperty("BROWSER_USER");
+        log.debug("Starting browser ({})", browserUser);
+        // Setting up browser using selema with the necessary Arguments.
         seleManager.setBrowser("chrome").setArguments(new String[]{"--start-maximized"});
+        // Set up Selenoid configuration if Selenoid is present
         if (System.getenv("SELENOID_PRESENT") != null) {
             seleManager.setDriverUrl("http://selenoid:4444/wd/hub").add(new SelenoidService().setVideo().setVnc());
         }
-        log.debug("Finishing set-up browser ({})", properties.getProperty("BROWSER_USER"));
+
+        log.debug("Finished setting up browser ({})", browserUser);
     }
 
     /**
-     * Navigates to the main menu to enter a user session.
+     * Logs in the user with the specified credentials navigating to the main menu.
      */
     protected void login() throws ElementNotFoundException {
         Navigation.toMainMenu(driver, waiter);
+        log.debug("Logging in user: {}", userName);
 
-        log.debug("Logging in user {} ", userName);
-        waiter.waitUntil(ExpectedConditions.elementToBeClickable(By.xpath("//a[contains(text(),'Login')]")), "The button searched by xPath //a[contains(text(),'Login')] is not clickable");
-        Click.element(driver, waiter, driver.findElement(By.xpath("//a[contains(text(),'Login')]")));
-
-        waiter.waitUntil(ExpectedConditions.presenceOfElementLocated(By.id("Username")), "The Username login field is not present");
+        // Click the "Login" button
+        By loginButtonXPath = By.xpath("//a[contains(text(),'Login')]");
+        waiter.waitUntil(ExpectedConditions.elementToBeClickable(loginButtonXPath), "Login button is not clickable");
+        Click.element(driver, waiter, driver.findElement(loginButtonXPath));
+        // Wait for and locate the Username and Password fields
+        waiter.waitUntil(ExpectedConditions.presenceOfElementLocated(By.id("Username")), "Username login field is not present");
         WebElement userNameField = driver.findElement(By.id("Username"));
-        waiter.waitUntil(ExpectedConditions.presenceOfElementLocated(By.id("Password")), "The Password login is not present");
+        waiter.waitUntil(ExpectedConditions.presenceOfElementLocated(By.id("Password")), "Password login field is not present");
         WebElement userPassField = driver.findElement(By.id("Password"));
+        // Enter credentials
         userNameField.sendKeys(userName);
         userPassField.sendKeys(password);
-
-        waiter.waitUntil(ExpectedConditions.elementToBeClickable(By.xpath("//button[contains(.,'Login')]")), "The button searched by xpath //button[contains(.,'Login')] is not clickable");
-        Click.element(driver, waiter, driver.findElement(By.xpath("//button[contains(.,'Login')]")));
+        // Click the "Login" button
+        By loginButtonXPathAfterInput = By.xpath("//button[contains(.,'Login')]");
+        waiter.waitUntil(ExpectedConditions.elementToBeClickable(loginButtonXPathAfterInput), "Login button is not clickable");
+        Click.element(driver, waiter, driver.findElement(loginButtonXPathAfterInput));
+        // Verify that the user is logged in as expected
+        WebElement loggedUser = driver.findElement(By.xpath("//*[@id=\"logoutForm\"]/section[1]/div"));
+        String actualUserName = loggedUser.getText();
+        Assertions.assertEquals(userName, actualUserName,
+                String.format("The logged-in user is not the expected user. Expected: %s, Actual: %s", userName, actualUserName));
+        // Update the login status
         isLogged = true;
-        log.debug("Logging in successful for user {}", userName);
-    }
 
-    /**
-     * Navigates to the main menu and log-outs the user in session
-     */
-    protected void logout() throws ElementNotFoundException { //43 lines
-        Navigation.toMainMenu(driver, waiter);
-        WebElement elementOfInterest;
-        try {
-            //trying to get the "select option"
-            elementOfInterest = driver.findElement(By.xpath("//*[@id=\"logoutForm\"]/section[2]/a[2]/div"));
-        } catch (NoSuchElementException e) {
-            //so options are not visible, meaning we need to click first
-            WebElement mainMenu = driver.findElement(By.className("esh-identity-drop"));
-            Click.element(driver, waiter, mainMenu);
-            //good idea would be to put "wait for element" here
-            elementOfInterest = mainMenu.findElement(By.xpath("//*[@id=\"logoutForm\"]/section[2]/a[2]/div"));
-        }
-        //this would select the option
-        Click.element(driver, waiter, elementOfInterest);
-        isLogged = false;
-        log.debug("Logging out");
+        log.debug("Login successful for user: {}", userName);
     }
 
     @AfterEach
-    void tearDown(TestInfo testInfo) throws ElementNotFoundException { //13 lines
-        log.info("Disposing user and releasing/closing browser for the test" + testInfo.getDisplayName());
+    void tearDown(TestInfo testInfo) throws ElementNotFoundException {
+        log.info("Disposing user and releasing/closing browser for the test {}", testInfo.getDisplayName());
         if (isLogged) {
-            log.debug("User {0} logged, proceeding to log-out" + this.userName);
+            log.debug("Logging out user: {}", this.userName);
             this.logout();
         }
     }
 
+    /**
+     * Logs out the currently logged-in user.
+     */
+    protected void logout() throws ElementNotFoundException {
+        // Navigate to the main menu
+        Navigation.toMainMenu(driver, waiter);
+        WebElement logoutElement;
+        try {
+            // Attempt to locate the logout link directly
+            logoutElement = driver.findElement(By.xpath("//*[@id=\"logoutForm\"]/section[2]/a[2]/div"));
+        } catch (NoSuchElementException e) {
+            // If the logout link is not visible, click the main menu to reveal it
+            WebElement mainMenu = driver.findElement(By.className("esh-identity-drop"));
+            Click.element(driver, waiter, mainMenu);
+            // Wait for the logout link to become visible
+            waiter.waitUntil(ExpectedConditions.visibilityOfElementLocated(By.xpath("//*[@id=\"logoutForm\"]/section[2]/a[2]/div")),
+                    "Logout link is not visible after expanding the menu");
+            logoutElement = mainMenu.findElement(By.xpath("//*[@id=\"logoutForm\"]/section[2]/a[2]/div"));
+        }
+        // Click the logout link
+        Click.element(driver, waiter, logoutElement);
+        // Update the login status
+        isLogged = false;
+        log.debug("Logout successful");
+    }
 }
-
