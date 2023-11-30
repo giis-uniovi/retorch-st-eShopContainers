@@ -1,35 +1,47 @@
 #!/bin/bash
+
+SEL_VIDEO_DIR="/opt/selenoid/video/"
+SEL_LOG_DIR="/opt/selenoid/logs/"
+
+# Function to remove older files
+remove_old_files() {
+    dir=$1
+    days=$2
+    echo "Removing older files ($days days) in $dir! The number of files prior to remove:"
+    find "$dir" | wc -l
+    find "$dir" -mindepth 1 -maxdepth 1 -mtime +$days -exec rm -rf {} \;
+    echo "Removing older files ($days days) in $dir! The number of files after remove:"
+    find "$dir" | wc -l
+}
+
+# Set output directory for COI
 OUTPUTDIRCOI="$WORKSPACE/retorchcostestimationdata/exec$BUILD_NUMBER/COI.data"
+
+# Record start time for COI setup
 COISETUPSTART=$(date +%s%3N)
-TJOB_NAME="$1"
-#Directories to store the data
+
+# Remove older videos (older than 15 days)
+remove_old_files "$SEL_VIDEO_DIR" 15
+
+# Remove older logs (older than 7 days)
+remove_old_files "$SEL_LOG_DIR" 7
+
+# Create necessary directories
 mkdir -p "$WORKSPACE/retorchcostestimationdata/exec$BUILD_NUMBER"
 mkdir -p "$WORKSPACE/artifacts"
-#Here goes the COI set-up
+mkdir -p "$SUT_LOCATION/tmp"
 
-cd "$SUT_LOCATION/src"
-echo "Removing volumes and old containers"
-docker stop "$(docker ps | grep tjob | awk '{print \$1}')" || echo "All the containers of the TJobs are stopped!"
-docker rm --volumes "$(docker ps -a | grep tjob | awk '{print \$1}')" || echo "All the containers of th TJobs are removed!"
-echo "Exporting the HOST_IP: $DOCKER_HOST_IP"
-export DOCKER_HOST_IP=$(/sbin/ip route|awk '/default/ { print $3 }')
-echo "The HOST_IP is: $DOCKER_HOST_IP"
-echo "Building images"
-docker compose -f docker-compose.yml -f docker-compose.retorch.yml build
-echo "Desploying containers"
-docker compose -f docker-compose.yml -f docker-compose.retorch.yml up -d
-echo "Waiting for the system up..."
+# Pull Docker images
+echo "Pulling images"
+if docker pull selenoid/vnc_chrome:116.0 && docker pull selenoid/video-recorder:latest-release; then
+    echo "Images pulled successfully."
+else
+    echo "Failed to pull Docker images."
+fi
 
-$WORKSPACE/retorchfiles/scripts/waitforeShopContainers.sh $TJOB_NAME
-
-cd $WORKSPACE
-
-#Here ends the COI set-up
-echo "System READY!! Test execution can start!"
-
+# Record end time for COI setup
 COISETUPEND=$(date +%s%3N)
 
-
-echo "COI-SETUP-START;COI-SETUP-END;COI-TEARDOWN-START;COI-TEARDOWN-END" >"$OUTPUTDIRCOI"
-echo -n "$COISETUPSTART;$COISETUPEND">>"$OUTPUTDIRCOI"
-
+# Write setup timestamps to output file
+echo "COI-SETUP-START;COI-SETUP-END;COI-TEARDOWN-START;COI-TEARDOWN-END" > "$OUTPUTDIRCOI"
+echo -n "$COISETUPSTART;$COISETUPEND" >> "$OUTPUTDIRCOI"
