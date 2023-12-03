@@ -37,6 +37,7 @@ class CatalogTests extends BaseLoggedClass {
         WebElement productCupButton;
         log.debug("Checking that the product buttons are disabled");
         // Verify that the product cup button is disabled
+        // Checks switch github plugin
         productCupButton = driver.findElement(By.xpath("/html/body/div/div[3]/div[1]/form/input[1]"));
         Assertions.assertEquals("esh-catalog-button is-disabled", productCupButton.getAttribute("class"),
                 "The eShop product button was expected to be disabled but was enabled");
