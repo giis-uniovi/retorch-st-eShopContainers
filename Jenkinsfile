@@ -66,6 +66,17 @@ pipeline {
                         }
                     }
                 }
+                stage('TJobC') {
+                    steps {
+                        catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
+                            script {
+                                sh "$WORKSPACE/retorchfiles/scripts/tjoblifecycles/tjob-setup.sh tjobeshopc 0"
+                                sh "$WORKSPACE/retorchfiles/scripts/tjoblifecycles/tjob-textexecution.sh tjobeshopc 0 5049 \"OrderTests#createNewOrder\""
+                                sh "$WORKSPACE/retorchfiles/scripts/tjoblifecycles/tjob-teardown.sh tjobeshopc 0"
+                            }
+                        }
+                    }
+                }
             }
         }
 

@@ -1,4 +1,4 @@
-export TJOB_NAME="tjobeshopb"
+export TJOB_NAME="tjobeshoptesting"
 
 rm -rf "./tmp"
 mkdir -p "./tmp/$TJOB_NAME/mobileshopping"
@@ -13,5 +13,7 @@ docker compose -f docker-compose.yml -f docker-compose.retorch.yml --env-file ".
 echo "Desploying containers"
 docker compose -f docker-compose.yml -f docker-compose.retorch.yml --env-file "../../retorchfiles/envfiles/$TJOB_NAME.env" up
 echo "Waiting for the system up..."
+docker compose -f docker-compose.yml -f docker-compose.retorch.yml --env-file "../../retorchfiles/envfiles/$TJOB_NAME.env" down --volumes
+
 
 
