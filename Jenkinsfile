@@ -25,7 +25,7 @@ pipeline {
             }
         }
 
-        stage('COI-Set-UP') {
+        stage('SETUP-Infrastructure') {
             steps {
                 script {
                     sh 'chmod +x -R "$WORKSPACE/retorchfiles/scripts"'
