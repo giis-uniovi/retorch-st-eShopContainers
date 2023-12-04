@@ -25,7 +25,7 @@ pipeline {
             }
         }
 
-        stage('COI-Set-UP') {
+        stage('SETUP-Infrastructure') {
             steps {
                 script {
                     sh 'chmod +x -R "$WORKSPACE/retorchfiles/scripts"'
@@ -80,7 +80,7 @@ pipeline {
             }
         }
 
-        stage('COI-Tear-down') {
+        stage('TEARDOWN-Infrastructure') {
             steps {
                 script {
                     sh "$WORKSPACE/retorchfiles/scripts/coilifecycles/coi-teardown.sh"
