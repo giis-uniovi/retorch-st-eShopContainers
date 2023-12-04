@@ -1,14 +1,21 @@
 #!/bin/bash
+set -e  # Exit immediately if any command exits with a non-zero status
 
 COITEARDOWNSTART="$(date +%s%3N)"
-cd "$SUT_LOCATION/src"
-docker compose -f docker-compose.yml -f docker-compose.retorch.yml down
-echo 'Removing all the volumes not used'
-docker volume prune --all -f
-cd $WORKSPACE
 
-$E2ESUITE_URL/retorchfiles/scripts/saveTJobLifecycledata.sh
+echo "Switch off all containers that start with *tjob*..."
+docker rm $(docker stop $(docker ps -a -q --filter name=tjob --format="{{.ID}}") || echo 'Any Container to remove') || echo 'All the containers are removed!'
+
+echo "Pruning also its volumes"
+docker volume prune --all -f
+
+# Run saveTJobLifecycledata.sh script
+echo "Running saveTJobLifecycledata.sh script..."
+sh "retorchfiles/scripts/saveTJobLifecycledata.sh"
+
 COITEARDOWNEND="$(date +%s%3N)"
 
 OUTPUTDIRCOI="$WORKSPACE/retorchcostestimationdata/exec$BUILD_NUMBER/COI.data"
-echo -n ";$COITEARDOWNSTART;$COITEARDOWNEND" >>"$OUTPUTDIRCOI"
+echo -n ";$COITEARDOWNSTART;$COITEARDOWNEND" >> "$OUTPUTDIRCOI"
+
+echo "COI teardown script completed successfully."

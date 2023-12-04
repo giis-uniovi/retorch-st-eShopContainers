@@ -6,8 +6,6 @@ pipeline {
     environment {
         SELENOID_PRESENT = "TRUE"
         SUT_LOCATION = "$WORKSPACE/sut"
-        E2ESUITE_URL = "$WORKSPACE"
-        TJOB_NAME="tjobeshopcontainers"
     }
 
     options {
@@ -15,50 +13,80 @@ pipeline {
     }
 
     stages {
-         stage('Clean Workspace') {
-                steps {
+        stage('Clean Workspace') {
+            steps {
                 cleanWs()
-                }
             }
+        }
+
         stage('Clone eShopContainers Project') {
             steps {
                 checkout scm
             }
         }
 
-        stage('SETUP-Infrastructure') {
+        stage('COI-Set-UP') {
             steps {
-                sh 'chmod +x -R "$E2ESUITE_URL/retorchfiles/scripts"'
-                sh "$E2ESUITE_URL/retorchfiles/scripts/coilifecycles/coi-setup.sh $TJOB_NAME"
+                script {
+                    sh 'chmod +x -R "$WORKSPACE/retorchfiles/scripts"'
+                    sh "$WORKSPACE/retorchfiles/scripts/coilifecycles/coi-setup.sh"
+                }
+            }
+        }
+        stage('Build eShopContainers') {
+            steps {
+                script {
+                    sh "$WORKSPACE/retorchfiles/scripts/tjoblifecycles/build-eShopContainers.sh"
+                }
+            }
+        }
+        stage('Stage 0') {
+            failFast false
+            parallel {
+                stage('TJobA') {
+                    steps {
+                        catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
+                            script {
+                                sh "$WORKSPACE/retorchfiles/scripts/tjoblifecycles/tjob-setup.sh tjobeshopa 0"
+                                sh "$WORKSPACE/retorchfiles/scripts/tjoblifecycles/tjob-textexecution.sh tjobeshopa 0 5028 \"CatalogTests#FilterProductsByBrandType,LoggedUserTest#loginTest\""
+                                sh "$WORKSPACE/retorchfiles/scripts/tjoblifecycles/tjob-teardown.sh tjobeshopa 0"
+                            }
+                        }
+                    }
+                }
+
+                stage('TJobB') {
+                    steps {
+                        catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
+                            script {
+                                sh "$WORKSPACE/retorchfiles/scripts/tjoblifecycles/tjob-setup.sh tjobeshopb 0"
+                                sh "$WORKSPACE/retorchfiles/scripts/tjoblifecycles/tjob-textexecution.sh tjobeshopb 0 5009 \"CatalogTests#addProductsToBasket\""
+                                sh "$WORKSPACE/retorchfiles/scripts/tjoblifecycles/tjob-teardown.sh tjobeshopb 0"
+                            }
+                        }
+                    }
+                }
             }
         }
 
-        stage('Test') {
+        stage('COI-Tear-down') {
             steps {
-                sh "$E2ESUITE_URL/retorchfiles/scripts/testexecution.sh $TJOB_NAME 0"
-
-            }
-        }
-
-
-        stage('Tear-down Infrastructure') {
-            steps {
-                sh "$E2ESUITE_URL/retorchfiles/scripts/coilifecycles/coi-teardown.sh $TJOB_NAME"
-
+                script {
+                    sh "$WORKSPACE/retorchfiles/scripts/coilifecycles/coi-teardown.sh"
+                }
             }
         }
     }
 
     post {
         always {
-         archiveArtifacts artifacts: "artifacts/*.csv", onlyIfSuccessful: true
+            archiveArtifacts artifacts: "artifacts/*.csv", onlyIfSuccessful: true
         }
         cleanup {
-
-            sh """(eval \$CURRENT_DATE ; echo "Cleaning Environment ") | cat | tr '\n' ' ' """
-
-
-
+            script {
+                def currentDate = sh(script: 'date', returnStdout: true).trim()
+                echo "Cleaning Environment $currentDate"
+            }
         }
     }
 }
