@@ -11,10 +11,14 @@ import org.slf4j.LoggerFactory;
 
 public class Shopping {
     public static final Logger log = LoggerFactory.getLogger(Shopping.class);
+
     /**
      * Retrieves the number of items in the shopping basket.
+     * @param driver Web driver of the application
+     * @param waiter Waiter of the provided web driver
      */
     private static Integer getNumShoppingItems(WebDriver driver, Waiter waiter) {
+        log.debug("Getting number of Shopping Cart items, looking for the basket icon.");
         By basketIconXPath = By.xpath("/html/body/header/div/article/section[3]/a");
         // Wait for the basket icon to be visible
         waiter.waitUntil(ExpectedConditions.visibilityOf(driver.findElement(basketIconXPath)), "The basket icon is not visible");
@@ -26,14 +30,17 @@ public class Shopping {
         // Return the number of items as an Integer
         return Integer.valueOf(itemsText);
     }
+
     /**
      * Adds a product to the shopping basket.
      * @param numProduct  The index of the product on the page.
      * @param productName The name of the product to add
+     * @param driver      Web driver of the application
+     * @param waiter      Waiter of the provided web driver
      */
     public static void addProductToBasket(Integer numProduct, String productName, WebDriver driver, Waiter waiter) throws ElementNotFoundException {
         WebElement productButton;
-        int numItemsPriorAdd = getNumShoppingItems(driver,waiter);
+        int numItemsPriorAdd = getNumShoppingItems(driver, waiter);
         log.debug("Adding the product: {}", productName);
 
         // Verify that the product button is enabled after login
@@ -43,6 +50,7 @@ public class Shopping {
 
         // Add the product to the basket
         Click.element(driver, waiter, productButton);
-        Assertions.assertEquals(numItemsPriorAdd + 1, getNumShoppingItems(driver,waiter), "The number of items in the basket doesn't match");
+        Assertions.assertEquals(numItemsPriorAdd + 1, getNumShoppingItems(driver, waiter), "The number of items in the basket doesn't match");
+        log.debug("Product: {} correctly added!", productName);
     }
 }

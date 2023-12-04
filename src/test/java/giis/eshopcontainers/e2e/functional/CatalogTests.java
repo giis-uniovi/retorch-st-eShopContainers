@@ -29,7 +29,6 @@ class CatalogTests extends BaseLoggedClass {
         this.logout();
         // Verify that the product cup button is disabled after logout
         checkProductButtonDisabled();
-
     }
 
     /**
@@ -66,7 +65,6 @@ class CatalogTests extends BaseLoggedClass {
             }
         }
     }
-
 
     /**
      * Selects a filter option for a given filter on the eShopOnContainers catalog.
