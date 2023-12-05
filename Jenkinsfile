@@ -25,7 +25,7 @@ pipeline {
             }
         }
 
-        stage('COI-Set-UP') {
+        stage('SETUP-Infrastructure') {
             steps {
                 script {
                     sh 'chmod +x -R "$WORKSPACE/retorchfiles/scripts"'
@@ -48,7 +48,9 @@ pipeline {
                         catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
                             script {
                                 sh "$WORKSPACE/retorchfiles/scripts/tjoblifecycles/tjob-setup.sh tjobeshopa 0"
-                                sh "$WORKSPACE/retorchfiles/scripts/tjoblifecycles/tjob-textexecution.sh tjobeshopa 0 5028 \"CatalogTests#FilterProductsByBrandType,LoggedUserTest#loginTest\""
+
+                                sh "$WORKSPACE/retorchfiles/scripts/tjoblifecycles/tjob-textexecution.sh tjobeshopa 0 5028 \"CatalogTests#FilterProductsByBrandType,LoggedUserTest#loginTest,OrderTests#testCancelOrder\""
+
                                 sh "$WORKSPACE/retorchfiles/scripts/tjoblifecycles/tjob-teardown.sh tjobeshopa 0"
                             }
                         }
@@ -66,10 +68,21 @@ pipeline {
                         }
                     }
                 }
+                stage('TJobC') {
+                    steps {
+                        catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
+                            script {
+                                sh "$WORKSPACE/retorchfiles/scripts/tjoblifecycles/tjob-setup.sh tjobeshopc 0"
+                                sh "$WORKSPACE/retorchfiles/scripts/tjoblifecycles/tjob-textexecution.sh tjobeshopc 0 5049 \"OrderTests#testCreateNewOrder\""
+                                sh "$WORKSPACE/retorchfiles/scripts/tjoblifecycles/tjob-teardown.sh tjobeshopc 0"
+                            }
+                        }
+                    }
+                }
             }
         }
 
-        stage('COI-Tear-down') {
+        stage('TEARDOWN-Infrastructure') {
             steps {
                 script {
                     sh "$WORKSPACE/retorchfiles/scripts/coilifecycles/coi-teardown.sh"
