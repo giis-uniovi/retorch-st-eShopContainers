@@ -31,7 +31,7 @@
 
         <selenium-java.version>4.15.0</selenium-java.version>
 
-		<selema.version>3.1.1</selema.version>
+		<selema.version>3.2.0</selema.version>
 
 	</properties>
 		<dependencies>
