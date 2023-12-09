@@ -78,11 +78,11 @@ stage('TEARDOWN-Infrastructure') {
       }// EndStepsTearDownInf
 }// EndStageTearDown
   }// EndStagesPipeline
- post { 
+ post {
       always {
           archiveArtifacts artifacts: 'artifacts/*.csv', onlyIfSuccessful: true
           archiveArtifacts artifacts: 'target/testlogs/**/*.*', onlyIfSuccessful: false
           archiveArtifacts artifacts: 'target/containerlogs/**/*.*', onlyIfSuccessful: false
       }//EndAlways
  }//EndPostActions
-}// EndPipeline 
+}// EndPipeline
