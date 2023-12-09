@@ -42,7 +42,7 @@ pipeline {
                             script {
                                 sh "$WORKSPACE/retorchfiles/scripts/tjoblifecycles/tjob-setup.sh tjobeshopa 0"
 
-                                sh "$WORKSPACE/retorchfiles/scripts/tjoblifecycles/tjob-textexecution.sh tjobeshopa 0 5028 \"CatalogTests#FilterProductsByBrandType,LoggedUserTest#loginTest,OrderTests#testCancelOrder\""
+                                sh "$WORKSPACE/retorchfiles/scripts/tjoblifecycles/tjob-textexecution.sh tjobeshopa 0 5028 \"CatalogTests#FilterProductsByBrandType,LoggedUserTest#loginTest,OrderTests#testCancelOrder,CatalogAPITests#getsCorrectlyTheProductCatalogTest\""
 
                                 sh "$WORKSPACE/retorchfiles/scripts/tjoblifecycles/tjob-teardown.sh tjobeshopa 0"
                             }
