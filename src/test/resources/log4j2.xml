@@ -4,7 +4,7 @@
         <Console name="ConsoleAppender" target="SYSTEM_OUT">
             <PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n%throwable"/>
         </Console>
-        <File name="FileAppender" fileName="target/log-test.log">
+        <File name="FileAppender" fileName="target/testlogs/log${sys:tjob_name}-test.log">
             <PatternLayout pattern="%d [%t] %-5level %logger{36} - %msg%n%throwable"/>
         </File>
     </Appenders>
