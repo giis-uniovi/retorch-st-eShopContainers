@@ -5,6 +5,7 @@ import giis.eshopcontainers.e2e.functional.utils.Navigation;
 import giis.eshopcontainers.e2e.functional.utils.Waiter;
 import giis.selema.framework.junit5.LifecycleJunit5;
 import giis.selema.manager.SeleManager;
+import giis.selema.manager.SelemaConfig;
 import giis.selema.services.impl.SelenoidService;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -35,7 +36,7 @@ public class BaseLoggedClass {
     protected static Properties properties;
     protected WebDriver driver;
     protected Waiter waiter;
-    private static final SeleManager seleManager = new SeleManager();
+    private static final SeleManager seleManager = new SeleManager(new SelemaConfig().setReportSubdir("target/containerlogs/"+System.getProperty("tjob_name")).setName(System.getProperty("tjob_name")));
     private String userName;
     private String password;
     private boolean isLogged = false;
