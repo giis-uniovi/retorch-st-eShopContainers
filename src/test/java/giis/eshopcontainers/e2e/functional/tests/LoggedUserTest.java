@@ -1,4 +1,4 @@
-package giis.eshopcontainers.e2e.functional;
+package giis.eshopcontainers.e2e.functional.tests;
 
 import giis.eshopcontainers.e2e.functional.common.BaseLoggedClass;
 import giis.eshopcontainers.e2e.functional.common.ElementNotFoundException;
@@ -20,7 +20,7 @@ class LoggedUserTest extends BaseLoggedClass {
     @Resource(resID = "chrome-browser", replaceable = {})
     @AccessMode(resID = "chrome-browser", concurrency = 1, accessMode ="READWRITE")
     @Resource(resID = "eshopUser", replaceable = {})
-    @AccessMode(resID = "eshopUser", concurrency = 1, sharing = true, accessMode ="READONLY")
+    @AccessMode(resID = "eshopUser", concurrency = 1, sharing = false, accessMode ="READONLY")
     @Test
     @DisplayName("BasicLoginTest")
     void loginTest() throws ElementNotFoundException {

@@ -11,7 +11,7 @@ docker volume prune --all -f
 
 # Run saveTJobLifecycledata.sh script
 echo "Running saveTJobLifecycledata.sh script..."
-sh "retorchfiles/scripts/saveTJobLifecycledata.sh"
+sh "$SCRIPTS_FOLDER/savetjoblifecycledata.sh"
 
 COITEARDOWNEND="$(date +%s%3N)"
 

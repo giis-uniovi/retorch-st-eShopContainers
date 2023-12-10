@@ -1,4 +1,4 @@
-package giis.eshopcontainers.e2e.functional;
+package giis.eshopcontainers.e2e.functional.tests;
 
 import giis.eshopcontainers.e2e.functional.common.BaseLoggedClass;
 import giis.eshopcontainers.e2e.functional.common.ElementNotFoundException;
@@ -33,13 +33,13 @@ class OrderTests extends BaseLoggedClass {
     @Resource(resID = "catalog-api", replaceable = {})
     @AccessMode(resID = "catalog-api", concurrency = 60, sharing = true, accessMode = "READONLY")
     @Resource(resID = "basket-api", replaceable = {})
-    @AccessMode(resID = "basket-api", concurrency = 30, accessMode = "READ-WRITE")
+    @AccessMode(resID = "basket-api", concurrency = 30,sharing = true, accessMode = "READWRITE")
     @Resource(resID = "ordering-api", replaceable = {})
-    @AccessMode(resID = "ordering-api", concurrency = 50, accessMode = "READWRITE")
+    @AccessMode(resID = "ordering-api", concurrency = 50,sharing = true, accessMode = "READWRITE")
     @Resource(resID = "payment-api", replaceable = {})
     @AccessMode(resID = "payment-api", concurrency = 20, sharing = true, accessMode = "READWRITE")
     @Resource(resID = "chrome-browser", replaceable = {})
-    @AccessMode(resID = "chrome-browser", concurrency = 1, sharing = true, accessMode = "READWRITE")
+    @AccessMode(resID = "chrome-browser", concurrency = 1, accessMode = "READWRITE")
     @Resource(resID = "eshopUser", replaceable = {})
     @AccessMode(resID = "eshopUser", concurrency = 1, accessMode = "READWRITE")
     @Test
@@ -64,13 +64,13 @@ class OrderTests extends BaseLoggedClass {
     @Resource(resID = "catalog-api", replaceable = {})
     @AccessMode(resID = "catalog-api", concurrency = 60, sharing = true, accessMode = "READONLY")
     @Resource(resID = "basket-api", replaceable = {})
-    @AccessMode(resID = "basket-api", concurrency = 30, accessMode = "READWRITE")
+    @AccessMode(resID = "basket-api", concurrency = 30,sharing = true, accessMode = "READWRITE")
     @Resource(resID = "ordering-api", replaceable = {})
-    @AccessMode(resID = "ordering-api", concurrency = 50, accessMode = "READWRITE")
+    @AccessMode(resID = "ordering-api", concurrency =30 ,sharing = true, accessMode = "READWRITE")
     @Resource(resID = "payment-api", replaceable = {})
     @AccessMode(resID = "payment-api", concurrency = 20, sharing = true, accessMode = "READWRITE")
     @Resource(resID = "chrome-browser", replaceable = {})
-    @AccessMode(resID = "chrome-browser", concurrency = 1, sharing = true, accessMode = "READWRITE")
+    @AccessMode(resID = "chrome-browser", concurrency = 1, sharing = false, accessMode = "READWRITE")
     @Resource(resID = "eshopUser", replaceable = {})
     @AccessMode(resID = "eshopUser", concurrency = 1, accessMode = "READWRITE")
     @Test

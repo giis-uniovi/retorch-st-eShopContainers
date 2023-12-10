@@ -1,130 +1,90 @@
 {
-  "Configuration": {
-    "hierarchyParent": [
-      "Course"
-    ],
-    "replaceable": [],
-    "elasticityModel": {
-      "elasticityID": "elasModelConfiguration",
-      "elasticity": 40,
-      "elasticityCost": 15.0
-    },
-    "resourceType": "LOGICAL",
-    "resourceID": "Configuration"
-  },
-  "OpenViduMock": {
-    "hierarchyParent": [
-      "OpenVidu"
-    ],
-    "replaceable": [],
-    "elasticityModel": {
-      "elasticityID": "elasModelOpenViduMock",
-      "elasticity": 30,
-      "elasticityCost": 10.0
-    },
-    "resourceType": "LOGICAL",
-    "resourceID": "OpenViduMock"
-  },
-  "OpenVidu": {
+  "webmvc": {
     "hierarchyParent": [],
     "replaceable": [],
     "elasticityModel": {
-      "elasticityID": "elasModelOpenVidu",
-      "elasticity": 1,
-      "elasticityCost": 300.0
-    },
-    "resourceType": "LOGICAL",
-    "resourceID": "OpenVidu"
-  },
-  "Course": {
-    "hierarchyParent": [
-      "MySQL"
-    ],
-    "replaceable": [],
-    "elasticityModel": {
-      "elasticityID": "elasModelCourse",
+      "elasticityID": "elasModelWebMvc",
       "elasticity": 5,
-      "elasticityCost": 100.0
+      "elasticityCost": 10.0
     },
     "resourceType": "LOGICAL",
-    "resourceID": "Course"
+    "resourceID": "webmvc"
   },
-  "Information": {
-    "hierarchyParent": [
-      "Course"
-    ],
+  "identity-api": {
+    "hierarchyParent": [],
     "replaceable": [],
     "elasticityModel": {
-      "elasticityID": "elasModelInformation",
-      "elasticity": 20,
+      "elasticityID": "elasModelIdentityApi",
+      "elasticity": 5,
+      "elasticityCost": 25.0
+    },
+    "resourceType": "LOGICAL",
+    "resourceID": "identity-api"
+  },
+  "catalog-api": {
+    "hierarchyParent": [],
+    "replaceable": [],
+    "elasticityModel": {
+      "elasticityID": "elasModelCatalogAPI",
+      "elasticity": 3,
+      "elasticityCost": 50.0
+    },
+    "resourceType": "LOGICAL",
+    "resourceID": "catalog-api"
+  },
+  "basket-api": {
+    "hierarchyParent": [],
+    "replaceable": [],
+    "elasticityModel": {
+      "elasticityID": "elasModelBasketApi",
+      "elasticity": 10,
+      "elasticityCost": 50.0
+    },
+    "resourceType": "LOGICAL",
+    "resourceID": "basket-api"
+  },
+  "chrome-browser": {
+    "hierarchyParent": [],
+    "replaceable": [],
+    "elasticityModel": {
+      "elasticityID": "elasModelChromeBrowser",
+      "elasticity": 15,
+      "elasticityCost": 30.0
+    },
+    "resourceType": "LOGICAL",
+    "resourceID": "chrome-browser"
+  },
+  "eshopUser": {
+    "hierarchyParent": [],
+    "replaceable": [],
+    "elasticityModel": {
+      "elasticityID": "elasModelEshopUser",
+      "elasticity": 4,
+      "elasticityCost": 30.0
+    },
+    "resourceType": "LOGICAL",
+    "resourceID": "eshopUser"
+  },
+  "ordering-api": {
+    "hierarchyParent": [],
+    "replaceable": [],
+    "elasticityModel": {
+      "elasticityID": "elasModelOrderingApi",
+      "elasticity": 5,
       "elasticityCost": 15.0
     },
     "resourceType": "LOGICAL",
-    "resourceID": "Information"
+    "resourceID": "ordering-api"
   },
-  "Files": {
-    "hierarchyParent": [
-      "Course"
-    ],
+  "payment-api": {
+    "hierarchyParent": [],
     "replaceable": [],
     "elasticityModel": {
-      "elasticityID": "elasModelFiles",
-      "elasticity": 20,
-      "elasticityCost": 15.0
-    },
-    "resourceType": "LOGICAL",
-    "resourceID": "Files"
-  },
-  "Attenders": {
-    "hierarchyParent": [
-      "Course"
-    ],
-    "replaceable": [],
-    "elasticityModel": {
-      "elasticityID": "elasModelAttenders",
-      "elasticity": 20,
-      "elasticityCost": 15.0
-    },
-    "resourceType": "LOGICAL",
-    "resourceID": "Attenders"
-  },
-  "LoginService": {
-    "hierarchyParent": [
-      "MySQL"
-    ],
-    "replaceable": [],
-    "elasticityModel": {
-      "elasticityID": "elasModelLoginService",
+      "elasticityID": "elasModelPaymentApi",
       "elasticity": 5,
       "elasticityCost": 30.0
     },
     "resourceType": "LOGICAL",
-    "resourceID": "LoginService"
-  },
-  "Session": {
-    "hierarchyParent": [
-      "Course"
-    ],
-    "replaceable": [],
-    "elasticityModel": {
-      "elasticityID": "elasModelSession",
-      "elasticity": 20,
-      "elasticityCost": 15.0
-    },
-    "resourceType": "LOGICAL",
-    "resourceID": "Session"
-  },
-  "Forum": {
-    "hierarchyParent": [
-      "Course"
-    ],
-    "replaceable": [],
-    "elasticityModel": {
-      "elasticityID": "elasModelForum",
-      "elasticity": 20,
-      "elasticityCost": 15.0
-    },
-    "resourceType": "LOGICAL",
-    "resourceID": "Forum"
+    "resourceID": "payment-api"
   }
 }
