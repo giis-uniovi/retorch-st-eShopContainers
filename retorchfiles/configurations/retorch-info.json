@@ -1,0 +1,28 @@
+{
+  "OpenViduMock": {
+    "dockerImageResource": [
+      {
+        "placeHolderId": "OpenViduImage",
+        "imageName": "eexit/mirror-http-server"
+      },
+      {
+        "placeHolderId": "mysqlImage",
+        "imageName": "mysql:5.7.21"
+      }
+    ],
+    "testsBasePath": "./"
+  },
+  "generic": {
+    "dockerImageResource": [
+      {
+        "placeHolderId": "OpenViduImage",
+        "imageName": "openvidu/openvidu-server-kms:1.7.0"
+      },
+      {
+        "placeHolderId": "mysqlImage",
+        "imageName": "mysql:5.7.21"
+      }
+    ],
+    "testsBasePath": "./"
+  }
+}

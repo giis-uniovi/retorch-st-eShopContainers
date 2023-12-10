@@ -7,7 +7,6 @@ TJOB_NAME="testingeShop"
 TMP_DIR="./tmp"
 CONFIG_DIR="./ApiGateways/Envoy/config"
 DOCKER_COMPOSE_FILE="docker-compose.yml"
-RETORCH_COMPOSE_FILE="docker-compose.retorch.yml"
 ENV_FILE="../../retorchfiles/envfiles/$TJOB_NAME.env"
 
 # Clean up existing temporary directory
@@ -26,13 +25,13 @@ docker volume prune --all -f
 
 # Build and deploy containers
 echo "Building images..."
-docker compose -f "$DOCKER_COMPOSE_FILE" -f "$RETORCH_COMPOSE_FILE" --env-file "$ENV_FILE" build
+docker compose -f "$DOCKER_COMPOSE_FILE" --env-file "$ENV_FILE" build
 
 echo "Deploying containers..."
-docker compose -f "$DOCKER_COMPOSE_FILE" -f "$RETORCH_COMPOSE_FILE" --env-file "$ENV_FILE" up -d
+docker compose -f "$DOCKER_COMPOSE_FILE" --env-file "$ENV_FILE" up -d
 
 echo "Waiting for the system to be up..."
 # Add a sleep command or other suitable mechanism here to wait for the system to be fully up
 
 # Clean up containers and volumes
-docker compose -f "$DOCKER_COMPOSE_FILE" -f "$RETORCH_COMPOSE_FILE" --env-file "$ENV_FILE" down --volumes
+docker compose -f "$DOCKER_COMPOSE_FILE" --env-file "$ENV_FILE" down --volumes
