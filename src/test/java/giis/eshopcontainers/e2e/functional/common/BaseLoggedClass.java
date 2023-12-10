@@ -48,13 +48,12 @@ public class BaseLoggedClass {
         // load a properties file for reading
         properties.load(Files.newInputStream(Paths.get("src/test/resources/test.properties")));
         String envUrl = System.getProperty("SUT_URL");
-        String envParameterUrl = System.getenv("SUT_URL");
-        if (envUrl == null & envParameterUrl == null) {
+        if (envUrl == null) {
             // Outside CI
             sutUrl = properties.getProperty("LOCALHOST_URL");
             log.debug("Configuring the local browser to connect to a local System Under Test (SUT) at: " + sutUrl);
         } else {
-            sutUrl = envUrl != null ? "http://" + envUrl + "/" : "http://" + envParameterUrl + "/";
+            sutUrl =  envUrl+":" + System.getProperty("SUT_PORT") + "/";
             log.debug("Configuring the browser to connect to the remote System Under Test (SUT) at the following URL: " + sutUrl);
         }
         setupBrowser();

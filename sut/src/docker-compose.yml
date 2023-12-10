@@ -54,21 +54,21 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://0.0.0.0:80
-      - SpaClient=http://${ESHOP_EXTERNAL_DNS_NAME_OR_IP}:${webspa_port}
-      - XamarinCallback=http://${ESHOP_PROD_EXTERNAL_DNS_NAME_OR_IP}:${identity_api_port}/xamarincallback
+      - SpaClient=http://${ESHOP_EXTERNAL_DNS_NAME_OR_IP}:${retorchportb}
+      - XamarinCallback=http://${ESHOP_PROD_EXTERNAL_DNS_NAME_OR_IP}:${retorchportj}/xamarincallback
       - ConnectionStrings__IdentityDb=Server=sqldata_${tjobname},1433;Database=Microsoft.eShopOnContainers.Service.IdentityDb;User Id=sa;Password=Pass@word;Encrypt=False;TrustServerCertificate=true
-      - MvcClient=http://${ESHOP_EXTERNAL_DNS_NAME_OR_IP}:${webmvc_port}
-      - BasketApiClient=http://${ESHOP_EXTERNAL_DNS_NAME_OR_IP}:${basket_api_port}
-      - OrderingApiClient=http://${ESHOP_EXTERNAL_DNS_NAME_OR_IP}:${ordering_api_port}
-      - MobileShoppingAggClient=http://${ESHOP_EXTERNAL_DNS_NAME_OR_IP}:${mobileshoppingagg_port}
-      - WebShoppingAggClient=http://${ESHOP_EXTERNAL_DNS_NAME_OR_IP}:${webshoppingagg_port}
-      - WebhooksApiClient=http://${ESHOP_EXTERNAL_DNS_NAME_OR_IP}:${webhooks_api_port}
-      - WebhooksWebClient=http://${ESHOP_EXTERNAL_DNS_NAME_OR_IP}:${webhooksclient_port}
+      - MvcClient=http://${ESHOP_EXTERNAL_DNS_NAME_OR_IP}:${frontend_port}
+      - BasketApiClient=http://${ESHOP_EXTERNAL_DNS_NAME_OR_IP}:${retorchportk}
+      - OrderingApiClient=http://${ESHOP_EXTERNAL_DNS_NAME_OR_IP}:${retorchporth}
+      - MobileShoppingAggClient=http://${ESHOP_EXTERNAL_DNS_NAME_OR_IP}:${retorchportg}
+      - WebShoppingAggClient=http://${ESHOP_EXTERNAL_DNS_NAME_OR_IP}:${retorchportd}
+      - WebhooksApiClient=http://${ESHOP_EXTERNAL_DNS_NAME_OR_IP}:${retorchportf}
+      - WebhooksWebClient=http://${ESHOP_EXTERNAL_DNS_NAME_OR_IP}:${retorchportc}
       - UseCustomizationData=True
       - ApplicationInsights__InstrumentationKey=${INSTRUMENTATION_KEY}
       - OrchestratorType=${ORCHESTRATOR_TYPE}
     ports:
-      - "${identity_api_port}:80"
+      - "${retorchportj}:80"
     networks:
       - jenkins_network
 
@@ -90,7 +90,7 @@ services:
       - ConnectionStrings__Redis=basketdata_${tjobname}
       - ConnectionStrings__EventBus=rabbitmq_${tjobname}
       - Identity__Url=http://identity_api_${tjobname}
-      - Identity__ExternalUrl=http://${ESHOP_EXTERNAL_DNS_NAME_OR_IP}:${identity_api_port}
+      - Identity__ExternalUrl=http://${ESHOP_EXTERNAL_DNS_NAME_OR_IP}:${retorchportj}
       - EventBus__UserName=${ESHOP_SERVICE_BUS_USERNAME}
       - EventBus__Password=${ESHOP_SERVICE_BUS_PASSWORD}
       - ApplicationInsights__InstrumentationKey=${INSTRUMENTATION_KEY}
@@ -98,7 +98,7 @@ services:
       - UseLoadTest=${USE_LOADTEST:-False}
       - PATH_BASE=/basket_api_${tjobname}
     ports:
-      - "${basket_api_port}:80"
+      - "${retorchportk}:80"
     networks:
       - jenkins_network
 
@@ -148,7 +148,7 @@ services:
       - ConnectionStrings__OrderingDb=Server=sqldata_${tjobname},1433;Database=Microsoft.eShopOnContainers.Services.OrderingDb;User Id=sa;Password=Pass@word;Encrypt=False;TrustServerCertificate=true
       - ConnectionStrings__EventBus=rabbitmq_${tjobname}
       - Identity__Url=http://identity_api_${tjobname}
-      - Identity__ExternalUrl=http://${ESHOP_EXTERNAL_DNS_NAME_OR_IP}:${identity_api_port}
+      - Identity__ExternalUrl=http://${ESHOP_EXTERNAL_DNS_NAME_OR_IP}:${retorchportj}
       - EventBus__UserName=${ESHOP_SERVICE_BUS_USERNAME}
       - EventBus__Password=${ESHOP_SERVICE_BUS_PASSWORD}
       - UseCustomizationData=True
@@ -161,8 +161,8 @@ services:
       - GRPC_PORT=81
       - PORT=80
     ports:
-      - "${ordering_api_port}:80"
-      - "${ordering_api_hc_port}:81"
+      - "${retorchporth}:80"
+      - "${retorchporti}:81"
     networks:
       - jenkins_network
 
@@ -228,9 +228,9 @@ services:
       - EventBus__UserName=${ESHOP_SERVICE_BUS_USERNAME}
       - EventBus__Password=${ESHOP_SERVICE_BUS_PASSWORD}
       - Identity__Url=http://identity_api_${tjobname}
-      - Identity__ExternalUrl=http://${ESHOP_EXTERNAL_DNS_NAME_OR_IP}:${identity_api_port}
+      - Identity__ExternalUrl=http://${ESHOP_EXTERNAL_DNS_NAME_OR_IP}:${retorchportj}
     ports:
-      - "${webhooks_api_port}:80"
+      - "${retorchportf}:80"
     networks:
       - jenkins_network
 
@@ -271,9 +271,9 @@ services:
       - BasketUrlHC=http://basket_api_${tjobname}/hc
       - PaymentUrlHC=http://payment_api_${tjobname}/hc
       - Identity__Url=http://identity_api_${tjobname}
-      - Identity__ExternalUrl=http://${ESHOP_EXTERNAL_DNS_NAME_OR_IP}:${identity_api_port}
+      - Identity__ExternalUrl=http://${ESHOP_EXTERNAL_DNS_NAME_OR_IP}:${retorchportj}
     ports:
-      - "${mobileshoppingagg_port}:80"
+      - "${retorchportg}:80"
     networks:
       - jenkins_network
 
@@ -310,9 +310,9 @@ services:
       - BasketUrlHC=http://basket_api_${tjobname}/hc
       - PaymentUrlHC=http://payment_api_${tjobname}/hc
       - Identity__Url=http://identity_api_${tjobname}
-      - Identity__ExternalUrl=http://${ESHOP_EXTERNAL_DNS_NAME_OR_IP}:${identity_api_port}
+      - Identity__ExternalUrl=http://${ESHOP_EXTERNAL_DNS_NAME_OR_IP}:${retorchportj}
     ports:
-      - "${webshoppingagg_port}:80"
+      - "${retorchportd}:80"
     networks:
       - jenkins_network
 
@@ -341,7 +341,7 @@ services:
       - OrchestratorType=${ORCHESTRATOR_TYPE}
       - Identity__Url=http://identity_api_${tjobname}
     ports:
-      - "${orderingsignalhub_port}:80"
+      - "${retorchporte}:80"
     networks:
       - jenkins_network
 
@@ -394,15 +394,15 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
       - ASPNETCORE_URLS=http://0.0.0.0:80
-      - IdentityUrl=http://${ESHOP_EXTERNAL_DNS_NAME_OR_IP}:${identity_api_port}
-      - PurchaseUrl=http://${ESHOP_EXTERNAL_DNS_NAME_OR_IP}:${webshoppingagg_port}
+      - IdentityUrl=http://${ESHOP_EXTERNAL_DNS_NAME_OR_IP}:${retorchportj}
+      - PurchaseUrl=http://${ESHOP_EXTERNAL_DNS_NAME_OR_IP}:${retorchportd}
       - IdentityUrlHC=http://identity_api_${tjobname}/hc
-      - SignalrHubUrl=http://${ESHOP_EXTERNAL_DNS_NAME_OR_IP}:${webshoppingagg_port}
+      - SignalrHubUrl=http://${ESHOP_EXTERNAL_DNS_NAME_OR_IP}:${retorchportd}
       - UseCustomizationData=True
       - ApplicationInsights__InstrumentationKey=${INSTRUMENTATION_KEY}
       - OrchestratorType=${ORCHESTRATOR_TYPE}
     ports:
-      - "${webspa_port}:80"
+      - "${retorchportb}:80"
     networks:
       - jenkins_network
 
@@ -418,15 +418,15 @@ services:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://0.0.0.0:80
       - PurchaseUrl=http://webshoppingagg_${tjobname}
-      - IdentityUrl=http://${ESHOP_EXTERNAL_DNS_NAME_OR_IP}:${identity_api_port}
-      - SignalrHubUrl=http://${ESHOP_EXTERNAL_DNS_NAME_OR_IP}:${webshoppingagg_port}
+      - IdentityUrl=http://${ESHOP_EXTERNAL_DNS_NAME_OR_IP}:${retorchportj}
+      - SignalrHubUrl=http://${ESHOP_EXTERNAL_DNS_NAME_OR_IP}:${retorchportd}
       - IdentityUrlHC=http://identity_api_${tjobname}/hc
       - UseCustomizationData=True
       - ApplicationInsights__InstrumentationKey=${INSTRUMENTATION_KEY}
       - OrchestratorType=${ORCHESTRATOR_TYPE}
       - UseLoadTest=${USE_LOADTEST:-False}
     ports:
-      - "${webmvc_port}:80"
+      - "${frontend_port}:80"
     networks:
       - jenkins_network
 
@@ -441,12 +441,12 @@ services:
     environment:
       - ASPNETCORE_URLS=http://0.0.0.0:80
       - Token=6168DB8D-DC58-4094-AF24-483278923590      # Webhooks are registered with this token (any value is valid) but the client won't check it
-      - IdentityUrl=http://${ESHOP_EXTERNAL_DNS_NAME_OR_IP}:${identity_api_port}
-      - CallBackUrl=http://${ESHOP_EXTERNAL_DNS_NAME_OR_IP}:${webhooksclient_port}
+      - IdentityUrl=http://${ESHOP_EXTERNAL_DNS_NAME_OR_IP}:${retorchportj}
+      - CallBackUrl=http://${ESHOP_EXTERNAL_DNS_NAME_OR_IP}:${retorchportc}
       - WebhooksUrl=http://webhooks_api_${tjobname}
       - SelfUrl=http://webhooks_client_${tjobname}/
     ports:
-      - "${webhooksclient_port}:80"
+      - "${retorchportc}:80"
     networks:
       - jenkins_network
 

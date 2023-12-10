@@ -7,7 +7,7 @@ set -e
 DOCKER_HOST_IP=$(/sbin/ip route | awk '/default/ { print $3 }')
 export DOCKER_HOST_IP
 echo "Exporting the HOST_IP: $DOCKER_HOST_IP"
-echo "The HOST_IP is: $DOCKER_HOST_IP"
+
 # Custom Set-up commands
 echo "Executing custom commands"
 

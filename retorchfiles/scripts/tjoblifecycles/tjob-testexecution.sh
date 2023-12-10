@@ -19,9 +19,9 @@ TJOB_NAME="$1"
 STAGE="$2"
 PORT="$4"
 TEST_NAME="$5"
-if [[ $url == "https://" || $url == "http://" ]]; then
+if [[ $3 == "https://" || $3 == "http://" ]]; then
   echo "Only http:// || https:// protocol provided, using HOST DOCKER INTERNAL IP "
-  SUT_URL="$3"+DOCKER_HOST_IP
+  SUT_URL="$3$DOCKER_HOST_IP"
 else
   echo "Using the provided URL"
   SUT_URL="$3"

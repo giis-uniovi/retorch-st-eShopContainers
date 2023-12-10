@@ -32,7 +32,7 @@ pipeline {
           steps {
             catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
               sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-setup.sh tjobc 0'
-              sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-testexecution.sh tjobc 0 http://webmvc_ 80 "CatalogTests#addProductsToBasket"'
+              sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-testexecution.sh tjobc 0 http:// 5000 "CatalogTests#addProductsToBasket"'
               sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-teardown.sh tjobc 0'
             }// EndExecutionStageErrorTJobC
           }// EndStepsTJobC
@@ -41,7 +41,7 @@ pipeline {
           steps {
             catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
               sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-setup.sh tjobd 0'
-              sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-testexecution.sh tjobd 0 http://webmvc_ 80 "LoggedUserTest#loginTest"'
+              sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-testexecution.sh tjobd 0 http:// 5012 "LoggedUserTest#loginTest"'
               sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-teardown.sh tjobd 0'
             }// EndExecutionStageErrorTJobD
           }// EndStepsTJobD
@@ -50,7 +50,7 @@ pipeline {
           steps {
             catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
               sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-setup.sh tjobe 0'
-              sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-testexecution.sh tjobe 0 http://webmvc_ 80 "OrderTests#testCancelOrder,OrderTests#testCreateNewOrder"'
+              sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-testexecution.sh tjobe 0 http:// 5024 "OrderTests#testCancelOrder,OrderTests#testCreateNewOrder"'
               sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-teardown.sh tjobe 0'
             }// EndExecutionStageErrorTJobE
           }// EndStepsTJobE
@@ -64,7 +64,7 @@ pipeline {
           steps {
             catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
               sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-setup.sh tjobf 1'
-              sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-testexecution.sh tjobf 1 http://webmvc_ 80 "CatalogTests#FilterProductsByBrandType"'
+              sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-testexecution.sh tjobf 1 http:// 5036 "CatalogTests#FilterProductsByBrandType"'
               sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-teardown.sh tjobf 1'
             }// EndExecutionStageErrorTJobF
           }// EndStepsTJobF
@@ -72,22 +72,9 @@ pipeline {
      }// End Parallel
     }// End Stage
 stage('TEARDOWN-Infrastructure') {
-  stages {
-    stage('PublishReports') {
       steps {
         sh '$SCRIPTS_FOLDER/coilifecycles/coi-teardown.sh'
-        publishHTML(
-          target: [
-            allowMissing: false,
-            alwaysLinkToLastBuild: true,
-            keepAll: true,
-            reportDir: 'target/site/',
-            reportFiles: 'surefire-report.html',
-            reportName: 'Test Execution Report'
-          ])
-      }// EndStepsPublishReports
-    }// EndStagePublishReports
-  }// EndStagesINFTearDown
+      }// EndStepsTearDownInf
 }// EndStageTearDown
   }// EndStagesPipeline
  post { 
