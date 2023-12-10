@@ -1,0 +1,130 @@
+{
+  "Configuration": {
+    "hierarchyParent": [
+      "Course"
+    ],
+    "replaceable": [],
+    "elasticityModel": {
+      "elasticityID": "elasModelConfiguration",
+      "elasticity": 40,
+      "elasticityCost": 15.0
+    },
+    "resourceType": "LOGICAL",
+    "resourceID": "Configuration"
+  },
+  "OpenViduMock": {
+    "hierarchyParent": [
+      "OpenVidu"
+    ],
+    "replaceable": [],
+    "elasticityModel": {
+      "elasticityID": "elasModelOpenViduMock",
+      "elasticity": 30,
+      "elasticityCost": 10.0
+    },
+    "resourceType": "LOGICAL",
+    "resourceID": "OpenViduMock"
+  },
+  "OpenVidu": {
+    "hierarchyParent": [],
+    "replaceable": [],
+    "elasticityModel": {
+      "elasticityID": "elasModelOpenVidu",
+      "elasticity": 1,
+      "elasticityCost": 300.0
+    },
+    "resourceType": "LOGICAL",
+    "resourceID": "OpenVidu"
+  },
+  "Course": {
+    "hierarchyParent": [
+      "MySQL"
+    ],
+    "replaceable": [],
+    "elasticityModel": {
+      "elasticityID": "elasModelCourse",
+      "elasticity": 5,
+      "elasticityCost": 100.0
+    },
+    "resourceType": "LOGICAL",
+    "resourceID": "Course"
+  },
+  "Information": {
+    "hierarchyParent": [
+      "Course"
+    ],
+    "replaceable": [],
+    "elasticityModel": {
+      "elasticityID": "elasModelInformation",
+      "elasticity": 20,
+      "elasticityCost": 15.0
+    },
+    "resourceType": "LOGICAL",
+    "resourceID": "Information"
+  },
+  "Files": {
+    "hierarchyParent": [
+      "Course"
+    ],
+    "replaceable": [],
+    "elasticityModel": {
+      "elasticityID": "elasModelFiles",
+      "elasticity": 20,
+      "elasticityCost": 15.0
+    },
+    "resourceType": "LOGICAL",
+    "resourceID": "Files"
+  },
+  "Attenders": {
+    "hierarchyParent": [
+      "Course"
+    ],
+    "replaceable": [],
+    "elasticityModel": {
+      "elasticityID": "elasModelAttenders",
+      "elasticity": 20,
+      "elasticityCost": 15.0
+    },
+    "resourceType": "LOGICAL",
+    "resourceID": "Attenders"
+  },
+  "LoginService": {
+    "hierarchyParent": [
+      "MySQL"
+    ],
+    "replaceable": [],
+    "elasticityModel": {
+      "elasticityID": "elasModelLoginService",
+      "elasticity": 5,
+      "elasticityCost": 30.0
+    },
+    "resourceType": "LOGICAL",
+    "resourceID": "LoginService"
+  },
+  "Session": {
+    "hierarchyParent": [
+      "Course"
+    ],
+    "replaceable": [],
+    "elasticityModel": {
+      "elasticityID": "elasModelSession",
+      "elasticity": 20,
+      "elasticityCost": 15.0
+    },
+    "resourceType": "LOGICAL",
+    "resourceID": "Session"
+  },
+  "Forum": {
+    "hierarchyParent": [
+      "Course"
+    ],
+    "replaceable": [],
+    "elasticityModel": {
+      "elasticityID": "elasModelForum",
+      "elasticity": 20,
+      "elasticityCost": 15.0
+    },
+    "resourceType": "LOGICAL",
+    "resourceID": "Forum"
+  }
+}
