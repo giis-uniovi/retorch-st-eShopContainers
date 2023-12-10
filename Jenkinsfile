@@ -33,13 +33,6 @@ pipeline {
                 }
             }
         }
-        stage('Build eShopContainers') {
-            steps {
-                script {
-                    sh "$WORKSPACE/retorchfiles/scripts/tjoblifecycles/build-eShopContainers.sh"
-                }
-            }
-        }
         stage('Stage 0') {
             failFast false
             parallel {
@@ -94,6 +87,9 @@ pipeline {
     post {
         always {
             archiveArtifacts artifacts: "artifacts/*.csv", onlyIfSuccessful: true
+            archiveArtifacts artifacts: "target/testlogs/**/*.*", onlyIfSuccessful: false
+            archiveArtifacts artifacts: "target/containerlogs/**/*.*", onlyIfSuccessful: false
+
         }
         cleanup {
             script {
