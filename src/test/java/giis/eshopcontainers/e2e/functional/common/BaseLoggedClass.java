@@ -36,7 +36,7 @@ public class BaseLoggedClass {
     protected static Properties properties;
     protected WebDriver driver;
     protected Waiter waiter;
-    private static final SeleManager seleManager = new SeleManager(new SelemaConfig().setReportSubdir("target/containerlogs/"+System.getProperty("tjob_name")).setName(System.getProperty("tjob_name")));
+    private static final SeleManager seleManager = new SeleManager(new SelemaConfig().setReportSubdir("target/containerlogs/" + (System.getProperty("tjob_name") == null ? "" : System.getProperty("tjob_name"))).setName(System.getProperty("tjob_name") == null ? "locallogs" : System.getProperty("tjob_name")));
     private String userName;
     private String password;
     private boolean isLogged = false;
@@ -53,7 +53,7 @@ public class BaseLoggedClass {
             sutUrl = properties.getProperty("LOCALHOST_URL");
             log.debug("Configuring the local browser to connect to a local System Under Test (SUT) at: " + sutUrl);
         } else {
-            sutUrl =  envUrl+":" + System.getProperty("SUT_PORT") + "/";
+            sutUrl = envUrl + ":" + System.getProperty("SUT_PORT") + "/";
             log.debug("Configuring the browser to connect to the remote System Under Test (SUT) at the following URL: " + sutUrl);
         }
         setupBrowser();
