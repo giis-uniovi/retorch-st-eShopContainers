@@ -2,6 +2,8 @@ package giis.eshopcontainers.e2e.functional;
 
 import giis.eshopcontainers.e2e.functional.common.BaseLoggedClass;
 import giis.eshopcontainers.e2e.functional.common.ElementNotFoundException;
+import giis.retorch.annotations.AccessMode;
+import giis.retorch.annotations.Resource;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -9,6 +11,16 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 
 class LoggedUserTest extends BaseLoggedClass {
+    @Resource(resID = "webmvc",rType = "LOGICAL",parent = {},replaceable = {})
+    @AccessMode(resID = "webmvc", concurrency = 10, sharing = true, accessMode = "READONLY")
+    @Resource(resID = "identity-api", replaceable = {})
+    @AccessMode(resID = "identity-api", concurrency = 50, sharing = true, accessMode = "READONLY")
+    @Resource(resID = "catalog-api", replaceable = {})
+    @AccessMode(resID = "catalog-api", concurrency = 60, sharing =true, accessMode = "READONLY")
+    @Resource(resID = "chrome-browser", replaceable = {})
+    @AccessMode(resID = "chrome-browser", concurrency = 1, accessMode ="READWRITE")
+    @Resource(resID = "eshopUser", replaceable = {})
+    @AccessMode(resID = "eshopUser", concurrency = 1, sharing = true, accessMode ="READONLY")
     @Test
     @DisplayName("BasicLoginTest")
     void loginTest() throws ElementNotFoundException {

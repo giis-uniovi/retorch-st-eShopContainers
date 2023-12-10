@@ -3,6 +3,8 @@ package giis.eshopcontainers.e2e.functional;
 import giis.eshopcontainers.e2e.functional.common.BaseLoggedClass;
 import giis.eshopcontainers.e2e.functional.common.ElementNotFoundException;
 import giis.eshopcontainers.e2e.functional.utils.Click;
+import giis.retorch.annotations.AccessMode;
+import giis.retorch.annotations.Resource;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -13,6 +15,19 @@ import org.openqa.selenium.WebElement;
 import static giis.eshopcontainers.e2e.functional.utils.Shopping.addProductToBasket;
 
 class CatalogTests extends BaseLoggedClass {
+
+    @Resource(resID = "webmvc", replaceable = {})
+    @AccessMode(resID = "webmvc", concurrency = 10, sharing = true, accessMode = "READONLY")
+    @Resource(resID = "identity-api", replaceable = {})
+    @AccessMode(resID = "identity-api ", concurrency = 50, sharing = true, accessMode = "READONLY")
+    @Resource(resID = "catalog-api", replaceable = {})
+    @AccessMode(resID = "catalog-api", concurrency = 60, sharing = true, accessMode = "READONLY")
+    @Resource(resID = "basket-api", replaceable = {})
+    @AccessMode(resID = "basket-api", concurrency = 30, accessMode = "READWRITE")
+    @Resource(resID = "chrome-browser", replaceable = {})
+    @AccessMode(resID = "chrome-browser", concurrency = 1, sharing = true, accessMode = "READWRITE")
+    @Resource(resID = "eshopUser", replaceable = {})
+    @AccessMode(resID = "eshopUser", concurrency = 1, accessMode = "READWRITE")
     @Test
     @DisplayName("AddProductsToBasket")
     void addProductsToBasket() throws ElementNotFoundException {
@@ -22,9 +37,9 @@ class CatalogTests extends BaseLoggedClass {
         // Perform login
         this.login();
         // Add products to the basket
-        addProductToBasket(1, "NetCore Cup",driver,waiter);
-        addProductToBasket(3, "Hoodie",driver,waiter);
-        addProductToBasket(6, "Pin",driver,waiter);
+        addProductToBasket(1, "NetCore Cup", driver, waiter);
+        addProductToBasket(3, "Hoodie", driver, waiter);
+        addProductToBasket(6, "Pin", driver, waiter);
         // Perform logout
         this.logout();
         // Verify that the product cup button is disabled after logout
@@ -43,6 +58,12 @@ class CatalogTests extends BaseLoggedClass {
                 "The eShop product button was expected to be disabled but was enabled");
     }
 
+    @Resource(resID = "webmvc", replaceable = {})
+    @AccessMode(resID = "webmvc", concurrency = 10, sharing = true, accessMode = "READONLY")
+    @Resource(resID = "catalog-api", replaceable = {})
+    @AccessMode(resID = "catalog-api", concurrency = 60, sharing = true, accessMode = "READONLY")
+    @Resource(resID = "chrome-browser", replaceable = {})
+    @AccessMode(resID = "chrome-browser", concurrency = 1, sharing = true, accessMode = "READWRITE")
     @Test
     @DisplayName("FilterProductsByBrand")
     void FilterProductsByBrandType() throws ElementNotFoundException {
