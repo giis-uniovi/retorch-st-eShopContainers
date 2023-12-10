@@ -2,7 +2,7 @@ pipeline {
   agent {label 'xretorch-agent'}
   environment {
     SELENOID_PRESENT = "TRUE"
-    SUT_LOCATION = "$WORKSPACE/src"
+    SUT_LOCATION = "$WORKSPACE/sut/src"
     SCRIPTS_FOLDER = "$WORKSPACE/retorchfiles/scripts"
   }// EndEnvironment
   options {
@@ -58,10 +58,18 @@ pipeline {
      }// End Parallel
     }// End Stage
     stage('Stage 1'){
+      failFast false
+      parallel{
+        stage('TJobF IdResource: catalog-api chrome-browser webmvc ') {
+          steps {
+            catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
               sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-setup.sh tjobf 1'
               sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-testexecution.sh tjobf 1 http://webmvc_ 80 "CatalogTests#FilterProductsByBrandType"'
               sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-teardown.sh tjobf 1'
-
+            }// EndExecutionStageErrorTJobF
+          }// EndStepsTJobF
+        }// EndStageTJobF
+     }// End Parallel
     }// End Stage
 stage('TEARDOWN-Infrastructure') {
   stages {

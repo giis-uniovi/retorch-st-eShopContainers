@@ -41,6 +41,7 @@ fi
 
 echo "Building images of SUT"
 
+cd "$SUT_LOCATION"
 # Use double quotes for Docker Compose files TEMPORAL FIX
 docker compose -f "docker-compose.yml" --env-file "$WORKSPACE/retorchfiles/envfiles/tjobc.env" --ansi never build
 
