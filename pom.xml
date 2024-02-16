@@ -78,7 +78,7 @@
 					<artifactId>maven-surefire-plugin</artifactId>
 					<version>${surefire.version}</version>
 					<configuration>
-						<testFailureIgnore>true</testFailureIgnore>
+						<testFailureIgnore>false</testFailureIgnore>
 						<!-- Sets the VM argument line used when unit tests are run under JaCoCo -->
 						<argLine>${surefireArgLine}</argLine>
 						<redirectTestOutputToFile>true</redirectTestOutputToFile>
