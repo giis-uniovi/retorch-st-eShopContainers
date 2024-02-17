@@ -2,8 +2,8 @@
 
 # Check if the correct number of parameters is provided
 if [ "$#" -ne 2 ]; then
-  echo "Usage: $0 <STAGE> <TJOBNAME>"
-  exit 1
+    echo "Usage: $0 <STAGE> <TJOBNAME>"
+    exit 1
 fi
 STAGE=$2
 # Constants

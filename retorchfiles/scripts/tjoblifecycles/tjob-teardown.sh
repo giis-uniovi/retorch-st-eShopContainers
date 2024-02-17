@@ -27,5 +27,6 @@ docker compose -f docker-compose.yml --env-file "$WORKSPACE/retorchfiles/envfile
 # Return to the original working directory
 cd "$WORKSPACE"
 
+
 # Execute the script to write timestamp again
 "$SCRIPTS_FOLDER/writetime.sh" "$2" "$1"

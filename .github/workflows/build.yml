@@ -32,4 +32,4 @@ jobs:
              -d "{\"state\":\"pending\", \"context\":\"Jenkins CI\"}"
 
       - name: Build only, tests run in on-premises Jenkins
-        run: mvn test -U --no-transfer-progress
+        run: mvn test -DskipTests -U --no-transfer-progress

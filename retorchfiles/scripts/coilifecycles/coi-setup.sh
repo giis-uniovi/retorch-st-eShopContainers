@@ -5,13 +5,13 @@ SEL_LOG_DIR="/opt/selenoid/logs/"
 
 # Function to remove older files
 remove_old_files() {
-  dir=$1
-  days=$2
-  echo "Removing older files ($days days) in $dir! The number of files prior to remove:"
-  find "$dir" | wc -l
-  find "$dir" -mindepth 1 -maxdepth 1 -mtime +$days -exec rm -rf {} \;
-  echo "Removing older files ($days days) in $dir! The number of files after remove:"
-  find "$dir" | wc -l
+    dir=$1
+    days=$2
+    echo "Removing older files ($days days) in $dir! The number of files prior to remove:"
+    find "$dir" | wc -l
+    find "$dir" -mindepth 1 -maxdepth 1 -mtime +$days -exec rm -rf {} \;
+    echo "Removing older files ($days days) in $dir! The number of files after remove:"
+    find "$dir" | wc -l
 }
 
 # Set output directory for COI
@@ -34,9 +34,9 @@ mkdir -p "$SUT_LOCATION/tmp"
 # Pull Docker images
 echo "Pulling images"
 if docker pull selenoid/vnc_chrome:116.0 && docker pull selenoid/video-recorder:latest-release; then
-  echo "Images pulled successfully."
+    echo "Images pulled successfully."
 else
-  echo "Failed to pull Docker images."
+    echo "Failed to pull Docker images."
 fi
 
 echo "Building images of SUT"
@@ -47,15 +47,15 @@ docker compose -f "docker-compose.yml" --env-file "$WORKSPACE/retorchfiles/envfi
 
 # Check the exit status of the last command
 if [ $? -eq 0 ]; then
-  echo "Images for SUT"
+    echo "Images for SUT"
 else
-  echo "Failed to build images of SUT"
-  exit 1
+    echo "Failed to build images of SUT"
+    exit 1
 fi
 
 # Record end time for COI setup
 COISETUPEND=$(date +%s%3N)
 
 # Write setup timestamps to output file
-echo "COI-SETUP-START;COI-SETUP-END;COI-TEARDOWN-START;COI-TEARDOWN-END" >"$OUTPUTDIRCOI"
-echo -n "$COISETUPSTART;$COISETUPEND" >>"$OUTPUTDIRCOI"
+echo "COI-SETUP-START;COI-SETUP-END;COI-TEARDOWN-START;COI-TEARDOWN-END" > "$OUTPUTDIRCOI"
+echo -n "$COISETUPSTART;$COISETUPEND" >> "$OUTPUTDIRCOI"
