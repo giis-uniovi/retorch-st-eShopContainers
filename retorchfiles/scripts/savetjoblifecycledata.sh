@@ -3,8 +3,8 @@ set -e
 
 # Check if the correct number of arguments is provided
 if [ "$#" -ne 0 ]; then
-    echo "This script doesn't take any parameter"
-    exit 1
+  echo "This script doesn't take any parameter"
+  exit 1
 fi
 
 PATH_FILES="$WORKSPACE/retorchcostestimationdata/exec${BUILD_NUMBER}/tjob*"
