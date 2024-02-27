@@ -133,9 +133,12 @@ class OrderTests extends BaseLoggedClass {
     }
 
     /**
-     * Method to check if order is correctly placed by verifying that the basket is clear
-     * Returns true if the basket is clear (number of elements is 0), otherwise returns false
+     * Method to verify if an order is correctly placed by ensuring that the basket is empty.
+     * This verification should also be extended to the consistency of the database, not solely relying on the final UI state.
+     * While detailed functional tests are not conducted, this UI check its enough for now.
+     * @return true if the basket is empty (no elements), otherwise returns false.
      **/
+
     public boolean checkOrderPlaced() throws ElementNotFoundException {
         int totalAttempts = 5; // Total attempts allowed to check if the order is placed
         while (totalAttempts > 0) {
