@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.openqa.selenium.By;
+import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 
@@ -127,6 +128,28 @@ class OrderTests extends BaseLoggedClass {
         checkOrderAmountAndNumItems("$ 36.00", 4);
         WebElement buttonPlaceOrder = driver.findElement(By.name("action"));
         Click.element(driver, waiter, buttonPlaceOrder);
+        Assertions.assertEquals(checkOrderPlaced(), true, "The order was not placed until 5 seconds");
+
+    }
+
+    /**
+     * Method to check if order is correctly placed by verifying that the basket is clear
+     * Returns true if the basket is clear (number of elements is 0), otherwise returns false
+     **/
+    public boolean checkOrderPlaced() throws ElementNotFoundException {
+        int totalAttempts = 5; // Total attempts allowed to check if the order is placed
+        while (totalAttempts > 0) {
+            try {
+                // Wait until the basket status badge indicates 0 items
+                waiter.waitUntil(ExpectedConditions.textToBe(By.className("esh-basketstatus-badge"), "0"), "The Basket value is not 0");
+                return true; // Order is placed successfully
+            } catch (TimeoutException e) {
+                // If timeout occurs, navigate back to the main menu and decrement the attempts
+                toMainMenu(driver, waiter);
+                totalAttempts--; // Decrement total attempts
+            }
+        }
+        return false; // Order could not be placed within the specified attempts
     }
 
     /**
