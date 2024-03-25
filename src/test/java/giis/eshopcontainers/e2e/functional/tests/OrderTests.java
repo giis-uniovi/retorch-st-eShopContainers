@@ -1,12 +1,15 @@
-package giis.eshopcontainers.e2e.functional;
+package giis.eshopcontainers.e2e.functional.tests;
 
 import giis.eshopcontainers.e2e.functional.common.BaseLoggedClass;
 import giis.eshopcontainers.e2e.functional.common.ElementNotFoundException;
 import giis.eshopcontainers.e2e.functional.utils.Click;
+import giis.retorch.annotations.AccessMode;
+import giis.retorch.annotations.Resource;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.openqa.selenium.By;
+import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 
@@ -24,6 +27,22 @@ class OrderTests extends BaseLoggedClass {
     /**
      * Tests the creation of a new order and its correct state configuration.
      */
+    @Resource(resID = "webmvc", replaceable = {})
+    @AccessMode(resID = "webmvc", concurrency = 10, sharing = true, accessMode = "READONLY")
+    @Resource(resID = "identity-api", replaceable = {})
+    @AccessMode(resID = "identity-api", concurrency = 50, sharing = true, accessMode = "READONLY")
+    @Resource(resID = "catalog-api", replaceable = {})
+    @AccessMode(resID = "catalog-api", concurrency = 60, sharing = true, accessMode = "READONLY")
+    @Resource(resID = "basket-api", replaceable = {})
+    @AccessMode(resID = "basket-api", concurrency = 30,sharing = true, accessMode = "READWRITE")
+    @Resource(resID = "ordering-api", replaceable = {})
+    @AccessMode(resID = "ordering-api", concurrency = 50,sharing = true, accessMode = "READWRITE")
+    @Resource(resID = "payment-api", replaceable = {})
+    @AccessMode(resID = "payment-api", concurrency = 20, sharing = true, accessMode = "READWRITE")
+    @Resource(resID = "chrome-browser", replaceable = {})
+    @AccessMode(resID = "chrome-browser", concurrency = 1, accessMode = "READWRITE")
+    @Resource(resID = "eshopUser", replaceable = {})
+    @AccessMode(resID = "eshopUser", concurrency = 1, accessMode = "READWRITE")
     @Test
     @DisplayName("testCreateNewOrder")
     void testCreateNewOrder() throws ElementNotFoundException {
@@ -34,10 +53,27 @@ class OrderTests extends BaseLoggedClass {
         checkLastOrderState(initialNOrders, "submitted");
         logout();
     }
+
     /**
      * Created an order with three different products, fullfil the order data (payment and address) and removes it
      * checking that the order state changes as expected.
      */
+    @Resource(resID = "webmvc", replaceable = {})
+    @AccessMode(resID = "webmvc", concurrency = 10, sharing = true, accessMode = "READONLY")
+    @Resource(resID = "identity-api", replaceable = {})
+    @AccessMode(resID = "identity-api", concurrency = 50, sharing = true, accessMode = "READONLY")
+    @Resource(resID = "catalog-api", replaceable = {})
+    @AccessMode(resID = "catalog-api", concurrency = 60, sharing = true, accessMode = "READONLY")
+    @Resource(resID = "basket-api", replaceable = {})
+    @AccessMode(resID = "basket-api", concurrency = 30,sharing = true, accessMode = "READWRITE")
+    @Resource(resID = "ordering-api", replaceable = {})
+    @AccessMode(resID = "ordering-api", concurrency =30 ,sharing = true, accessMode = "READWRITE")
+    @Resource(resID = "payment-api", replaceable = {})
+    @AccessMode(resID = "payment-api", concurrency = 20, sharing = true, accessMode = "READWRITE")
+    @Resource(resID = "chrome-browser", replaceable = {})
+    @AccessMode(resID = "chrome-browser", concurrency = 1, sharing = false, accessMode = "READWRITE")
+    @Resource(resID = "eshopUser", replaceable = {})
+    @AccessMode(resID = "eshopUser", concurrency = 1, accessMode = "READWRITE")
     @Test
     @DisplayName("testRemoveOrder")
     void testCancelOrder() throws ElementNotFoundException {
@@ -50,6 +86,7 @@ class OrderTests extends BaseLoggedClass {
         checkLastOrderState(initialNOrders, "cancelled");
         logout();
     }
+
     /**
      * Checks the state of the last order is the specified one
      * @param initialNOrders the initial number of orders
@@ -91,6 +128,31 @@ class OrderTests extends BaseLoggedClass {
         checkOrderAmountAndNumItems("$ 36.00", 4);
         WebElement buttonPlaceOrder = driver.findElement(By.name("action"));
         Click.element(driver, waiter, buttonPlaceOrder);
+        Assertions.assertEquals(checkOrderPlaced(), true, "The order was not placed until 5 seconds");
+
+    }
+
+    /**
+     * Method to verify if an order is correctly placed by ensuring that the basket is empty.
+     * This verification should also be extended to the consistency of the database, not solely relying on the final UI state.
+     * While detailed functional tests are not conducted, this UI check its enough for now.
+     * @return true if the basket is empty (no elements), otherwise returns false.
+     **/
+
+    public boolean checkOrderPlaced() throws ElementNotFoundException {
+        int totalAttempts = 5; // Total attempts allowed to check if the order is placed
+        while (totalAttempts > 0) {
+            try {
+                // Wait until the basket status badge indicates 0 items
+                waiter.waitUntil(ExpectedConditions.textToBe(By.className("esh-basketstatus-badge"), "0"), "The Basket value is not 0");
+                return true; // Order is placed successfully
+            } catch (TimeoutException e) {
+                // If timeout occurs, navigate back to the main menu and decrement the attempts
+                toMainMenu(driver, waiter);
+                totalAttempts--; // Decrement total attempts
+            }
+        }
+        return false; // Order could not be placed within the specified attempts
     }
 
     /**

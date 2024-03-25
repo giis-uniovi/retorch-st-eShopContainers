@@ -39,19 +39,17 @@ else
     echo "Failed to pull Docker images."
 fi
 
-# Change to the source directory
-cd "$SUT_LOCATION/src"
+echo "Building images of SUT"
 
-echo "Building images of eShopContainers"
-
-# Use double quotes for Docker Compose files
-docker compose -f "docker-compose.yml" -f "docker-compose.retorch.yml" --ansi never build
+cd "$SUT_LOCATION"
+# Use double quotes for Docker Compose files TEMPORAL FIX
+docker compose -f "docker-compose.yml" --env-file "$WORKSPACE/retorchfiles/envfiles/tjobc.env" --ansi never build
 
 # Check the exit status of the last command
 if [ $? -eq 0 ]; then
-    echo "Images for eShopContainers."
+    echo "Images for SUT"
 else
-    echo "Failed to build images of eShopContainers"
+    echo "Failed to build images of SUT"
     exit 1
 fi
 
