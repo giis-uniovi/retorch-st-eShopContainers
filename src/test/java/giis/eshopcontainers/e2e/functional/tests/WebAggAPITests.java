@@ -1,44 +1,56 @@
-package giis.eshopcontainers.e2e.api;
+package giis.eshopcontainers.e2e.functional.tests;
 
 import com.google.gson.Gson;
-import giis.eshopcontainers.e2e.api.model.Order;
-import giis.eshopcontainers.e2e.api.common.BaseAPIClass;
-import giis.eshopcontainers.e2e.api.model.OrderItem;
+import giis.eshopcontainers.e2e.functional.common.BaseAPIClass;
+import giis.eshopcontainers.e2e.functional.model.Order;
+import giis.eshopcontainers.e2e.functional.model.OrderItem;
+import giis.retorch.annotations.AccessMode;
+import giis.retorch.annotations.Resource;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPut;
+import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.BasicResponseHandler;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
-import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
-public class CatalogAPITests extends BaseAPIClass {
+public class WebAggAPITests extends BaseAPIClass {
 
-
-    //https://auth0.com/docs/get-started/authentication-and-authorization-flow/resource-owner-password-flow/call-your-api-using-resource-owner-password-flow#request-tokens
+    // Test to ensure items are added to the basket correctly
+    @Resource(resID = "identity-api", replaceable = {})
+    @AccessMode(resID = "identity-api", concurrency = 50, sharing = true, accessMode = "READONLY")
+    @Resource(resID = "basket-api", replaceable = {})
+    @AccessMode(resID = "basket-api", concurrency = 30,sharing = true, accessMode = "READWRITE")
+    @Resource(resID = "eshopUser", replaceable = {})
+    @AccessMode(resID = "eshopUser", concurrency = 1, accessMode = "READWRITE")
     @Test
-    void getsCorrectlyTheProductCatalogTest() throws IOException {
+    @DisplayName("testAddProductsBasketWebAgg")
+    void testAddProductsBasket() throws IOException, InterruptedException {
+        // Initialize Gson for JSON serialization/deserialization
+        Gson gson = new Gson();
 
         addItemsToBasket();
+
+        // Retrieve the basket and deserialize JSON response into Order object
         String outputGetBasket = getBasket("testuserid");
-
-
-        Gson gson = new Gson();
         Order order = gson.fromJson(outputGetBasket, Order.class);
 
+        // Assertions to validate basket content
         Assertions.assertEquals("testuserid", order.getBuyer(), "The user id doesn't match");
-        Assertions.assertEquals(2, order.getOrderItems().size(), "More than 2 items where found in the order");
+        Assertions.assertEquals(2, order.getOrderItems().size(), "More than 2 items were found in the order");
+
         List<OrderItem> listitems = order.getOrderItems();
+        // Assertions for each order item
         Assertions.assertEquals(5, listitems.get(0).getProductId());
         Assertions.assertEquals("Roslyn Red Pin", listitems.get(0).getProductName());
         Assertions.assertEquals(2, listitems.get(0).getUnits());
@@ -48,19 +60,22 @@ public class CatalogAPITests extends BaseAPIClass {
         Assertions.assertEquals("Prism White T-Shirt", listitems.get(1).getProductName());
         Assertions.assertEquals(1, listitems.get(1).getUnits());
         Assertions.assertEquals(12, listitems.get(1).getUnitPrice());
-
-        System.out.println(order);
     }
 
+    // Method to add items to the basket
     public String addItemsToBasket() throws IOException {
+        // Debug log for creating connection
+        log.debug("Creating the connection with URL: http://basket_api_" + tjob_name + ":80/api/v1/Basket");
+        // Create HTTP client and POST request
         HttpClient httpclient = HttpClients.createDefault();
-        HttpPut httpPut = new HttpPut(sutUrl + ":5209/api/v1/Basket");
+        HttpPost httpPost = new HttpPost("http://webshoppingagg_" + tjob_name + ":80/api/v1/Basket");
 
-        // Configure Headers
-        httpPut.addHeader("accept", "text/plain");
-        httpPut.addHeader("content-type", "application/json");
-        httpPut.addHeader("Authorization", "Bearer " + tokenAPI);
+        // Configure headers
+        httpPost.addHeader("accept", "text/plain");
+        httpPost.addHeader("content-type", "application/json");
+        httpPost.addHeader("Authorization", "Bearer " + tokenAPI);
 
+        // JSON payload for adding items to the basket
         String json = "{\n" +
                 "  \"buyerId\": \"testuserid\",\n" +
                 "  \"items\": [\n" +
@@ -78,29 +93,35 @@ public class CatalogAPITests extends BaseAPIClass {
                 "  ]\n" +
                 "}";
 
-
+        // Set JSON payload as entity for the HTTP request
         StringEntity entity = new StringEntity(json);
-        httpPut.setEntity(entity);
+        httpPost.setEntity(entity);
 
+        // Define response handler
         ResponseHandler<String> responseHandler = new BasicResponseHandler();
-
-        String responsestr = httpclient.execute(httpPut, responseHandler);
-
-
-        return responsestr;
+        // Debug log for performing the request
+        log.debug("Performing the request");
+        // Execute HTTP request and return response
+        return httpclient.execute(httpPost, responseHandler);
     }
 
+    // Method to get basket details
+    public String getBasket(String basketId) {
+        // Define request URL
+        String requestURL = "http://webshoppingagg_" + tjob_name + ":80/api/v1/Order/draft/" + basketId;
 
-    public String getBasket(String basketId) throws IOException {
-        String requestURL = sutUrl + ":5209/api/v1/Order/draft/" + basketId;
+        // Initialize result string
         String result = "";
+
+        // Execute HTTP request and handle response
         try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
             // Create the HTTP Get Request
             HttpGet request = new HttpGet(requestURL);
 
-            //Configure headers
+            // Configure headers
             request.addHeader("content-type", "application/json");
             request.addHeader("Authorization", "Bearer " + tokenAPI);
+
             // Execute the request and obtain the response
             HttpResponse response = httpClient.execute(request);
 
@@ -108,16 +129,13 @@ public class CatalogAPITests extends BaseAPIClass {
             HttpEntity entity = response.getEntity();
             if (entity != null) {
                 result = EntityUtils.toString(entity);
-
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            // Print stack trace for IOException
+            log.debug("The connection failed");
         }
 
+        // Return response result
         return result;
-
-
     }
-
-
 }
