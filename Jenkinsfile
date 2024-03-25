@@ -46,29 +46,38 @@ pipeline {
               sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-teardown.sh tjobd 0'
           }// EndStepsTJobD
         }// EndStageTJobD
-        stage('TJobE IdResource: basket-api catalog-api chrome-browser eshopUser identity-api ordering-api payment-api webmvc ') {
+        stage('TJobE IdResource: basket-api eshopUser identity-api ') {
           steps {
               catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
                   sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-setup.sh tjobe 0'
-                  sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-testexecution.sh tjobe 0 http:// 5024 "OrderTests#testCancelOrder,OrderTests#testCreateNewOrder"'
+                  sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-testexecution.sh tjobe 0 http:// 5024 "WebAggAPITests#testAddProductsBasket"'
               }// EndExecutionStageErrorTJobE
               sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-teardown.sh tjobe 0'
           }// EndStepsTJobE
         }// EndStageTJobE
+        stage('TJobF IdResource: basket-api catalog-api chrome-browser eshopUser identity-api ordering-api payment-api webmvc ') {
+          steps {
+              catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
+                  sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-setup.sh tjobf 0'
+                  sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-testexecution.sh tjobf 0 http:// 5036 "OrderTests#testCancelOrder,OrderTests#testCreateNewOrder"'
+              }// EndExecutionStageErrorTJobF
+              sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-teardown.sh tjobf 0'
+          }// EndStepsTJobF
+        }// EndStageTJobF
      }// End Parallel
     }// End Stage
     stage('Stage 1'){
       failFast false
       parallel{
-        stage('TJobF IdResource: catalog-api chrome-browser webmvc ') {
+        stage('TJobG IdResource: catalog-api chrome-browser webmvc ') {
           steps {
               catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
-                  sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-setup.sh tjobf 1'
-                  sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-testexecution.sh tjobf 1 http:// 5036 "CatalogTests#FilterProductsByBrandType"'
-              }// EndExecutionStageErrorTJobF
-              sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-teardown.sh tjobf 1'
-          }// EndStepsTJobF
-        }// EndStageTJobF
+                  sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-setup.sh tjobg 1'
+                  sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-testexecution.sh tjobg 1 http:// 5048 "CatalogTests#FilterProductsByBrandType"'
+              }// EndExecutionStageErrorTJobG
+              sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-teardown.sh tjobg 1'
+          }// EndStepsTJobG
+        }// EndStageTJobG
      }// End Parallel
     }// End Stage
 stage('TEARDOWN-Infrastructure') {
@@ -78,11 +87,11 @@ stage('TEARDOWN-Infrastructure') {
       }// EndStepsTearDownInf
 }// EndStageTearDown
   }// EndStagesPipeline
- post {
+ post { 
       always {
           archiveArtifacts artifacts: 'artifacts/*.csv', onlyIfSuccessful: true
           archiveArtifacts artifacts: 'target/testlogs/**/*.*', onlyIfSuccessful: false
           archiveArtifacts artifacts: 'target/containerlogs/**/*.*', onlyIfSuccessful: false
       }//EndAlways
  }//EndPostActions
-}// EndPipeline
+}// EndPipeline 

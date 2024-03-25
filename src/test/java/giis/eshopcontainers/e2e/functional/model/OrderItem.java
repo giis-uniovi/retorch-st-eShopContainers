@@ -1,4 +1,4 @@
-package giis.eshopcontainers.e2e.api.model;
+package giis.eshopcontainers.e2e.functional.model;
 
 public class OrderItem {
     private int productId;

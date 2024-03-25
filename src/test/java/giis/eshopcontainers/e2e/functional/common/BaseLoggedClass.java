@@ -5,6 +5,7 @@ import giis.eshopcontainers.e2e.functional.utils.Navigation;
 import giis.eshopcontainers.e2e.functional.utils.Waiter;
 import giis.selema.framework.junit5.LifecycleJunit5;
 import giis.selema.manager.SeleManager;
+import giis.selema.manager.SelemaConfig;
 import giis.selema.services.impl.SelenoidService;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
