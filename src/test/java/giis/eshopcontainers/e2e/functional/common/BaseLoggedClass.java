@@ -20,6 +20,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.sql.*;
 import java.util.Properties;
 
 /*
@@ -47,6 +48,8 @@ public class BaseLoggedClass {
         properties = new Properties();
         // load a properties file for reading
         properties.load(Files.newInputStream(Paths.get("src/test/resources/test.properties")));
+        // Retrieve test job name
+        tJobName = System.getProperty("tjob_name");
         String envUrl = System.getProperty("SUT_URL") != null ? System.getProperty("SUT_URL") : System.getenv("SUT_URL");
         if (envUrl == null) {
             // Outside CI
@@ -56,6 +59,7 @@ public class BaseLoggedClass {
             sutUrl = envUrl + ":" + (System.getProperty("SUT_PORT") != null ? System.getProperty("SUT_PORT") : System.getenv("SUT_PORT")) + "/";
             log.debug("Configuring the browser to connect to the remote System Under Test (SUT) at the following URL: " + sutUrl);
         }
+        checkDBStatus();
         setupBrowser();
         log.info("Ending global setup for all test cases.");
 
@@ -68,8 +72,7 @@ public class BaseLoggedClass {
         // Initialize WebDriver and Waiter instances
         driver = seleManager.getDriver();
         waiter = new Waiter(driver);
-        // Retrieve test job name
-        tJobName = System.getProperty("tjob_name");
+
         // Retrieve user credentials
         userName = properties.getProperty("USER_ESHOP");
         password = properties.getProperty("USER_ESHOP_PASSWORD");
@@ -168,4 +171,53 @@ public class BaseLoggedClass {
         isLogged = false;
         log.debug("Logout successful");
     }
+
+    protected static void checkDBStatus() {
+        String dbName = "Microsoft.eShopOnContainers.Services.CatalogDb";
+        String tableName = "Catalog";
+        String query = "SELECT COUNT(*) AS numproducts FROM " + tableName;
+
+        // Get properties
+        String user = properties.getProperty("SQLDB_USER");
+        String password = properties.getProperty("SQLDB_PASSWORD");
+        String host = "sqldata_" + tJobName;
+        //host = "localhost"; // default host
+
+        // Build JDBC URL
+        String url = "jdbc:sqlserver://" + host + ":1433;databaseName=" + dbName + ";Encrypt=True;TrustServerCertificate=True;user=" + user + ";password=" + password;
+
+        // Retry logic
+        boolean found = false;
+        int iter = 0;
+        final int maxIterations = 10;
+        while (!found && iter < maxIterations) {
+            iter++;
+            try (Connection connection = DriverManager.getConnection(url)) {
+                try (Statement stmt = connection.createStatement();
+                     ResultSet rs = stmt.executeQuery(query)) {
+                    if (rs.next()) {
+                        int result = rs.getInt("numproducts");
+                        log.debug("The number of products in CatalogDB is " + result);
+                        if (result > 0) {
+                            found = true;
+                            break;
+                        }
+                    } else {
+                        log.info("No data available in the Catalog table yet.");
+                    }
+                }
+            } catch (SQLException e) {
+                log.warn("An exception occurred during the SQL query: " + e.getMessage());
+            }
+            try {
+                Thread.sleep(5000); // Wait 5 seconds for the next connection and query
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        }
+        if (!found) {
+            log.error("The database is not ready after " + maxIterations + " attempts.");
+        }
+    }
+
 }

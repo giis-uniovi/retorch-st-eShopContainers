@@ -3,7 +3,7 @@ set -e
 
 # Check if the correct number of arguments is provided
 if [ "$#" -ne 0 ]; then
-    echo "This script doesn't take any parameter"
+    "$SCRIPTS_FOLDER/printLog.sh" "ERROR" "CreationTimeFile" "This script doesn't take any parameter"
     exit 1
 fi
 
@@ -23,7 +23,7 @@ for csvfile in $PATH_FILES; do
       tail -n +2 "$OUTPUT_DIR_COI" | rev | cut -d ';' -f 1 | rev
     } >>"$OUTPUT_FILE"
   else
-    echo "Error: One or more files do not exist."
+    "$SCRIPTS_FOLDER/printLog.sh" "ERROR" "CreationTimeFile" "Error: One or more files do not exist."
     exit 1
   fi
 done

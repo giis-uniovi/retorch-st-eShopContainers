@@ -6,35 +6,35 @@ set -e
 # Export Docker Host IP
 DOCKER_HOST_IP=$(/sbin/ip route | awk '/default/ { print $3 }')
 export DOCKER_HOST_IP
-echo "Exporting the HOST_IP: $DOCKER_HOST_IP"
+"$SCRIPTS_FOLDER/printLog.sh" "DEBUG" "$1-set-up" "Exporting the HOST_IP: $DOCKER_HOST_IP"
 
 # Custom Set-up commands
-echo "Executing custom commands"
+"$SCRIPTS_FOLDER/printLog.sh" "DEBUG" "$1-set-up" "Executing custom commands"
 
-copy_and_replace_envoy_configs() {
-    local tjobname="$1"
-    cp -p "$SUT_LOCATION/ApiGateways/Envoy/config/mobileshopping/envoy.yaml" "$SUT_LOCATION/tmp/$tjobname/mobileshopping/"
-    cp -p "$SUT_LOCATION/ApiGateways/Envoy/config/webshopping/envoy.yaml" "$SUT_LOCATION/tmp/$tjobname/webshopping/"
+# Custom Set-up commands
 
-    sed -i "s/\${tjobname}/$tjobname/g" "$SUT_LOCATION/tmp/$tjobname/mobileshopping/envoy.yaml"
-    sed -i "s/\${tjobname}/$tjobname/g" "$SUT_LOCATION/tmp/$tjobname/webshopping/envoy.yaml"
-}
-# COI setup
-mkdir -p "$SUT_LOCATION/tmp/$1/mobileshopping"
-mkdir -p "$SUT_LOCATION/tmp/$1/webshopping"
+"$SCRIPTS_FOLDER/printLog.sh" "DEBUG" "$TJOB_NAME-set-up" "Start custom commands"
+# Deploy containers
+cd "$SUT_LOCATION"
 
-copy_and_replace_envoy_configs "$1"
+"$SCRIPTS_FOLDER/printLog.sh" "DEBUG" "$1-set-up" "Building proxy images for TJOB $1"
+
+docker compose -f "docker-compose.yml" --env-file "$WORKSPACE/retorchfiles/envfiles/$1.env" --ansi never build webshoppingapigw mobileshoppingapigw
+
+"$SCRIPTS_FOLDER/printLog.sh" "DEBUG" "$TJOB_NAME-set-up" "End custom commands"
+
+
 
 # Deploy containers
 cd "$SUT_LOCATION"
-echo "Deploying containers for TJOB $1"
+"$SCRIPTS_FOLDER/printLog.sh" "DEBUG" "$1-set-up" "Deploying containers for TJOB $1"
 docker compose -f docker-compose.yml --env-file "$WORKSPACE/retorchfiles/envfiles/$1.env" --ansi never -p "$1" up -d
 
-echo "Waiting for the system to be up..."
+"$SCRIPTS_FOLDER/printLog.sh" "DEBUG" "$1-set-up" "Waiting for the system to be up..."
 "$WORKSPACE/retorchfiles/scripts/waitforSUT.sh" "$1"
 cd "$WORKSPACE"
 
-echo "System READY!! Test execution can start!"
+"$SCRIPTS_FOLDER/printLog.sh" "DEBUG" "$1-set-up" "System READY!! Test execution can start!"
 
 # Execute the script to write timestamp again
 "$SCRIPTS_FOLDER/writetime.sh" "$2" "$1"

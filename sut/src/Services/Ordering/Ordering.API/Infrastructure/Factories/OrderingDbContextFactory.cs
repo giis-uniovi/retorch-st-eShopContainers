@@ -6,7 +6,7 @@ namespace Microsoft.eShopOnContainers.Services.Ordering.API.Infrastructure.Facto
         {
             var config = new ConfigurationBuilder()
                .SetBasePath(Path.Combine(Directory.GetCurrentDirectory()))
-               .AddJsonFile("appsettings.json")
+               .AddJsonFile("appsettings.json",optional: false, reloadOnChange: false)
                .AddEnvironmentVariables()
                .Build();
 
