@@ -3,10 +3,10 @@ set -e  # Exit immediately if any command exits with a non-zero status
 
 COITEARDOWNSTART="$(date +%s%3N)"
 
-echo "Switch off all containers that start with *tjob*..."
+"$SCRIPTS_FOLDER/printLog.sh" "DEBUG" "COI-tear-down" "Switch off all containers that start with *tjob*..."
 docker rm $(docker stop $(docker ps -a -q --filter name=tjob --format="{{.ID}}") || echo 'Any Container to remove') || echo 'All the containers are removed!'
 
-echo "Pruning also its volumes"
+"$SCRIPTS_FOLDER/printLog.sh" "DEBUG" "COI-tear-down" "Pruning also all the volumes"
 docker volume prune --all -f
 
 # Run saveTJobLifecycledata.sh script
@@ -18,4 +18,4 @@ COITEARDOWNEND="$(date +%s%3N)"
 OUTPUTDIRCOI="$WORKSPACE/retorchcostestimationdata/exec$BUILD_NUMBER/COI.data"
 echo -n ";$COITEARDOWNSTART;$COITEARDOWNEND" >> "$OUTPUTDIRCOI"
 
-echo "COI teardown script completed successfully."
+"$SCRIPTS_FOLDER/printLog.sh" "DEBUG" "COI-tear-down" "Script completed successfully."

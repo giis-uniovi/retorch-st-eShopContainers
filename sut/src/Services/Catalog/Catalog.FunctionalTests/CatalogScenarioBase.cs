@@ -13,7 +13,7 @@ public class CatalogScenariosBase
             {
                 var directory = Path.GetDirectoryName(typeof(CatalogScenariosBase).Assembly.Location)!;
 
-                c.AddJsonFile(Path.Combine(directory, "appsettings.Catalog.json"), optional: false);
+                c.AddJsonFile(Path.Combine(directory, "appsettings.Catalog.json"), optional: false, reloadOnChange: false);
             });
 
             return base.CreateHost(builder);

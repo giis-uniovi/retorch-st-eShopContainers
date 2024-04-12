@@ -2,7 +2,7 @@
 
 # Check if the correct number of parameters is provided
 if [ "$#" -ne 2 ]; then
-    echo "Usage: $0 <STAGE> <TJOBNAME>"
+    "$SCRIPTS_FOLDER/printLog.sh" "ERROR" "writeTime-$1" "Usage: $0 <STAGE> <TJOBNAME>"
     exit 1
 fi
 STAGE=$2
@@ -16,7 +16,7 @@ append_timestamp() {
   if [ -f "$1" ]; then
     echo -n ";$(date +%s%3N)" >>"$1"
   else
-    echo "Error: File $1 does not exist."
+    "$SCRIPTS_FOLDER/printLog.sh" "ERROR" "writeTime-$1" "Error: File $1 does not exist."
     exit 1
   fi
 }

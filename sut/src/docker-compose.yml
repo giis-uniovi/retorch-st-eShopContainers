@@ -1,5 +1,3 @@
-version: '3.4'
-
 services:
 
   seq:
@@ -236,9 +234,12 @@ services:
 
   mobileshoppingapigw:
     container_name: mobileshoppingapigw_${tjobname}
-    image: envoyproxy/envoy:v1.11.1
-    volumes:
-      - ./tmp/${tjobname}/mobileshopping:/etc/envoy
+    build:
+      context: .
+      dockerfile: ApiGateways/Envoy/config/mobileshopping/Dockerfile
+    environment:
+      - loglevel=debug
+      - TAG=${tjobname}
     networks:
       - jenkins_network
 
@@ -452,9 +453,12 @@ services:
 
   webshoppingapigw:
     container_name: webshoppingapigw_${tjobname}
-    image: envoyproxy/envoy:v1.11.1
-    volumes:
-      - ./tmp/${tjobname}/webshopping:/etc/envoy
+    build:
+      context: .
+      dockerfile: ApiGateways/Envoy/config/webshopping/Dockerfile
+    environment:
+      - loglevel=debug
+      - TAG="${tjobname}"
     networks:
       - jenkins_network
 

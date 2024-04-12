@@ -12,7 +12,7 @@ public class Waiter {
     private static final Logger log = LoggerFactory.getLogger(Waiter.class);
     private final WebDriverWait waiter;
     public Waiter(WebDriver driver){
-       waiter= new WebDriverWait(driver, Duration.ofSeconds(1));
+       waiter= new WebDriverWait(driver, Duration.ofSeconds(10));
     }
     public void waitUntil(ExpectedCondition condition, String errorMessage){
         try {
