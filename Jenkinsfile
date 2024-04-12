@@ -41,7 +41,7 @@ pipeline {
           steps {
               sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-setup.sh tjobc1 0'
               catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
-                  sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-testexecution.sh tjobc1 0 http:// 5000 "CatalogTests#addProductsToBasket"'
+                  sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-testexecution.sh tjobc1 0 http:// 5020 "CatalogTests#addProductsToBasket"'
               }// EndExecutionStageErrortjobc1
               sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-teardown.sh tjobc1 0'
           }// EndStepstjobc1
@@ -50,7 +50,7 @@ pipeline {
           steps {
               sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-setup.sh tjobc2 0'
               catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
-                  sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-testexecution.sh tjobc2 0 http:// 5000 "CatalogTests#addProductsToBasket"'
+                  sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-testexecution.sh tjobc2 0 http:// 5040 "CatalogTests#addProductsToBasket"'
               }// EndExecutionStageErrortjobc2
               sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-teardown.sh tjobc2 0'
           }// EndStepstjobc2
@@ -60,7 +60,7 @@ pipeline {
           steps {
               sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-setup.sh tjobc3 0'
               catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
-                  sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-testexecution.sh tjobc3 0 http:// 5000 "CatalogTests#addProductsToBasket"'
+                  sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-testexecution.sh tjobc3 0 http:// 5090 "CatalogTests#addProductsToBasket"'
               }// EndExecutionStageErrortjobc3
               sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-teardown.sh tjobc3 0'
           }// EndStepstjobc3
@@ -70,7 +70,7 @@ pipeline {
           steps {
               sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-setup.sh tjobc4 0'
               catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
-                  sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-testexecution.sh tjobc4 0 http:// 5000 "CatalogTests#addProductsToBasket"'
+                  sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-testexecution.sh tjobc4 0 http:// 5100 "CatalogTests#addProductsToBasket"'
               }// EndExecutionStageErrortjobc4
               sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-teardown.sh tjobc4 0'
           }// EndStepstjobc4
@@ -79,7 +79,7 @@ pipeline {
           steps {
               sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-setup.sh tjobc5 0'
               catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
-                  sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-testexecution.sh tjobc5 0 http:// 5000 "CatalogTests#addProductsToBasket"'
+                  sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-testexecution.sh tjobc5 0 http:// 5200 "CatalogTests#addProductsToBasket"'
               }// EndExecutionStageErrortjobc5
               sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-teardown.sh tjobc5 0'
           }// EndStepstjobc5
