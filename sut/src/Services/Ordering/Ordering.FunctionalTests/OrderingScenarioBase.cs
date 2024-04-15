@@ -23,7 +23,7 @@ public class OrderingScenarioBase
             {
                 var directory = Path.GetDirectoryName(typeof(OrderingScenarioBase).Assembly.Location)!;
 
-                c.AddJsonFile(Path.Combine(directory, "appsettings.Ordering.json"), optional: false);
+                c.AddJsonFile(Path.Combine(directory, "appsettings.Ordering.json"), optional: false,reloadOnChange: false);
             });
 
             return base.CreateHost(builder);
