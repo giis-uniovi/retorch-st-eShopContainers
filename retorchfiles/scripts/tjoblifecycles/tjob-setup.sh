@@ -32,6 +32,13 @@ docker compose -f docker-compose.yml --env-file "$WORKSPACE/retorchfiles/envfile
 
 echo "Waiting for the system to be up..."
 "$WORKSPACE/retorchfiles/scripts/waitforSUT.sh" "$1"
+# Verificar el código de salida de waitforSUT.sh
+if [ $? -ne 0 ]; then
+    echo "SUT is down, making a preventive teardown"
+    docker compose -f docker-compose.yml --env-file "$WORKSPACE/retorchfiles/envfiles/$1.env" --ansi never -p "$1" down --volumes
+    exit 1
+fi
+
 cd "$WORKSPACE"
 
 echo "System READY!! Test execution can start!"
