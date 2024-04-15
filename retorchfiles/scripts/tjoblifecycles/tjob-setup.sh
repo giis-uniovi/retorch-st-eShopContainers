@@ -31,10 +31,12 @@ echo "Deploying containers for TJOB $1"
 docker compose -f docker-compose.yml --env-file "$WORKSPACE/retorchfiles/envfiles/$1.env" --ansi never -p "$1" up -d
 
 echo "Waiting for the system to be up..."
-"$WORKSPACE/retorchfiles/scripts/waitforSUT.sh" "$1"
+result=$( "$WORKSPACE/retorchfiles/scripts/waitforSUT.sh" "$1")
 # Verificar el código de salida de waitforSUT.sh
-if [ $? -ne 0 ]; then
-    echo "SUT is down, making a preventive teardown"
+if [ $result -ne 0 ]; then
+    echo "SUT is down, making a preventive teardown and storing the logs"
+    "$WORKSPACE/retorchfiles/scripts/storeContainerLogs.sh" "$1"
+    # Tearing down the system.
     docker compose -f docker-compose.yml --env-file "$WORKSPACE/retorchfiles/envfiles/$1.env" --ansi never -p "$1" down --volumes
     exit 1
 fi
