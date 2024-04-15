@@ -13,7 +13,12 @@ while ! curl --insecure -s "http://webmvc_$1:80" | grep -q "<div class=\"esh-cat
   ((COUNTER++))
 
   if ((COUNTER > WAIT_LIMIT)); then
-    echo "The container is down"
+    echo "SUT is down, making a preventive tear-down and storing the logs"
+    "$WORKSPACE/retorchfiles/scripts/storeContainerLogs.sh" "$1"
+    # Tearing down the system.
+    docker compose -f docker-compose.yml --env-file "$WORKSPACE/retorchfiles/envfiles/$1.env" --ansi never -p "$1" down --volumes
     exit 1
   fi
 done
+
+
