@@ -22,7 +22,9 @@ public class Navigation {
      */
     public static void toMainMenu(WebDriver driver, Waiter waiter) throws ElementNotFoundException {
         log.debug("Navigating to main menu, clicking logo...");
+        waiter.waitUntil(ExpectedConditions.visibilityOfElementLocated(By.xpath("//img")), "The menu image its not visible");
         Click.element(driver, waiter, driver.findElement(By.xpath("//img")));
+
     }
 
     /**
