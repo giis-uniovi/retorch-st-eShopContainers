@@ -32,7 +32,6 @@ docker compose -f docker-compose.yml --env-file "$WORKSPACE/retorchfiles/envfile
 
 echo "Waiting for the system to be up..."
 "$WORKSPACE/retorchfiles/scripts/waitforSUT.sh" "$1"
-
 cd "$WORKSPACE"
 
 echo "System READY!! Test execution can start!"

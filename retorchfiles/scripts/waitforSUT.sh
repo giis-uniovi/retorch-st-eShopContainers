@@ -20,5 +20,3 @@ while ! curl --insecure -s "http://webmvc_$1:80" | grep -q "<div class=\"esh-cat
     exit 1
   fi
 done
-
-

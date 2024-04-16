@@ -4,7 +4,7 @@ set -e
 # Execute the script to write timestamp
 "$SCRIPTS_FOLDER/writetime.sh" "$2" "$1"
 
-#Store container logs
+# Store docker logs
 "$WORKSPACE/retorchfiles/scripts/storeContainerLogs.sh" "$1"
 
 # Change to SUT location
