@@ -51,6 +51,8 @@ services:
       dockerfile: Services/Identity/Identity.API/Dockerfile
     depends_on:
       - sqldata
+
+
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://0.0.0.0:80
@@ -111,6 +113,7 @@ services:
     depends_on:
       - sqldata
       - rabbitmq
+
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - Kestrel__Endpoints__HTTP__Url=http://0.0.0.0:80
@@ -140,6 +143,7 @@ services:
     depends_on:
       - sqldata
       - rabbitmq
+
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - Kestrel__Endpoints__HTTP__Url=http://0.0.0.0:80
