@@ -14,12 +14,16 @@ import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.FluentWait;
+import org.openqa.selenium.support.ui.Wait;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.sql.*;
+import java.time.Duration;
 import java.util.Properties;
 
 /*
@@ -62,7 +66,7 @@ public class BaseLoggedClass {
     }
 
     @BeforeEach
-    void setup(TestInfo testInfo) {
+    void setup(TestInfo testInfo) throws SQLException {
         log.info("Starting Individual Set-up for the test: {}.", testInfo.getDisplayName());
 
         // Initialize WebDriver and Waiter instances
@@ -75,7 +79,6 @@ public class BaseLoggedClass {
         password = properties.getProperty("USER_ESHOP_PASSWORD");
         // Navigate to SUT URL
         log.debug("Navigating to {}.", sutUrl);
-        driver.get(sutUrl);
 
         log.info("Individual Set-up for the TJob {} finished, starting test: {}.", tJobName, testInfo.getDisplayName());
     }
@@ -168,4 +171,6 @@ public class BaseLoggedClass {
         isLogged = false;
         log.debug("Logout successful");
     }
+
+
 }
