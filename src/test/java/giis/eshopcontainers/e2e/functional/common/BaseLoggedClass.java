@@ -14,8 +14,6 @@ import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.FluentWait;
-import org.openqa.selenium.support.ui.Wait;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,7 +21,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.sql.*;
-import java.time.Duration;
 import java.util.Properties;
 
 /*
@@ -51,6 +48,8 @@ public class BaseLoggedClass {
         properties = new Properties();
         // load a properties file for reading
         properties.load(Files.newInputStream(Paths.get("src/test/resources/test.properties")));
+        // Retrieve test job name
+        tJobName = System.getProperty("tjob_name");
         String envUrl = System.getProperty("SUT_URL") != null ? System.getProperty("SUT_URL") : System.getenv("SUT_URL");
         if (envUrl == null) {
             // Outside CI
@@ -60,20 +59,20 @@ public class BaseLoggedClass {
             sutUrl = envUrl + ":" + (System.getProperty("SUT_PORT") != null ? System.getProperty("SUT_PORT") : System.getenv("SUT_PORT")) + "/";
             log.debug("Configuring the browser to connect to the remote System Under Test (SUT) at the following URL: " + sutUrl);
         }
+        checkDB();
         setupBrowser();
         log.info("Ending global setup for all test cases.");
 
     }
 
     @BeforeEach
-    void setup(TestInfo testInfo) throws SQLException {
+    void setup(TestInfo testInfo) {
         log.info("Starting Individual Set-up for the test: {}.", testInfo.getDisplayName());
 
         // Initialize WebDriver and Waiter instances
         driver = seleManager.getDriver();
         waiter = new Waiter(driver);
-        // Retrieve test job name
-        tJobName = System.getProperty("tjob_name");
+
         // Retrieve user credentials
         userName = properties.getProperty("USER_ESHOP");
         password = properties.getProperty("USER_ESHOP_PASSWORD");
@@ -172,5 +171,36 @@ public class BaseLoggedClass {
         log.debug("Logout successful");
     }
 
+    protected static void checkDB() {
+        String dbName = "Microsoft.eShopOnContainers.Services.CatalogDb";
+        String tableName = "Catalog";
+        String query = "USE [" + dbName + "]; SELECT COUNT(*) AS numproducts FROM " + tableName;
+        String user = "SA";
+        String password = "Pass@word";
+        String host="sqldata_"+tJobName;
+        //ConfiguracióndelaconexiónJDBC
+        String url = "jdbc:sqlserver://"+host+":1433;databaseName="+dbName+";Encrypt=True;TrustServerCertificate=True;user="+user+";password="+password;
+        Statement stmt ;
+        ResultSet rs ;
+
+        try (Connection connection = DriverManager.getConnection(url)) {
+        //Codehere.
+            stmt = connection.createStatement();
+        //EjecutarlaconsultaSQL
+            rs = stmt.executeQuery(query);
+            // Ejecutar la consulta SQL
+            if (rs.next()) {
+                int result = rs.getInt("numproducts");
+                System.out.println("El número es: " + result);
+            } else {
+                System.out.println("No se encontraron resultados.");
+            }
+        }
+//Handleanyerrorsthatmayhaveoccurred.
+        catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+    }
 
 }
