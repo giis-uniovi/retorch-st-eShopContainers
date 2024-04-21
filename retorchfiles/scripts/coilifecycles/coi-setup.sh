@@ -33,7 +33,7 @@ mkdir -p "$SUT_LOCATION/tmp"
 
 # Pull Docker images
 echo "Pulling images"
-if docker pull selenoid/vnc_chrome:116.0 && docker pull selenoid/video-recorder:latest-release; then
+if docker pull selenoid/vnc_chrome:121.0 && docker pull selenoid/video-recorder:latest-release; then
     echo "Images pulled successfully."
 else
     echo "Failed to pull Docker images."
