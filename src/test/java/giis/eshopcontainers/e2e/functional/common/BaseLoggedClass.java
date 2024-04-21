@@ -59,7 +59,7 @@ public class BaseLoggedClass {
             sutUrl = envUrl + ":" + (System.getProperty("SUT_PORT") != null ? System.getProperty("SUT_PORT") : System.getenv("SUT_PORT")) + "/";
             log.debug("Configuring the browser to connect to the remote System Under Test (SUT) at the following URL: " + sutUrl);
         }
-        checkDB();
+        checkDBStatus();
         setupBrowser();
         log.info("Ending global setup for all test cases.");
 
@@ -171,36 +171,52 @@ public class BaseLoggedClass {
         log.debug("Logout successful");
     }
 
-    protected static void checkDB() {
+    protected static void checkDBStatus() {
         String dbName = "Microsoft.eShopOnContainers.Services.CatalogDb";
         String tableName = "Catalog";
-        String query = "USE [" + dbName + "]; SELECT COUNT(*) AS numproducts FROM " + tableName;
-        String user = "SA";
-        String password = "Pass@word";
-        String host="sqldata_"+tJobName;
-        //ConfiguracióndelaconexiónJDBC
-        String url = "jdbc:sqlserver://"+host+":1433;databaseName="+dbName+";Encrypt=True;TrustServerCertificate=True;user="+user+";password="+password;
-        Statement stmt ;
-        ResultSet rs ;
+        String query = "SELECT COUNT(*) AS numproducts FROM " + tableName;
 
-        try (Connection connection = DriverManager.getConnection(url)) {
-        //Codehere.
-            stmt = connection.createStatement();
-        //EjecutarlaconsultaSQL
-            rs = stmt.executeQuery(query);
-            // Ejecutar la consulta SQL
-            if (rs.next()) {
-                int result = rs.getInt("numproducts");
-                System.out.println("El número es: " + result);
-            } else {
-                System.out.println("No se encontraron resultados.");
+        // Get properties
+        String user = properties.getProperty("SQLDB_USER");
+        String password = properties.getProperty("SQLDB_PASSWORD");
+        String host = "sqldata_" + tJobName;
+        //host = "localhost"; // default host
+
+        // Build JDBC URL
+        String url = "jdbc:sqlserver://" + host + ":1433;databaseName=" + dbName + ";Encrypt=True;TrustServerCertificate=True;user=" + user + ";password=" + password;
+
+        // Retry logic
+        boolean found = false;
+        int iter = 0;
+        final int maxIterations = 10;
+        while (!found && iter < maxIterations) {
+            iter++;
+            try (Connection connection = DriverManager.getConnection(url)) {
+                try (Statement stmt = connection.createStatement();
+                     ResultSet rs = stmt.executeQuery(query)) {
+                    if (rs.next()) {
+                        int result = rs.getInt("numproducts");
+                        log.debug("The number of products in CatalogDB is " + result);
+                        if (result > 0) {
+                            found = true;
+                            break;
+                        }
+                    } else {
+                        log.info("No data available in the Catalog table yet.");
+                    }
+                }
+            } catch (SQLException e) {
+                log.warn("An exception occurred during the SQL query: " + e.getMessage());
+            }
+            try {
+                Thread.sleep(5000); // Wait 5 seconds for the next connection and query
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
             }
         }
-//Handleanyerrorsthatmayhaveoccurred.
-        catch (SQLException e) {
-            e.printStackTrace();
+        if (!found) {
+            log.error("The database is not ready after " + maxIterations + " attempts.");
         }
-
     }
 
 }
