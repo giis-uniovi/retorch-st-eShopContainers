@@ -12,25 +12,27 @@ echo "Exporting the HOST_IP: $DOCKER_HOST_IP"
 echo "Executing custom commands"
 
 copy_and_replace_envoy_configs() {
-    local tjobname="$1"
+  local tjobname="$1"
+  local CONFIG_DIR="$SUT_LOCATION/ApiGateways/Envoy/config"
+  local TMP_DIR="$SUT_LOCATION/tmp/$tjobname"
+  if [ -d "$TMP_DIR" ]; then
+    echo "Directory /tmp for the tjob $tjobname exist, removing...."
+    rm -r "$TMP_DIR"
+  else
+    echo "Directory /tmp for the tjob $tjobname does not exist."
+  fi
 
-    if [ -d "$SUT_LOCATION/tmp/$tjobname" ]; then
-        rm -r "$SUT_LOCATION/tmp/$tjobname"
-    else
-        echo "Directory /tmp for the tjob $tjobname does not exist."
-    fi
+  mkdir -p "$TMP_DIR/mobileshopping"
+  mkdir -p "$TMP_DIR/webshopping"
 
-    mkdir -p "$SUT_LOCATION/tmp/$tjobname/mobileshopping"
-    mkdir -p "$SUT_LOCATION/tmp/$tjobname/webshopping"
+  cp -p "$CONFIG_DIR/mobileshopping/envoy.yaml" "$TMP_DIR/mobileshopping/"
+  cp -p "$CONFIG_DIR/webshopping/envoy.yaml" "$TMP_DIR/webshopping/"
 
-    cp -p "$SUT_LOCATION/ApiGateways/Envoy/config/mobileshopping/envoy.yaml" "$SUT_LOCATION/tmp/$tjobname/mobileshopping/"
-    cp -p "$SUT_LOCATION/ApiGateways/Envoy/config/webshopping/envoy.yaml" "$SUT_LOCATION/tmp/$tjobname/webshopping/"
+  sed -i "s/\${tjobname}/$tjobname/g" "$TMP_DIR/mobileshopping/envoy.yaml"
+  sed -i "s/\${tjobname}/$tjobname/g" "$TMP_DIR/webshopping/envoy.yaml"
 
-    sed -i "s/\${tjobname}/$tjobname/g" "$SUT_LOCATION/tmp/$tjobname/mobileshopping/envoy.yaml"
-    sed -i "s/\${tjobname}/$tjobname/g" "$SUT_LOCATION/tmp/$tjobname/webshopping/envoy.yaml"
-
-    chmod go+r "$SUT_LOCATION/tmp/$tjobname/mobileshopping/envoy.yaml"
-    chmod go+r "$SUT_LOCATION/tmp/$tjobname/webshopping/envoy.yaml"
+  chmod go+r "$TMP_DIR/mobileshopping/envoy.yaml"
+  chmod go+r "$TMP_DIR/webshopping/envoy.yaml"
 }
 
 copy_and_replace_envoy_configs "$1"
