@@ -42,7 +42,8 @@ chmod go+r "$TMP_DIR/webshopping/envoy.yaml"
 
 "$SCRIPTS_FOLDER/printLog.sh" "DEBUG" "$1-set-up" "End custom commands"
 
-
+"$SCRIPTS_FOLDER/printLog.sh" "DEBUG" "$1-set-up" "Some sleep prior the deployment"
+sleep 4
 
 # Deploy containers
 cd "$SUT_LOCATION"
