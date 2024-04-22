@@ -20,6 +20,15 @@ OUTPUTDIRCOI="$WORKSPACE/retorchcostestimationdata/exec$BUILD_NUMBER/COI.data"
 # Record start time for COI setup
 COISETUPSTART=$(date +%s%3N)
 
+# Prompt some system information
+docker_version=$(docker --version | awk '{print $3}')
+docker_compose_version=$(docker compose version | awk '{print $4}')
+curl_version=$(curl --version | head -n 1 | awk '{print $2}')
+kernel_version=$(uname -r)
+os_version=$(cat /etc/os-release | grep PRETTY_NAME | cut -d '"' -f 2)
+
+"$SCRIPTS_FOLDER/printLog.sh" "INFO" "COI-set-up" "Os version : $os_version Kernel version: $kernel_version Docker version: $docker_version Docker-compose version: $docker_compose_version curl-version: $curl_version"
+
 # Remove older videos (older than 15 days)
 remove_old_files "$SEL_VIDEO_DIR" 15
 
