@@ -7,10 +7,10 @@ SEL_LOG_DIR="/opt/selenoid/logs/"
 remove_old_files() {
     dir=$1
     days=$2
-    echo "Removing older files ($days days) in $dir! The number of files prior to remove:"
+    "$SCRIPTS_FOLDER/printLog.sh" "DEBUG" "COI-set-up" "Removing older files ($days days) in $dir! The number of files prior to remove:"
     find "$dir" | wc -l
     find "$dir" -mindepth 1 -maxdepth 1 -mtime +$days -exec rm -rf {} \;
-    echo "Removing older files ($days days) in $dir! The number of files after remove:"
+    "$SCRIPTS_FOLDER/printLog.sh" "DEBUG" "COI-set-up" "Removing older files ($days days) in $dir! The number of files after remove:"
     find "$dir" | wc -l
 }
 
@@ -33,10 +33,10 @@ mkdir -p "$SUT_LOCATION/tmp"
 
 # Pull Docker images
 echo "Pulling images"
-if docker pull selenoid/vnc_chrome:121.0 && docker pull selenoid/video-recorder:latest-release; then
-    echo "Images pulled successfully."
+if docker pull selenoid/vnc_chrome:116.0 && docker pull selenoid/video-recorder:latest-release; then
+    "$SCRIPTS_FOLDER/printLog.sh" "DEBUG" "COI-set-up" "Images pulled successfully."
 else
-    echo "Failed to pull Docker images."
+    "$SCRIPTS_FOLDER/printLog.sh" "ERROR" "COI-set-up" "Failed to pull Docker images."
 fi
 
 echo "Building images of SUT"
@@ -47,9 +47,9 @@ docker compose -f "docker-compose.yml" --env-file "$WORKSPACE/retorchfiles/envfi
 
 # Check the exit status of the last command
 if [ $? -eq 0 ]; then
-    echo "Images for SUT"
+    "$SCRIPTS_FOLDER/printLog.sh" "ERROR" "COI-set-up" "Images for the SUT created sucessfully"
 else
-    echo "Failed to build images of SUT"
+    "$SCRIPTS_FOLDER/printLog.sh" "ERROR" "COI-set-up" "Failed to build images of SUT"
     exit 1
 fi
 

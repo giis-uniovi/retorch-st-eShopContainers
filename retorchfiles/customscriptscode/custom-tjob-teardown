@@ -1,1 +1,1 @@
-echo "This TJOB dont have any kind of specific commands"
+"$SCRIPTS_FOLDER/printLog.sh" "DEBUG" "$1-tear-down" "This TJOB dont have any kind of specific commands"
