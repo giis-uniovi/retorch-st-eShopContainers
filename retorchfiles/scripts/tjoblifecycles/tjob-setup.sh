@@ -17,12 +17,6 @@ export DOCKER_HOST_IP
 tjobname="$1"
 CONFIG_DIR="$SUT_LOCATION/ApiGateways/Envoy/config"
 TMP_DIR="$SUT_LOCATION/tmp/$tjobname"
-if [ -d "$TMP_DIR" ]; then
-  "$SCRIPTS_FOLDER/printLog.sh" "DEBUG" "$1-set-up" "Directory /tmp for the tjob $tjobname exist, removing...."
-  rm -r "$TMP_DIR"
-else
-  "$SCRIPTS_FOLDER/printLog.sh" "DEBUG" "$1-set-up" "Directory /tmp for the tjob $tjobname does not exist."
-fi
 
 mkdir -p "$TMP_DIR/mobileshopping"
 mkdir -p "$TMP_DIR/webshopping"
@@ -43,8 +37,8 @@ chmod go+r "$TMP_DIR/webshopping/envoy.yaml"
 "$SCRIPTS_FOLDER/printLog.sh" "DEBUG" "$1-set-up" "End custom commands"
 
 "$SCRIPTS_FOLDER/printLog.sh" "DEBUG" "$1-set-up" "Some sleep prior the deployment"
-sleep 4
 
+ls -la
 # Deploy containers
 cd "$SUT_LOCATION"
 "$SCRIPTS_FOLDER/printLog.sh" "DEBUG" "$1-set-up" "Deploying containers for TJOB $1"
