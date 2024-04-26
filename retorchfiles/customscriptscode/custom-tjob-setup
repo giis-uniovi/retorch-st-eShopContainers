@@ -1,31 +1,27 @@
 # Custom Set-up commands
-"$SCRIPTS_FOLDER/printLog.sh" "DEBUG" "$1-set-up" "Executing custom commands"
 
-tjobname="$1"
+TJOB_NAME="$1"
+
+"$SCRIPTS_FOLDER/printLog.sh" "DEBUG" "$TJOB_NAME-set-up" "Executing custom commands"
+
 CONFIG_DIR="$SUT_LOCATION/ApiGateways/Envoy/config"
-TMP_DIR="$SUT_LOCATION/tmp/$tjobname"
-if [ -d "$TMP_DIR" ]; then
-  "$SCRIPTS_FOLDER/printLog.sh" "DEBUG" "$1-set-up" "Directory /tmp for the tjob $tjobname exist, removing...."
-  rm -r "$TMP_DIR"
-else
-  "$SCRIPTS_FOLDER/printLog.sh" "DEBUG" "$1-set-up" "Directory /tmp for the tjob $tjobname does not exist."
-fi
+TMP_DIR="$SUT_LOCATION/tmp/$TJOB_NAME"
 
 mkdir -p "$TMP_DIR/mobileshopping"
 mkdir -p "$TMP_DIR/webshopping"
 
-"$SCRIPTS_FOLDER/printLog.sh" "DEBUG" "$1-set-up" "Copying the envoy files to the tmp directories for tjob $1"
+"$SCRIPTS_FOLDER/printLog.sh" "DEBUG" "$TJOB_NAME-set-up" "Copying the envoy files to the tmp directories for tjob $TJOB_NAME"
 
 cp -p "$CONFIG_DIR/mobileshopping/envoy.yaml" "$TMP_DIR/mobileshopping/"
 cp -p "$CONFIG_DIR/webshopping/envoy.yaml" "$TMP_DIR/webshopping/"
 
-"$SCRIPTS_FOLDER/printLog.sh" "DEBUG" "$1-set-up" "Reemplacing the TJob name in the envoy conf files"
-sed -i "s/\${tjobname}/$tjobname/g" "$TMP_DIR/mobileshopping/envoy.yaml"
-sed -i "s/\${tjobname}/$tjobname/g" "$TMP_DIR/webshopping/envoy.yaml"
+"$SCRIPTS_FOLDER/printLog.sh" "DEBUG" "$TJOB_NAME-set-up" "Reemplacing the TJob name in the envoy conf files"
+sed -i "s/\${tjobname}/$TJOB_NAME/g" "$TMP_DIR/mobileshopping/envoy.yaml"
+sed -i "s/\${tjobname}/$TJOB_NAME/g" "$TMP_DIR/webshopping/envoy.yaml"
 
-"$SCRIPTS_FOLDER/printLog.sh" "DEBUG" "$1-set-up" "Changing the permissions for tjob $1"
+"$SCRIPTS_FOLDER/printLog.sh" "DEBUG" "$TJOB_NAME-set-up" "Changing the permissions for tjob $TJOB_NAME"
 chmod go+r "$TMP_DIR/mobileshopping/envoy.yaml"
 chmod go+r "$TMP_DIR/webshopping/envoy.yaml"
 
-"$SCRIPTS_FOLDER/printLog.sh" "DEBUG" "$1-set-up" "End custom commands"
+"$SCRIPTS_FOLDER/printLog.sh" "DEBUG" "$TJOB_NAME-set-up" "End custom commands"
 
