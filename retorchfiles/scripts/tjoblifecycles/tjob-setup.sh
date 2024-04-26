@@ -34,6 +34,7 @@ sed -i "s/\${tjobname}/$tjobname/g" "$TMP_DIR/webshopping/envoy.yaml"
 chmod go+r "$TMP_DIR/mobileshopping/envoy.yaml"
 chmod go+r "$TMP_DIR/webshopping/envoy.yaml"
 
+
 "$SCRIPTS_FOLDER/printLog.sh" "DEBUG" "$1-set-up" "End custom commands"
 
 "$SCRIPTS_FOLDER/printLog.sh" "DEBUG" "$1-set-up" "Some sleep prior the deployment"
@@ -41,6 +42,9 @@ chmod go+r "$TMP_DIR/webshopping/envoy.yaml"
 ls -la
 # Deploy containers
 cd "$SUT_LOCATION"
+
+ls -la
+
 "$SCRIPTS_FOLDER/printLog.sh" "DEBUG" "$1-set-up" "Deploying containers for TJOB $1"
 docker compose -f docker-compose.yml --env-file "$WORKSPACE/retorchfiles/envfiles/$1.env" --ansi never -p "$1" up -d
 
