@@ -13,6 +13,7 @@ export DOCKER_HOST_IP
 
 copy_and_replace_envoy_configs() {
     local TJOB_NAME="$1"
+    echo $TJOB_NAME
     mkdir -p "$SUT_LOCATION/tmp/$TJOB_NAME/mobileshopping"
     mkdir -p "$SUT_LOCATION/tmp/$TJOB_NAME/webshopping"
 
