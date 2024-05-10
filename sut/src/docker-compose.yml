@@ -240,9 +240,7 @@ services:
     container_name: mobileshoppingapigw_${tjobname}
     build:
       context: .
-      dockerfile: ApiGateways/Envoy/Dockerfile
-    volumes:
-      - ./tmp/${tjobname}/mobileshopping:/etc/envoy
+      dockerfile: ApiGateways/Envoy/config/mobileshopping/Dockerfile
     environment:
       - loglevel=debug
       - TAG=${tjobname}
@@ -461,9 +459,7 @@ services:
     container_name: webshoppingapigw_${tjobname}
     build:
       context: .
-      dockerfile: ApiGateways/Envoy/Dockerfile
-    volumes:
-      - ./tmp/${tjobname}/webshopping:/etc/envoy
+      dockerfile: ApiGateways/Envoy/config/webshopping/Dockerfile
     environment:
       - loglevel=debug
       - TAG="${tjobname}"
