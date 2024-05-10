@@ -1,27 +1,14 @@
 # Custom Set-up commands
 
-TJOB_NAME="$1"
 
-"$SCRIPTS_FOLDER/printLog.sh" "DEBUG" "$TJOB_NAME-set-up" "Executing custom commands"
+"$SCRIPTS_FOLDER/printLog.sh" "DEBUG" "$TJOB_NAME-set-up" "Start custom commands"
+# Deploy containers
+cd "$SUT_LOCATION"
 
-CONFIG_DIR="$SUT_LOCATION/ApiGateways/Envoy/config"
-TMP_DIR="$SUT_LOCATION/tmp/$TJOB_NAME"
+"$SCRIPTS_FOLDER/printLog.sh" "DEBUG" "$1-set-up" "Building proxy images for TJOB $1"
 
-mkdir -p "$TMP_DIR/mobileshopping"
-mkdir -p "$TMP_DIR/webshopping"
+docker compose -f "docker-compose.yml" --env-file "$WORKSPACE/retorchfiles/envfiles/$1.env" --ansi never build webshoppingapigw mobileshoppingapigw
 
-"$SCRIPTS_FOLDER/printLog.sh" "DEBUG" "$TJOB_NAME-set-up" "Copying the envoy files to the tmp directories for tjob $TJOB_NAME"
-
-cp -p "$CONFIG_DIR/mobileshopping/envoy.yaml" "$TMP_DIR/mobileshopping/"
-cp -p "$CONFIG_DIR/webshopping/envoy.yaml" "$TMP_DIR/webshopping/"
-
-"$SCRIPTS_FOLDER/printLog.sh" "DEBUG" "$TJOB_NAME-set-up" "Reemplacing the TJob name in the envoy conf files"
-sed -i "s/\${tjobname}/$TJOB_NAME/g" "$TMP_DIR/mobileshopping/envoy.yaml"
-sed -i "s/\${tjobname}/$TJOB_NAME/g" "$TMP_DIR/webshopping/envoy.yaml"
-
-"$SCRIPTS_FOLDER/printLog.sh" "DEBUG" "$TJOB_NAME-set-up" "Changing the permissions for tjob $TJOB_NAME"
-chmod go+r "$TMP_DIR/mobileshopping/envoy.yaml"
-chmod go+r "$TMP_DIR/webshopping/envoy.yaml"
 
 "$SCRIPTS_FOLDER/printLog.sh" "DEBUG" "$TJOB_NAME-set-up" "End custom commands"
 
