@@ -78,7 +78,7 @@ public class BaseLoggedClass {
         password = properties.getProperty("USER_ESHOP_PASSWORD");
         // Navigate to SUT URL
         log.debug("Navigating to {}.", sutUrl);
-
+        driver.get(sutUrl);
         log.info("Individual Set-up for the TJob {} finished, starting test: {}.", tJobName, testInfo.getDisplayName());
     }
 
