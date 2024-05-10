@@ -241,8 +241,6 @@ services:
     image: envoyproxy/envoy:v1.11.1
     volumes:
       - ./tmp/${tjobname}/mobileshopping:/etc/envoy
-    environment:
-      - DOTNET_HOSTBUILDER__RELOADCONFIGONCHANGE=false
     networks:
       - jenkins_network
 
@@ -457,8 +455,6 @@ services:
   webshoppingapigw:
     container_name: webshoppingapigw_${tjobname}
     image: envoyproxy/envoy:v1.11.1
-    environment:
-      - DOTNET_HOSTBUILDER__RELOADCONFIGONCHANGE=false
     volumes:
       - ./tmp/${tjobname}/webshopping:/etc/envoy
     networks:
