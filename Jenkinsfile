@@ -34,10 +34,15 @@ pipeline {
               catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
                   sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-testexecution.sh tjobc 0 http:// 5000 "CatalogTests#addProductsToBasket"'
               }// EndExecutionStageErrorTJobC
-             // sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-teardown.sh tjobc 0'
+              sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-teardown.sh tjobc 0'
           }// EndStepsTJobC
         }// EndStageTJobC
 
+stage('TEARDOWN-Infrastructure') {
+      steps {
+        sh '$SCRIPTS_FOLDER/coilifecycles/coi-teardown.sh'
+      }// EndStepsTearDownInf
+}// EndStageTearDown
   }// EndStagesPipeline
  post { 
       always {
