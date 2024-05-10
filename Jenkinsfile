@@ -12,6 +12,9 @@ pipeline {
     stage('Clean Workspace') {
         steps{
             cleanWs()
+            dir("${env.WORKSPACE}@tmp") {
+              deleteDir()
+            }
         }// EndStepsCleanWS
       }// EndStageCleanWS
     stage('Clone Project') {
