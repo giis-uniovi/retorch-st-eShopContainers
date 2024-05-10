@@ -240,7 +240,7 @@ services:
     container_name: mobileshoppingapigw_${tjobname}
     image: envoyproxy/envoy:v1.11.1
     volumes:
-      - ${SUT_LOCATION}/tmp/${tjobname}/mobileshopping:/etc/envoy
+      - ./tmp/${tjobname}/mobileshopping:/etc/envoy
     environment:
       - DOTNET_HOSTBUILDER__RELOADCONFIGONCHANGE=false
     networks:
@@ -460,7 +460,7 @@ services:
     environment:
       - DOTNET_HOSTBUILDER__RELOADCONFIGONCHANGE=false
     volumes:
-      - ${SUT_LOCATION}/tmp/${tjobname}/webshopping:/etc/envoy
+      - ./tmp/${tjobname}/webshopping:/etc/envoy
     networks:
       - jenkins_network
 

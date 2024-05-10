@@ -16,7 +16,7 @@ export DOCKER_HOST_IP
 
 tjobname="$1"
 CONFIG_DIR="$SUT_LOCATION/ApiGateways/Envoy/config"
-TMP_DIR="$SUT_LOCATION/tmp/$tjobname"
+TMP_DIR="$SUT_LOCATION/tmp/$1"
 
 mkdir -p "$TMP_DIR/mobileshopping"
 mkdir -p "$TMP_DIR/webshopping"
@@ -27,8 +27,8 @@ cp -p "$CONFIG_DIR/mobileshopping/envoy.yaml" "$TMP_DIR/mobileshopping/"
 cp -p "$CONFIG_DIR/webshopping/envoy.yaml" "$TMP_DIR/webshopping/"
 
 "$SCRIPTS_FOLDER/printLog.sh" "DEBUG" "$1-set-up" "Reemplacing the TJob name in the envoy conf files"
-sed -i "s/\${tjobname}/$tjobname/g" "$TMP_DIR/mobileshopping/envoy.yaml"
-sed -i "s/\${tjobname}/$tjobname/g" "$TMP_DIR/webshopping/envoy.yaml"
+sed -i "s/\${tjobname}/$1/g" "$TMP_DIR/mobileshopping/envoy.yaml"
+sed -i "s/\${tjobname}/$1/g" "$TMP_DIR/webshopping/envoy.yaml"
 
 "$SCRIPTS_FOLDER/printLog.sh" "DEBUG" "$1-set-up" "Changing the permissions for tjob $1"
 chmod go+r "$TMP_DIR/mobileshopping/envoy.yaml"
