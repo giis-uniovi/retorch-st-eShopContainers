@@ -241,6 +241,8 @@ services:
     image: envoyproxy/envoy:v1.11.1
     volumes:
       - ./tmp/${tjobname}/mobileshopping:/etc/envoy
+    environment:
+      - loglevel=debug
     networks:
       - jenkins_network
 
@@ -457,6 +459,8 @@ services:
     image: envoyproxy/envoy:v1.11.1
     volumes:
       - ./tmp/${tjobname}/webshopping:/etc/envoy
+    environment:
+      - loglevel=debug
     networks:
       - jenkins_network
 

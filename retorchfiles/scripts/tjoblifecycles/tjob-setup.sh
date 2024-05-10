@@ -12,17 +12,17 @@ export DOCKER_HOST_IP
 "$SCRIPTS_FOLDER/printLog.sh" "DEBUG" "$1-set-up" "Executing custom commands"
 
 copy_and_replace_envoy_configs() {
-    local tjobname="$1"
-    mkdir -p "$SUT_LOCATION/tmp/$tjobname/mobileshopping/"
-    mkdir -p "$SUT_LOCATION/tmp/$tjobname/webshopping/"
+    local TJOB_NAME="$1"
+    mkdir -p "$SUT_LOCATION/tmp/$TJOB_NAME/mobileshopping"
+    mkdir -p "$SUT_LOCATION/tmp/$TJOB_NAME/webshopping"
 
     "$SCRIPTS_FOLDER/printLog.sh" "DEBUG" "$1-set-up" "Copying the envoy files to the tmp directories for tjob $1"
-    cp -p "$SUT_LOCATION/ApiGateways/Envoy/config/mobileshopping/envoy.yaml" "$SUT_LOCATION/tmp/$tjobname/mobileshopping/"
-    cp -p "$SUT_LOCATION/ApiGateways/Envoy/config/webshopping/envoy.yaml" "$SUT_LOCATION/tmp/$tjobname/webshopping/"
+    cp -p "$SUT_LOCATION/ApiGateways/Envoy/config/mobileshopping/envoy.yaml" "$SUT_LOCATION/tmp/$TJOB_NAME/mobileshopping/"
+    cp -p "$SUT_LOCATION/ApiGateways/Envoy/config/webshopping/envoy.yaml" "$SUT_LOCATION/tmp/$TJOB_NAME/webshopping/"
 
     "$SCRIPTS_FOLDER/printLog.sh" "DEBUG" "$1-set-up" "Reemplacing the TJob name in the envoy conf files"
-    sed -i "s/\${tjobname}/$tjobname/g" "$SUT_LOCATION/tmp/$tjobname/mobileshopping/envoy.yaml"
-    sed -i "s/\${tjobname}/$tjobname/g" "$SUT_LOCATION/tmp/$tjobname/webshopping/envoy.yaml"
+    sed -i "s/\${tjobname}/$TJOB_NAME/g" "$SUT_LOCATION/tmp/$TJOB_NAME/mobileshopping/envoy.yaml"
+    sed -i "s/\${tjobname}/$TJOB_NAME/g" "$SUT_LOCATION/tmp/$TJOB_NAME/webshopping/envoy.yaml"
 }
 
 copy_and_replace_envoy_configs "$1"
