@@ -43,7 +43,7 @@ cd "$SUT_LOCATION"
 
 "$SCRIPTS_FOLDER/printLog.sh" "DEBUG" "$1-set-up" "Building proxy images for TJOB $1"
 
-docker compose -f "docker-compose.yml" --env-file "$WORKSPACE/retorchfiles/envfiles/$1.env" --ansi never  --force-recreate --no-deps build webshoppingapigw mobileshoppingapigw
+docker compose -f "docker-compose.yml" --env-file "$WORKSPACE/retorchfiles/envfiles/$1.env" --ansi never build webshoppingapigw mobileshoppingapigw
 
 "$SCRIPTS_FOLDER/printLog.sh" "DEBUG" "$1-set-up" "Deploying containers for TJOB $1"
 
