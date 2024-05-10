@@ -15,8 +15,8 @@ export DOCKER_HOST_IP
 "$SCRIPTS_FOLDER/printLog.sh" "DEBUG" "$1-set-up" "Executing custom commands"
 
 tjobname="$1"
-CONFIG_DIR="$SUT_LOCATION/ApiGateways/Envoy/config"
-TMP_DIR="$SUT_LOCATION/tmp/$1"
+CONFIG_DIR="./ApiGateways/Envoy/config"
+TMP_DIR="./tmp/$1"
 
 mkdir -p "$TMP_DIR/mobileshopping"
 mkdir -p "$TMP_DIR/webshopping"
