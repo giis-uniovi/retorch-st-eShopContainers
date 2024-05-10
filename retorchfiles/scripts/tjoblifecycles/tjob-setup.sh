@@ -23,6 +23,14 @@ copy_and_replace_envoy_configs() {
     "$SCRIPTS_FOLDER/printLog.sh" "DEBUG" "$1-set-up" "Reemplacing the TJob name in the envoy conf files"
     sed -i "s/\${tjobname}/$TJOB_NAME/g" "$SUT_LOCATION/tmp/$TJOB_NAME/mobileshopping/envoy.yaml"
     sed -i "s/\${tjobname}/$TJOB_NAME/g" "$SUT_LOCATION/tmp/$TJOB_NAME/webshopping/envoy.yaml"
+
+    "$SCRIPTS_FOLDER/printLog.sh" "DEBUG" "$1-set-up" "Change envoy file permisions"
+    ls -la "$SUT_LOCATION/tmp/$TJOB_NAME/mobileshopping"
+    ls -la "$SUT_LOCATION/tmp/$TJOB_NAME/webshopping"
+    chmod 777 "$SUT_LOCATION/tmp/$TJOB_NAME/mobileshopping/envoy.yaml"
+    chmod 777 "$SUT_LOCATION/tmp/$TJOB_NAME/webshopping/envoy.yaml"
+    ls -la "$SUT_LOCATION/tmp/$TJOB_NAME/mobileshopping"
+    ls -la "$SUT_LOCATION/tmp/$TJOB_NAME/webshopping"
 }
 
 copy_and_replace_envoy_configs "$1"
