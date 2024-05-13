@@ -93,7 +93,7 @@ class OrderTests extends BaseLoggedClass {
      * @param expectedState the expected state of the last order
      */
     private void checkLastOrderState(int initialNOrders, String expectedState) throws ElementNotFoundException {
-        int maxIterations = 3;
+        int maxIterations = 6;
         String actualState = "";
 
         for (int iter = 0; iter < maxIterations; iter++) {

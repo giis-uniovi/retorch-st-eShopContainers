@@ -23,4 +23,4 @@ echo "Waiting for the system to be up..."
 # Add a sleep command or other suitable mechanism here to wait for the system to be fully up
 
 # Clean up containers and volumes
-docker compose -f "$DOCKER_COMPOSE_FILE" --env-file "$ENV_FILE" down --volumes
+#docker compose -f "$DOCKER_COMPOSE_FILE" --env-file "$ENV_FILE" down --volumes

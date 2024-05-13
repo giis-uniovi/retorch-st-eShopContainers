@@ -18,6 +18,10 @@ services:
       - eshop-sqldata:/var/opt/mssql
     networks:
       - jenkins_network
+    healthcheck:
+      test: "/opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P \"Pass@word\" -Q \"SELECT name FROM master.sys.databases\""
+      timeout: 20s
+      retries: 10
 
   nosqldata:
     container_name: nosqldata_${tjobname}
@@ -48,7 +52,8 @@ services:
       context: .
       dockerfile: Services/Identity/Identity.API/Dockerfile
     depends_on:
-      - sqldata
+      sqldata:
+        condition: service_healthy
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://0.0.0.0:80
@@ -107,8 +112,10 @@ services:
       context: .
       dockerfile: Services/Catalog/Catalog.API/Dockerfile
     depends_on:
-      - sqldata
-      - rabbitmq
+      sqldata:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_started
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - Kestrel__Endpoints__HTTP__Url=http://0.0.0.0:80
@@ -136,8 +143,10 @@ services:
       context: .
       dockerfile: Services/Ordering/Ordering.API/Dockerfile
     depends_on:
-      - sqldata
-      - rabbitmq
+      sqldata:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_started
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - Kestrel__Endpoints__HTTP__Url=http://0.0.0.0:80
@@ -171,8 +180,10 @@ services:
       context: .
       dockerfile: Services/Ordering/Ordering.BackgroundTasks/Dockerfile
     depends_on:
-      - sqldata
-      - rabbitmq
+      sqldata:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_started
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://0.0.0.0:80
@@ -217,7 +228,8 @@ services:
       context: .
       dockerfile: Services/Webhooks/Webhooks.API/Dockerfile
     depends_on:
-      - sqldata
+      sqldata:
+        condition: service_healthy
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://0.0.0.0:80

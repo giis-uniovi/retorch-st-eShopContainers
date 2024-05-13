@@ -59,7 +59,8 @@ public class BaseLoggedClass {
             sutUrl = envUrl + ":" + (System.getProperty("SUT_PORT") != null ? System.getProperty("SUT_PORT") : System.getenv("SUT_PORT")) + "/";
             log.debug("Configuring the browser to connect to the remote System Under Test (SUT) at the following URL: " + sutUrl);
         }
-        checkDBStatus();
+        checkDBMigration();
+        checkCatalogDBStatus();
         setupBrowser();
         log.info("Ending global setup for all test cases.");
 
@@ -172,7 +173,59 @@ public class BaseLoggedClass {
         log.debug("Logout successful");
     }
 
-    protected static void checkDBStatus() {
+    protected static void checkDBMigration(){
+
+        // Get properties
+        String user = properties.getProperty("SQLDB_USER");
+        String password = properties.getProperty("SQLDB_PASSWORD");
+        String host = "sqldata_" + tJobName;
+        //host = "localhost"; // default host
+
+        // Build JDBC URL
+        final int MAX_TABLES = 6;
+        final int MAX_ITERATIONS = 10;
+        final int WAIT_TIME_MS = 5000;
+
+        String query = "SELECT name FROM master.sys.databases";
+        String url = "jdbc:sqlserver://" + host + ":1433;Encrypt=True;TrustServerCertificate=True;user=" + user + ";password=" + password;
+
+        int iter = 0;
+        boolean found = false;
+        while (!found && iter < MAX_ITERATIONS) {
+            iter++;
+            int numTables = 0;
+            try (Connection connection = DriverManager.getConnection(url)) {
+                try (PreparedStatement stmt = connection.prepareStatement(query)) {
+                    try (ResultSet rs = stmt.executeQuery()) {
+                        while (rs.next()) {
+                            numTables++;
+                            if (numTables > MAX_TABLES) {
+                                found = true;
+                                break;
+                            }
+                        }
+                    }
+                }
+            } catch (SQLException e) {
+                log.warn("The database its not ready yet or the table cannot be found: " + e.getMessage());
+            }
+
+            if (!found) {
+                try {
+                    Thread.sleep(WAIT_TIME_MS);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
+            }
+        }
+
+        if (!found) {
+            log.error("The databases are not migrated after " + MAX_ITERATIONS + " attempts.");
+        }
+
+
+    }
+    protected static void checkCatalogDBStatus() {
         String dbName = "Microsoft.eShopOnContainers.Services.CatalogDb";
         String tableName = "Catalog";
         String query = "SELECT COUNT(*) AS numproducts FROM " + tableName;
@@ -181,7 +234,7 @@ public class BaseLoggedClass {
         String user = properties.getProperty("SQLDB_USER");
         String password = properties.getProperty("SQLDB_PASSWORD");
         String host = "sqldata_" + tJobName;
-        //host = "localhost"; // default host
+        // host = "localhost"; // default host
 
         // Build JDBC URL
         String url = "jdbc:sqlserver://" + host + ":1433;databaseName=" + dbName + ";Encrypt=True;TrustServerCertificate=True;user=" + user + ";password=" + password;
@@ -207,7 +260,7 @@ public class BaseLoggedClass {
                     }
                 }
             } catch (SQLException e) {
-                log.warn("An exception occurred during the SQL query: " + e.getMessage());
+                log.warn("The Table or the SQL database its not ready, proceeding to wait, its message: " + e.getMessage());
             }
             try {
                 Thread.sleep(5000); // Wait 5 seconds for the next connection and query
@@ -219,5 +272,6 @@ public class BaseLoggedClass {
             log.error("The database is not ready after " + maxIterations + " attempts.");
         }
     }
+
 
 }
