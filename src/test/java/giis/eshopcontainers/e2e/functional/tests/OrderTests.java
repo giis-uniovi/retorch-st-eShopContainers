@@ -75,7 +75,7 @@ class OrderTests extends BaseLoggedClass {
     @Resource(resID = "eshopUser", replaceable = {})
     @AccessMode(resID = "eshopUser", concurrency = 1, accessMode = "READWRITE")
     @Test
-    @DisplayName("testRemoveOrder")
+    @DisplayName("testCancelOrder")
     void testCancelOrder() throws ElementNotFoundException {
         login();
         toOrdersPage(driver, waiter);
@@ -90,18 +90,33 @@ class OrderTests extends BaseLoggedClass {
     /**
      * Checks the state of the last order is the specified one
      * @param initialNOrders the initial number of orders
-     * @param state          the expected state of the last order
+     * @param expectedState the expected state of the last order
      */
-    private void checkLastOrderState(int initialNOrders, String state) throws ElementNotFoundException {
-        toOrdersPage(driver, waiter);
-        List<WebElement> listOrders = driver.findElements(By.className("esh-orders-items"));
+    private void checkLastOrderState(int initialNOrders, String expectedState) throws ElementNotFoundException {
+        int maxIterations = 3;
+        String actualState = "";
 
-        Assertions.assertEquals(initialNOrders + 1, listOrders.size(), "Order count is not as expected");
+        for (int iter = 0; iter < maxIterations; iter++) {
+            log.debug("Performing iteration {} over the orders", iter);
+            toOrdersPage(driver, waiter);
+            List<WebElement> listOrders = driver.findElements(By.className("esh-orders-items"));
 
-        WebElement lastOrder = listOrders.get(initialNOrders);
-        WebElement statusElement = lastOrder.findElements(By.className("esh-orders-item")).get(3);
-        Assertions.assertEquals(state, statusElement.getText(), "Last order status is not " + state + " is " + statusElement.getText());
+            Assertions.assertEquals(initialNOrders + 1, listOrders.size(), "Order count is not as expected");
+
+            WebElement lastOrder = listOrders.get(initialNOrders);
+            WebElement statusElement = lastOrder.findElements(By.className("esh-orders-item")).get(3);
+
+            actualState = statusElement.getText();
+            log.debug("End of iteration {}, the order state is {}", iter, actualState);
+
+            if (!actualState.equals("awaitingvalidation")) {
+                break; // Exit loop if the state is not awaiting validation
+            }
+        }
+        Assertions.assertEquals(expectedState, actualState, "Last order status is not as expected. Expected: " + expectedState + ", Actual: " + actualState);
+
     }
+
 
     /**
      * Navigates to the orders menu and press the Cancellation button of the last order. Checks that the order state
@@ -128,7 +143,7 @@ class OrderTests extends BaseLoggedClass {
         checkOrderAmountAndNumItems("$ 36.00", 4);
         WebElement buttonPlaceOrder = driver.findElement(By.name("action"));
         Click.element(driver, waiter, buttonPlaceOrder);
-        Assertions.assertEquals(checkOrderPlaced(), true, "The order was not placed until 5 seconds");
+        Assertions.assertTrue(checkOrderPlaced(), "The order was not placed until 5 seconds");
 
     }
 
