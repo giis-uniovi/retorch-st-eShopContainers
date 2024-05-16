@@ -88,7 +88,10 @@ class OrderTests extends BaseLoggedClass {
     }
 
     /**
-     * Checks the state of the last order is the specified one
+     * This method is used to check if the state of the last order is the expected. In eShopContainers order list, the
+     * different orders that the user create are ordered by inverse date. In this method we make a iterative order because
+     * in some cases the order state it's not updated as soon as expected, and remains for miliseconds-seconds as "awaitingvalidation"
+     * state
      * @param initialNOrders the initial number of orders
      * @param expectedState the expected state of the last order
      */

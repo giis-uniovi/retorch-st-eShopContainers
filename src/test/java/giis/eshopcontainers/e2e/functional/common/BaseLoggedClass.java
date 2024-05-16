@@ -43,7 +43,7 @@ public class BaseLoggedClass {
     private boolean isLogged = false;
 
     @BeforeAll()
-    static void setupAll() throws IOException { //28 lines
+    static void setupAll() throws IOException, SQLDataException { //28 lines
         log.info("Starting Global Set-up for all the Test Cases");
         properties = new Properties();
         // load a properties file for reading
@@ -173,13 +173,19 @@ public class BaseLoggedClass {
         log.debug("Logout successful");
     }
 
-    protected static void checkDBMigration(){
+    /**
+     * Checks if the database migration is complete by attempting to connect and query the number
+     * of databases in the master.sys.databases table. Retries the connection and query up to a
+     * specified number of times. The number of expected databases are 2 (default) + another 5 databases
+     * created by the different services
+     */
+    protected static void checkDBMigration() throws SQLDataException {
 
         // Get properties
         String user = properties.getProperty("SQLDB_USER");
         String password = properties.getProperty("SQLDB_PASSWORD");
         String host = "sqldata_" + tJobName;
-        //host = "localhost"; // default host
+        // host = "localhost"; // default host
 
         // Build JDBC URL
         final int MAX_TABLES = 6;
@@ -194,22 +200,19 @@ public class BaseLoggedClass {
         while (!found && iter < MAX_ITERATIONS) {
             iter++;
             int numTables = 0;
-            try (Connection connection = DriverManager.getConnection(url)) {
-                try (PreparedStatement stmt = connection.prepareStatement(query)) {
-                    try (ResultSet rs = stmt.executeQuery()) {
-                        while (rs.next()) {
-                            numTables++;
-                            if (numTables > MAX_TABLES) {
-                                found = true;
-                                break;
-                            }
-                        }
+            try (Connection connection = DriverManager.getConnection(url);
+                 PreparedStatement stmt = connection.prepareStatement(query);
+                 ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    numTables++;
+                    if (numTables > MAX_TABLES) {
+                        found = true;
+                        break;
                     }
                 }
             } catch (SQLException e) {
-                log.warn("The database its not ready yet or the table cannot be found: " + e.getMessage());
+                log.warn("The database is not ready yet or the table cannot be found: {}", e.getMessage());
             }
-
             if (!found) {
                 try {
                     Thread.sleep(WAIT_TIME_MS);
@@ -221,11 +224,14 @@ public class BaseLoggedClass {
 
         if (!found) {
             log.error("The databases are not migrated after " + MAX_ITERATIONS + " attempts.");
+            throw new SQLDataException("The DB Migration was not successfully done , E2E test execution aborted");
         }
-
-
     }
-    protected static void checkCatalogDBStatus() {
+    /**
+     * Checks the status of the CatalogDB by attempting to connect and query the number of products
+     * in the Catalog table. Retries the connection and query up to a specified number of times.
+     */
+    protected static void checkCatalogDBStatus() throws SQLDataException {
         String dbName = "Microsoft.eShopOnContainers.Services.CatalogDb";
         String tableName = "Catalog";
         String query = "SELECT COUNT(*) AS numproducts FROM " + tableName;
@@ -245,22 +251,21 @@ public class BaseLoggedClass {
         final int maxIterations = 10;
         while (!found && iter < maxIterations) {
             iter++;
-            try (Connection connection = DriverManager.getConnection(url)) {
-                try (Statement stmt = connection.createStatement();
-                     ResultSet rs = stmt.executeQuery(query)) {
-                    if (rs.next()) {
-                        int result = rs.getInt("numproducts");
-                        log.debug("The number of products in CatalogDB is " + result);
-                        if (result > 0) {
-                            found = true;
-                            break;
-                        }
-                    } else {
-                        log.info("No data available in the Catalog table yet.");
+            try (Connection connection = DriverManager.getConnection(url);
+                 Statement stmt = connection.createStatement();
+                 ResultSet rs = stmt.executeQuery(query)) {
+                if (rs.next()) {
+                    int result = rs.getInt("numproducts");
+                    log.debug("The number of products in CatalogDB is {}", result);
+                    if (result > 0) {
+                        found = true;
+                        break;
                     }
+                } else {
+                    log.info("No data available in the Catalog table yet.");
                 }
             } catch (SQLException e) {
-                log.warn("The Table or the SQL database its not ready, proceeding to wait, its message: " + e.getMessage());
+                log.warn("The Table or the SQL database is not ready, proceeding to wait, its message: {}", e.getMessage());
             }
             try {
                 Thread.sleep(5000); // Wait 5 seconds for the next connection and query
@@ -270,8 +275,7 @@ public class BaseLoggedClass {
         }
         if (!found) {
             log.error("The database is not ready after " + maxIterations + " attempts.");
+            throw new SQLDataException("The Catalog database state its not the expected, E2E test execution aborted");
         }
     }
-
-
 }
