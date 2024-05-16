@@ -3,6 +3,7 @@ package giis.eshopcontainers.e2e.functional.tests;
 import giis.eshopcontainers.e2e.functional.common.BaseLoggedClass;
 import giis.eshopcontainers.e2e.functional.common.ElementNotFoundException;
 import giis.eshopcontainers.e2e.functional.utils.Click;
+import giis.eshopcontainers.e2e.functional.utils.Waiter;
 import giis.retorch.annotations.AccessMode;
 import giis.retorch.annotations.Resource;
 import org.junit.jupiter.api.Assertions;
@@ -105,6 +106,11 @@ class OrderTests extends BaseLoggedClass {
             Assertions.assertEquals(initialNOrders + 1, listOrders.size(), "Order count is not as expected");
             WebElement lastOrder = listOrders.get(initialNOrders);
             WebElement statusElement = lastOrder.findElements(By.className("esh-orders-item")).get(3);
+            try {
+                waiter.waitUntil(ExpectedConditions.not(ExpectedConditions.textToBePresentInElement(statusElement, "awaitingvalidation")), "Timeout the element remains with awaitingvalidation");
+            }catch (Exception ex){
+                log.debug("After the waiting, does not change its state");
+            }
             actualState = statusElement.getText();
             log.debug("End of iteration {}, the order state is {}", iter, actualState);
             if (!actualState.equals("awaitingvalidation")) {
