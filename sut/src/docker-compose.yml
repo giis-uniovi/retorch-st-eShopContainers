@@ -1,5 +1,4 @@
 services:
-
   seq:
     container_name: seq_${tjobname}
     image: datalust/seq:latest
@@ -484,6 +483,7 @@ volumes:
   eshop-basketdata:
     name: eshop-basketdata_${tjobname}
     external: false
+
 networks:
   jenkins_network:
     external: true
