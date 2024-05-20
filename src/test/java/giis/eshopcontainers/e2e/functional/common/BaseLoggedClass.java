@@ -175,15 +175,15 @@ public class BaseLoggedClass {
      * Checks if the database migration is complete by attempting to connect and query the number
      * of databases in the master.sys.databases table. Retries the connection and query up to a
      * specified number of times. The number of expected databases are 2 (default) + another 5 databases
-     * created by the different services, so a minimal of 7 tables are expected.
+     * created by the different services, so a minimal of 7 databases are expected.
      */
     protected static void checkDBMigration() {
         // Get properties
         String user = properties.getProperty("SQLDB_USER");
         String password = properties.getProperty("SQLDB_PASSWORD");
         String host = "sqldata_" + tJobName;
-        // Minimal amount of tables expected in the database
-        final int MIN_TABLES = 6;
+        // Minimal number of databases expected in the MSQL Instance. The SUT creates 5 databases+ 2 databases that are by default in the container.
+        final int MIN_DATABASES = 7;
         final int MAX_ITERATIONS = 10;
         final int WAIT_TIME_MS = 5000;
         String query = "SELECT name FROM master.sys.databases";
@@ -199,7 +199,7 @@ public class BaseLoggedClass {
                  ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
                     numTables++;
-                    if (numTables > MIN_TABLES) {
+                    if (numTables >= MIN_DATABASES) {
                         found = true;
                         break;
                     }
