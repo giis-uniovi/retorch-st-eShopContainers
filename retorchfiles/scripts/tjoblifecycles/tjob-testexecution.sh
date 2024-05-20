@@ -9,7 +9,7 @@ EXECUTE_TIMESTAMP_SCRIPT() {
 
 # Check if the required parameters are provided
 if [ "$#" -lt 5 ]; then
-  echo "Usage: $0 <TJOB_NAME> <STAGE> <SUT_URL> <PORT> <TESTS_TO_EXECUTE>"
+  "$SCRIPTS_FOLDER/printLog.sh" "ERROR" "$1-test-execution" "Usage: $0 <TJOB_NAME> <STAGE> <SUT_URL> <PORT> <TESTS_TO_EXECUTE>"
   exit 1
 fi
 # Constants
@@ -20,19 +20,19 @@ STAGE="$2"
 PORT="$4"
 TEST_NAME="$5"
 if [[ $3 == "https://" || $3 == "http://" ]]; then
-  echo "Only http:// || https:// protocol provided, using HOST DOCKER INTERNAL IP "
+  "$SCRIPTS_FOLDER/printLog.sh" "DEBUG" "$1-test-execution" "Only http:// || https:// protocol provided, using HOST DOCKER INTERNAL IP "
   SUT_URL="$3$DOCKER_HOST_IP"
 else
-  echo "Using the provided URL"
+  "$SCRIPTS_FOLDER/printLog.sh" "DEBUG" "$1-test-execution" "Using the provided URL"
   SUT_URL="$3"
 fi
-echo "The URL IS $SUT_URL"
+"$SCRIPTS_FOLDER/printLog.sh" "DEBUG" "$1-test-execution" "The URL IS $SUT_URL"
 
 # Execute the script to write timestamp
 EXECUTE_TIMESTAMP_SCRIPT "$STAGE" "$TJOB_NAME"
 
 # Display HOST_IP and PORT information
-echo "The HOST_IP is: $DOCKER_HOST_IP and PORT $PORT for the TJOB $TJOB_NAME"
+"$SCRIPTS_FOLDER/printLog.sh" "DEBUG" "$1-test-execution" "The HOST_IP is: $DOCKER_HOST_IP and PORT $PORT for the TJOB $TJOB_NAME"
 
 LOCALHOST="$DOCKER_HOST_IP:$PORT"
 # Run Maven test
@@ -46,11 +46,11 @@ EXECUTE_TIMESTAMP_SCRIPT "$STAGE" "$TJOB_NAME"
 
 # Check if Maven test failed
 if [ $MVN_EXIT_CODE -ne 0 ]; then
-  echo "Maven test FAILED with exit code $MVN_EXIT_CODE."
+  "$SCRIPTS_FOLDER/printLog.sh" "ERROR" "$1-test-execution" "Maven test FAILED with exit code $MVN_EXIT_CODE."
   exit 1 # Return 1 if the Maven test fails
 fi
 
 # If the script reaches here, the Maven test succeeded
-echo "Maven test succeeded."
+"$SCRIPTS_FOLDER/printLog.sh" "DEBUG" "$1-test-execution" "Maven test succeeded."
 
 exit 0

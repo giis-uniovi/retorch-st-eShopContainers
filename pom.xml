@@ -69,6 +69,11 @@
 				<artifactId>retorch-annotations</artifactId>
 				<version>${retorch-annotations.version}</version>
 			</dependency>
+			<dependency>
+				<groupId>com.microsoft.sqlserver</groupId>
+				<artifactId>mssql-jdbc</artifactId>
+				<version>12.6.1.jre11</version>
+			</dependency>
 		</dependencies>
 	<build>
 		<pluginManagement>

@@ -9,7 +9,9 @@ public class SeedData
 
         await retryPolicy.ExecuteAsync(async () =>
         {
-            await context.Database.MigrateAsync();
+        //RETORCH: Increasing the timeout to avoid flakys when its parallelized the system. Added ConfigureAwait(false)
+            context.Database.SetCommandTimeout(150);
+            await context.Database.MigrateAsync().ConfigureAwait(false);
 
             var userMgr = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
             var alice = await userMgr.FindByNameAsync("alice");

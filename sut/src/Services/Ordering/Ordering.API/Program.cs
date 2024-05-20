@@ -62,7 +62,9 @@ using (var scope = app.Services.CreateScope())
     var env = app.Services.GetService<IWebHostEnvironment>();
     var settings = app.Services.GetService<IOptions<OrderingSettings>>();
     var logger = app.Services.GetService<ILogger<OrderingContextSeed>>();
-    await context.Database.MigrateAsync();
+    //RETORCH: Increasing the timeout to avoid flakys when its parallelized the system. Added ConfigureAwait(false)
+    context.Database.SetCommandTimeout(150);
+    await context.Database.MigrateAsync().ConfigureAwait(false);
 
     await new OrderingContextSeed().SeedAsync(context, env, settings, logger);
     var integEventContext = scope.ServiceProvider.GetRequiredService<IntegrationEventLogContext>();

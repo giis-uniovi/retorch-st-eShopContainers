@@ -1,13 +1,12 @@
-copy_and_replace_envoy_configs() {
-    local tjobname="$1"
-    cp -p "$SUT_LOCATION/ApiGateways/Envoy/config/mobileshopping/envoy.yaml" "$SUT_LOCATION/tmp/$tjobname/mobileshopping/"
-    cp -p "$SUT_LOCATION/ApiGateways/Envoy/config/webshopping/envoy.yaml" "$SUT_LOCATION/tmp/$tjobname/webshopping/"
+# Custom Set-up commands
 
-    sed -i "s/\${tjobname}/$tjobname/g" "$SUT_LOCATION/tmp/$tjobname/mobileshopping/envoy.yaml"
-    sed -i "s/\${tjobname}/$tjobname/g" "$SUT_LOCATION/tmp/$tjobname/webshopping/envoy.yaml"
-}
-# COI setup
-mkdir -p "$SUT_LOCATION/tmp/$1/mobileshopping"
-mkdir -p "$SUT_LOCATION/tmp/$1/webshopping"
+"$SCRIPTS_FOLDER/printLog.sh" "DEBUG" "$TJOB_NAME-set-up" "Start custom commands"
+# Deploy containers
+cd "$SUT_LOCATION"
 
-copy_and_replace_envoy_configs "$1"
+"$SCRIPTS_FOLDER/printLog.sh" "DEBUG" "$1-set-up" "Building proxy images for TJOB $1"
+
+docker compose -f "docker-compose.yml" --env-file "$WORKSPACE/retorchfiles/envfiles/$1.env" --ansi never build webshoppingapigw mobileshoppingapigw
+
+"$SCRIPTS_FOLDER/printLog.sh" "DEBUG" "$TJOB_NAME-set-up" "End custom commands"
+

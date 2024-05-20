@@ -3,6 +3,7 @@ package giis.eshopcontainers.e2e.functional.tests;
 import giis.eshopcontainers.e2e.functional.common.BaseLoggedClass;
 import giis.eshopcontainers.e2e.functional.common.ElementNotFoundException;
 import giis.eshopcontainers.e2e.functional.utils.Click;
+import giis.eshopcontainers.e2e.functional.utils.Navigation;
 import giis.retorch.annotations.AccessMode;
 import giis.retorch.annotations.Resource;
 import org.junit.jupiter.api.Assertions;
@@ -11,6 +12,7 @@ import org.junit.jupiter.api.Test;
 import org.openqa.selenium.By;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.ui.ExpectedConditions;
 
 import static giis.eshopcontainers.e2e.functional.utils.Shopping.addProductToBasket;
 
@@ -49,7 +51,10 @@ class CatalogTests extends BaseLoggedClass {
     /**
      * Checks that the product buttons are disabled.
      */
-    private void checkProductButtonDisabled() {
+    private void checkProductButtonDisabled() throws ElementNotFoundException {
+        //Navigate to main menu.
+        Navigation.toMainMenu(driver, waiter);
+        waiter.waitUntil(ExpectedConditions.numberOfElementsToBeMoreThan(By.className("esh-catalog-item"),4),"The number of elements was less than 4 (items)");
         WebElement productCupButton;
         log.debug("Checking that the product buttons are disabled");
         // Verify that the product cup button is disabled

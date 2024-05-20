@@ -20,7 +20,10 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.sql.*;
 import java.util.Properties;
+
+import static org.junit.jupiter.api.Assertions.fail;
 
 /*
  * This class contains common set-up, tear-down, browser setup, login, and logout methods utilized across various
@@ -47,6 +50,8 @@ public class BaseLoggedClass {
         properties = new Properties();
         // load a properties file for reading
         properties.load(Files.newInputStream(Paths.get("src/test/resources/test.properties")));
+        // Retrieve test job name
+        tJobName = System.getProperty("tjob_name");
         String envUrl = System.getProperty("SUT_URL") != null ? System.getProperty("SUT_URL") : System.getenv("SUT_URL");
         if (envUrl == null) {
             // Outside CI
@@ -56,6 +61,8 @@ public class BaseLoggedClass {
             sutUrl = envUrl + ":" + (System.getProperty("SUT_PORT") != null ? System.getProperty("SUT_PORT") : System.getenv("SUT_PORT")) + "/";
             log.debug("Configuring the browser to connect to the remote System Under Test (SUT) at the following URL: " + sutUrl);
         }
+        checkDBMigration();
+        checkCatalogDBStatus();
         setupBrowser();
         log.info("Ending global setup for all test cases.");
 
@@ -64,12 +71,9 @@ public class BaseLoggedClass {
     @BeforeEach
     void setup(TestInfo testInfo) {
         log.info("Starting Individual Set-up for the test: {}.", testInfo.getDisplayName());
-
         // Initialize WebDriver and Waiter instances
         driver = seleManager.getDriver();
         waiter = new Waiter(driver);
-        // Retrieve test job name
-        tJobName = System.getProperty("tjob_name");
         // Retrieve user credentials
         userName = properties.getProperty("USER_ESHOP");
         password = properties.getProperty("USER_ESHOP_PASSWORD");
@@ -96,7 +100,6 @@ public class BaseLoggedClass {
         if (System.getenv("SELENOID_PRESENT") != null) {
             seleManager.setDriverUrl("http://selenoid:4444/wd/hub").add(new SelenoidService().setVideo().setVnc());
         }
-
         log.debug("Finished setting up browser ({})", browserUser);
     }
 
@@ -106,7 +109,6 @@ public class BaseLoggedClass {
     protected void login() throws ElementNotFoundException {
         Navigation.toMainMenu(driver, waiter);
         log.debug("Logging in user: {}", userName);
-
         // Click the "Login" button
         By loginButtonXPath = By.xpath("//a[contains(text(),'Login')]");
         waiter.waitUntil(ExpectedConditions.elementToBeClickable(loginButtonXPath), "Login button is not clickable");
@@ -167,5 +169,101 @@ public class BaseLoggedClass {
         // Update the login status
         isLogged = false;
         log.debug("Logout successful");
+    }
+
+    /**
+     * Checks if the database migration is complete by attempting to connect and query the number
+     * of databases in the master.sys.databases table. Retries the connection and query up to a
+     * specified number of times. The number of expected databases are 2 (default) + another 5 databases
+     * created by the different services, so a minimal of 7 databases are expected.
+     */
+    protected static void checkDBMigration() {
+        // Get properties
+        String user = properties.getProperty("SQLDB_USER");
+        String password = properties.getProperty("SQLDB_PASSWORD");
+        String host = "sqldata_" + tJobName;
+        // Minimal number of databases expected in the MSQL Instance. The SUT creates 5 databases+ 2 databases that are by default in the container.
+        final int MIN_DATABASES = 7;
+        final int MAX_ITERATIONS = 10;
+        final int WAIT_TIME_MS = 5000;
+        String query = "SELECT name FROM master.sys.databases";
+        String url = "jdbc:sqlserver://" + host + ":1433;Encrypt=True;TrustServerCertificate=True;user=" + user + ";password=" + password;
+        int iter = 0;
+        boolean found = false;
+        //Iterate until the migration is performed or the number of iterations reached
+        while (!found && iter < MAX_ITERATIONS) {
+            iter++;
+            int numTables = 0;
+            try (Connection connection = DriverManager.getConnection(url);
+                 PreparedStatement stmt = connection.prepareStatement(query);
+                 ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    numTables++;
+                    if (numTables >= MIN_DATABASES) {
+                        found = true;
+                        break;
+                    }
+                }
+            } catch (SQLException e) {
+                log.warn("The database is not ready yet or the table cannot be found: {}", e.getMessage());
+            }
+            if (!found) {
+                try {
+                    Thread.sleep(WAIT_TIME_MS);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
+            }
+        }
+
+        if (!found) {
+            fail("The Catalog Status is not the expected after " + MAX_ITERATIONS + " attempts.");
+        }
+    }
+    /**
+     * Checks the status of the CatalogDB by attempting to connect and query the number of products
+     * in the Catalog table. Retries the connection and query up to a specified number of times.
+     */
+    protected static void checkCatalogDBStatus() {
+        String dbName = "Microsoft.eShopOnContainers.Services.CatalogDb";
+        String tableName = "Catalog";
+        String query = "SELECT COUNT(*) AS numproducts FROM " + tableName;
+        // Get properties
+        String user = properties.getProperty("SQLDB_USER");
+        String password = properties.getProperty("SQLDB_PASSWORD");
+        String host = "sqldata_" + tJobName;
+        // Build JDBC URL
+        String url = "jdbc:sqlserver://" + host + ":1433;databaseName=" + dbName + ";Encrypt=True;TrustServerCertificate=True;user=" + user + ";password=" + password;
+        // Retry logic
+        boolean found = false;
+        int iter = 0;
+        final int maxIterations = 10;
+        while (!found && iter < maxIterations) {
+            iter++;
+            try (Connection connection = DriverManager.getConnection(url);
+                 Statement stmt = connection.createStatement();
+                 ResultSet rs = stmt.executeQuery(query)) {
+                if (rs.next()) {
+                    int result = rs.getInt("numproducts");
+                    log.debug("The number of products in CatalogDB is {}", result);
+                    if (result > 0) {
+                        found = true;
+                        break;
+                    }
+                } else {
+                    log.info("No data available in the Catalog table yet.");
+                }
+            } catch (SQLException e) {
+                log.warn("The Table or the SQL database is not ready, proceeding to wait, its message: {}", e.getMessage());
+            }
+            try {
+                Thread.sleep(5000); // Wait 5 seconds for the next connection and query
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        }
+        if (!found) {
+            fail("The Catalog Status is not the expected after " + maxIterations + " attempts.");
+        }
     }
 }

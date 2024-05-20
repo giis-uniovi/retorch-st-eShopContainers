@@ -3,6 +3,7 @@ package giis.eshopcontainers.e2e.functional.tests;
 import giis.eshopcontainers.e2e.functional.common.BaseLoggedClass;
 import giis.eshopcontainers.e2e.functional.common.ElementNotFoundException;
 import giis.eshopcontainers.e2e.functional.utils.Click;
+import giis.eshopcontainers.e2e.functional.utils.Waiter;
 import giis.retorch.annotations.AccessMode;
 import giis.retorch.annotations.Resource;
 import org.junit.jupiter.api.Assertions;
@@ -75,7 +76,7 @@ class OrderTests extends BaseLoggedClass {
     @Resource(resID = "eshopUser", replaceable = {})
     @AccessMode(resID = "eshopUser", concurrency = 1, accessMode = "READWRITE")
     @Test
-    @DisplayName("testRemoveOrder")
+    @DisplayName("testCancelOrder")
     void testCancelOrder() throws ElementNotFoundException {
         login();
         toOrdersPage(driver, waiter);
@@ -88,19 +89,35 @@ class OrderTests extends BaseLoggedClass {
     }
 
     /**
-     * Checks the state of the last order is the specified one
+     * This method is used to check if the state of the last order is the expected. In eShopContainers order list, the
+     * different orders that the user create are ordered by inverse date. In this method we make a iterative order because
+     * in some cases the order state it's not updated as soon as expected, and remains for miliseconds-seconds as "awaitingvalidation"
+     * state
      * @param initialNOrders the initial number of orders
-     * @param state          the expected state of the last order
+     * @param expectedState the expected state of the last order
      */
-    private void checkLastOrderState(int initialNOrders, String state) throws ElementNotFoundException {
-        toOrdersPage(driver, waiter);
-        List<WebElement> listOrders = driver.findElements(By.className("esh-orders-items"));
-
-        Assertions.assertEquals(initialNOrders + 1, listOrders.size(), "Order count is not as expected");
-
-        WebElement lastOrder = listOrders.get(initialNOrders);
-        WebElement statusElement = lastOrder.findElements(By.className("esh-orders-item")).get(3);
-        Assertions.assertEquals(state, statusElement.getText(), "Last order status is not " + state + " is " + statusElement.getText());
+    private void checkLastOrderState(int initialNOrders, String expectedState) throws ElementNotFoundException {
+        int maxIterations = 6;
+        String actualState = "";
+        for (int iter = 0; iter < maxIterations; iter++) {
+            log.debug("Performing iteration {} over the orders", iter);
+            toOrdersPage(driver, waiter);
+            List<WebElement> listOrders = driver.findElements(By.className("esh-orders-items"));
+            Assertions.assertEquals(initialNOrders + 1, listOrders.size(), "Order count is not as expected");
+            WebElement lastOrder = listOrders.get(initialNOrders);
+            WebElement statusElement = lastOrder.findElements(By.className("esh-orders-item")).get(3);
+            try {
+                waiter.waitUntil(ExpectedConditions.not(ExpectedConditions.textToBePresentInElement(statusElement, "awaitingvalidation")), "Timeout the element remains with awaitingvalidation");
+            }catch (Exception ex){
+                log.debug("After the waiting, does not change its state");
+            }
+            actualState = statusElement.getText();
+            log.debug("End of iteration {}, the order state is {}", iter, actualState);
+            if (!actualState.equals("awaitingvalidation")) {
+                break; // Transition state passed, break and exit the loop.
+            }
+        }
+        Assertions.assertEquals(expectedState, actualState, "Last order status is not as expected. Expected: " + expectedState + ", Actual: " + actualState);
     }
 
     /**
@@ -128,8 +145,7 @@ class OrderTests extends BaseLoggedClass {
         checkOrderAmountAndNumItems("$ 36.00", 4);
         WebElement buttonPlaceOrder = driver.findElement(By.name("action"));
         Click.element(driver, waiter, buttonPlaceOrder);
-        Assertions.assertEquals(checkOrderPlaced(), true, "The order was not placed until 5 seconds");
-
+        Assertions.assertTrue(checkOrderPlaced(), "The order was not placed until 5 seconds");
     }
 
     /**
@@ -171,10 +187,10 @@ class OrderTests extends BaseLoggedClass {
     private void navigateToCheckout(String priceOrder) throws ElementNotFoundException {
         WebElement menuOrder = driver.findElement(By.xpath("/html/body/header/div/article/section[3]/a/div[2]"));
         Click.element(driver, waiter, menuOrder);
-
+        // Get the order price and check if its correct
         WebElement totalAmountBasket = driver.findElement(By.xpath("//*[@id=\"cartForm\"]/div/div[2]/div[4]/article[2]/section[2]"));
         Assertions.assertEquals(priceOrder, totalAmountBasket.getText());
-
+        //Click into the Checkout button
         WebElement buttonCheckout = driver.findElement(By.name("action"));
         Click.element(driver, waiter, buttonCheckout);
     }
@@ -217,7 +233,6 @@ class OrderTests extends BaseLoggedClass {
     private void fillPaymentDetails(String cardNumber, String cardHolderName, String expirationDate, String secNumber) {
         log.debug("Filling payment details with Card Number: {}, Card Holder: {}, Expiration Date: {}, Security Number: {}",
                 cardNumber, cardHolderName, expirationDate, secNumber);
-
         fillFieldAndWait("CardNumber", cardNumber);
         fillFieldAndWait("CardHolderName", cardHolderName);
         fillFieldAndWait("CardExpirationShort", expirationDate);
@@ -230,11 +245,9 @@ class OrderTests extends BaseLoggedClass {
      * @param numItemsExpected The expected number of items in the shopping basket.
      */
     private void checkOrderAmountAndNumItems(String amount, int numItemsExpected) {
-
         int numItems = driver.findElements(By.className("esh-orders_new-items")).size();
         // Assert the number of items matches the expected value
         Assertions.assertEquals(numItemsExpected, numItems);
-
         // Find the total amount displayed on the page
         WebElement totalAmountBasket = driver.findElement(By.xpath("/html/body/div[2]/form/section[4]/article[2]/section[2]"));
         // Assert the total amount matches the expected value
