@@ -108,7 +108,7 @@ class OrderTests extends BaseLoggedClass {
             actualState = statusElement.getText();
             log.debug("End of iteration {}, the order state is {}", iter, actualState);
             if (!actualState.equals("awaitingvalidation")) {
-                break; // Exit loop if the state is not awaiting validation
+                break; // Transition state passed, break and exit the loop.
             }
         }
         Assertions.assertEquals(expectedState, actualState, "Last order status is not as expected. Expected: " + expectedState + ", Actual: " + actualState);

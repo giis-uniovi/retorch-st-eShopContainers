@@ -23,6 +23,8 @@ import java.nio.file.Paths;
 import java.sql.*;
 import java.util.Properties;
 
+import static org.junit.jupiter.api.Assertions.fail;
+
 /*
  * This class contains common set-up, tear-down, browser setup, login, and logout methods utilized across various
  * test cases within the test suite. All classes implementing test cases inherit from this class to execute
@@ -43,7 +45,7 @@ public class BaseLoggedClass {
     private boolean isLogged = false;
 
     @BeforeAll()
-    static void setupAll() throws IOException, SQLDataException { //28 lines
+    static void setupAll() throws IOException { //28 lines
         log.info("Starting Global Set-up for all the Test Cases");
         properties = new Properties();
         // load a properties file for reading
@@ -173,15 +175,15 @@ public class BaseLoggedClass {
      * Checks if the database migration is complete by attempting to connect and query the number
      * of databases in the master.sys.databases table. Retries the connection and query up to a
      * specified number of times. The number of expected databases are 2 (default) + another 5 databases
-     * created by the different services
+     * created by the different services, so a minimal of 7 tables are expected.
      */
-    protected static void checkDBMigration() throws SQLDataException {
+    protected static void checkDBMigration() {
         // Get properties
         String user = properties.getProperty("SQLDB_USER");
         String password = properties.getProperty("SQLDB_PASSWORD");
         String host = "sqldata_" + tJobName;
-        // Build JDBC URL
-        final int MAX_TABLES = 6;
+        // Minimal amount of tables expected in the database
+        final int MIN_TABLES = 6;
         final int MAX_ITERATIONS = 10;
         final int WAIT_TIME_MS = 5000;
         String query = "SELECT name FROM master.sys.databases";
@@ -197,7 +199,7 @@ public class BaseLoggedClass {
                  ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
                     numTables++;
-                    if (numTables > MAX_TABLES) {
+                    if (numTables > MIN_TABLES) {
                         found = true;
                         break;
                     }
@@ -215,15 +217,14 @@ public class BaseLoggedClass {
         }
 
         if (!found) {
-            log.error("The databases are not migrated after " + MAX_ITERATIONS + " attempts.");
-            throw new SQLDataException("The DB Migration was not successfully done , E2E test execution aborted");
+            fail("The Catalog Status is not the expected after " + MAX_ITERATIONS + " attempts.");
         }
     }
     /**
      * Checks the status of the CatalogDB by attempting to connect and query the number of products
      * in the Catalog table. Retries the connection and query up to a specified number of times.
      */
-    protected static void checkCatalogDBStatus() throws SQLDataException {
+    protected static void checkCatalogDBStatus() {
         String dbName = "Microsoft.eShopOnContainers.Services.CatalogDb";
         String tableName = "Catalog";
         String query = "SELECT COUNT(*) AS numproducts FROM " + tableName;
@@ -262,8 +263,7 @@ public class BaseLoggedClass {
             }
         }
         if (!found) {
-            log.error("The database is not ready after " + maxIterations + " attempts.");
-            throw new SQLDataException("The Catalog database state its not the expected, E2E test execution aborted");
+            fail("The Catalog Status is not the expected after " + maxIterations + " attempts.");
         }
     }
 }
