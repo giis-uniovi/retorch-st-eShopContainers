@@ -1,6 +1,9 @@
 FROM mcr.microsoft.com/dotnet/aspnet:7.0 AS base
 WORKDIR /app
 EXPOSE 80
+##RETORCH: Install curl to create custom healthecheck
+RUN apt-get update \
+    && apt-get install -y curl
 
 FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build
 WORKDIR /src
@@ -51,10 +54,10 @@ COPY . .
 WORKDIR /src/Services/Ordering/Ordering.API
 RUN dotnet publish --no-restore -c Release -o /app
 
-FROM build as unittest
+FROM build AS unittest
 WORKDIR /src/Services/Ordering/Ordering.UnitTests
 
-FROM build as functionaltest
+FROM build AS functionaltest
 WORKDIR /src/Services/Ordering/Ordering.FunctionalTests
 
 FROM build AS publish

@@ -146,6 +146,11 @@ services:
         condition: service_healthy
       rabbitmq:
         condition: service_started
+    healthcheck:
+      test: "curl -f http://localhost/hc || exit 1"
+      interval: 30s
+      timeout: 30s
+      retries: 10
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - Kestrel__Endpoints__HTTP__Url=http://0.0.0.0:80
@@ -261,13 +266,27 @@ services:
       context: .
       dockerfile: ApiGateways/Mobile.Bff.Shopping/aggregator/Dockerfile
     depends_on:
-      - nosqldata
-      - sqldata
-      - identity-api
-      - rabbitmq
-      - ordering-api
-      - catalog-api
-      - basket-api
+      nosqldata:
+        condition:
+          service_started
+      sqldata:
+        condition:
+          service_healthy
+      identity-api:
+        condition:
+          service_started
+      rabbitmq:
+        condition:
+          service_started
+      ordering-api:
+        condition:
+          service_healthy
+      catalog-api:
+        condition:
+          service_started
+      basket-api:
+        condition:
+          service_started
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - urls__basket=http://basket_api_${tjobname}
@@ -296,13 +315,27 @@ services:
       context: .
       dockerfile: ApiGateways/Web.Bff.Shopping/aggregator/Dockerfile
     depends_on:
-      - nosqldata
-      - sqldata
-      - identity-api
-      - rabbitmq
-      - ordering-api
-      - catalog-api
-      - basket-api
+      nosqldata:
+        condition:
+          service_started
+      sqldata:
+        condition:
+          service_healthy
+      identity-api:
+        condition:
+          service_started
+      rabbitmq:
+        condition:
+          service_started
+      ordering-api:
+        condition:
+          service_healthy
+      catalog-api:
+        condition:
+          service_started
+      basket-api:
+        condition:
+          service_started
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - urls__basket=http://basket_api_${tjobname}
@@ -335,13 +368,27 @@ services:
       context: .
       dockerfile: Services/Ordering/Ordering.SignalrHub/Dockerfile
     depends_on:
-      - nosqldata
-      - sqldata
-      - identity-api
-      - rabbitmq
-      - ordering-api
-      - catalog-api
-      - basket-api
+      nosqldata:
+        condition:
+          service_started
+      sqldata:
+        condition:
+          service_healthy
+      identity-api:
+        condition:
+          service_started
+      rabbitmq:
+        condition:
+          service_started
+      ordering-api:
+        condition:
+          service_healthy
+      catalog-api:
+        condition:
+          service_started
+      basket-api:
+        condition:
+          service_started
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://0.0.0.0:80

@@ -95,7 +95,7 @@ public class BaseLoggedClass {
         String browserUser = properties.getProperty("BROWSER_USER");
         log.debug("Starting browser ({})", browserUser);
         // Setting up browser using selema with the necessary Arguments.
-        seleManager.setBrowser("chrome").setArguments(new String[]{"--start-maximized"});
+        seleManager.setBrowser("chrome").setArguments(new String[]{"--start-maximized","--incognito"});
         // Set up Selenoid configuration if Selenoid is present
         if (System.getenv("SELENOID_PRESENT") != null) {
             seleManager.setDriverUrl("http://selenoid:4444/wd/hub").add(new SelenoidService().setVideo().setVnc());
@@ -182,6 +182,7 @@ public class BaseLoggedClass {
         String user = properties.getProperty("SQLDB_USER");
         String password = properties.getProperty("SQLDB_PASSWORD");
         String host = "sqldata_" + tJobName;
+        //host="127.0.0.1";
         // Minimal number of databases expected in the MSQL Instance. The SUT creates 5 databases+ 2 databases that are by default in the container.
         final int MIN_DATABASES = 7;
         final int MAX_ITERATIONS = 10;
@@ -232,6 +233,7 @@ public class BaseLoggedClass {
         String user = properties.getProperty("SQLDB_USER");
         String password = properties.getProperty("SQLDB_PASSWORD");
         String host = "sqldata_" + tJobName;
+        //host="127.0.0.1";
         // Build JDBC URL
         String url = "jdbc:sqlserver://" + host + ":1433;databaseName=" + dbName + ";Encrypt=True;TrustServerCertificate=True;user=" + user + ";password=" + password;
         // Retry logic
