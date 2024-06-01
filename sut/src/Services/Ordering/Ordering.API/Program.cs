@@ -63,7 +63,7 @@ using (var scope = app.Services.CreateScope())
     var settings = app.Services.GetService<IOptions<OrderingSettings>>();
     var logger = app.Services.GetService<ILogger<OrderingContextSeed>>();
     //RETORCH: Increasing the timeout to avoid flakys when its parallelized the system. Added ConfigureAwait(false)
-    context.Database.SetCommandTimeout(150);
+    context.Database.SetCommandTimeout(300);
     await context.Database.MigrateAsync().ConfigureAwait(false);
 
     await new OrderingContextSeed().SeedAsync(context, env, settings, logger);

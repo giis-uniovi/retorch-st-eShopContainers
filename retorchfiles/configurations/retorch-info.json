@@ -1,13 +1,13 @@
 {
-  "OpenViduMock": {
+  "MockedWebSPA": {
     "dockerImageResource": [
       {
-        "placeHolderId": "OpenViduImage",
+        "placeHolderId": "WebSPAImage",
         "imageName": "eexit/mirror-http-server"
       },
       {
-        "placeHolderId": "mysqlImage",
-        "imageName": "mysql:5.7.21"
+        "placeHolderId": "MSQLImage",
+        "imageName": "mcr.microsoft.com/mssql/server:2019-latest"
       }
     ],
     "testsBasePath": "./"
@@ -15,12 +15,12 @@
   "generic": {
     "dockerImageResource": [
       {
-        "placeHolderId": "OpenViduImage",
-        "imageName": "openvidu/openvidu-server-kms:1.7.0"
+        "placeHolderId": "WebSPAImage",
+        "imageName": "${REGISTRY:-eshop}/webspa:${PLATFORM:-linux}-${TAG:-latest}"
       },
       {
-        "placeHolderId": "mysqlImage",
-        "imageName": "mysql:5.7.21"
+        "placeHolderId": "MSQLImage",
+        "imageName": "mcr.microsoft.com/mssql/server:2019-latest"
       }
     ],
     "testsBasePath": "./"
