@@ -25,17 +25,17 @@ public class Click {
         try {
             waiter.waitUntil(ExpectedConditions.elementToBeClickable(ele), "Element 1 not clickable");
             ele.click();
-            log.debug("Click.element (click): ele:" + tagName + ":" + text + " ==>OK");
+            log.debug("Click.element (click): ele:{}:{} ==>OK", tagName, text);
             return driver;
         } catch (Exception e) {
-            log.error("Click.element (click): ele:" + tagName + ":" + text + " ==>KO " + e.getClass().getName() + ":" + e.getLocalizedMessage());
+            log.error("Click.element (click): ele:{}:{} ==>KO {}:{}", tagName, text, e.getClass().getName(), e.getLocalizedMessage());
         }
         try {
             byJS(driver, ele);
-            log.debug("Click.element (ByJs): ele:" + tagName + ":" + text + " ==>OK");
+            log.debug("Click.element by JS (click): ele:{}:{} ==>OK", tagName, text);
             return driver;
         } catch (Exception e) {
-            log.error("Click.element (ByJs): ele:" + tagName + ":" + text + " ==>KO " + e.getClass().getName() + ":" + e.getLocalizedMessage());
+            log.error("Click.element by JS (click): ele:{}:{} ==>KO {}:{}", tagName, text, e.getClass().getName(), e.getLocalizedMessage());
         }
         throw new ElementNotFoundException("Click.element ERROR");
     }

@@ -22,6 +22,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.util.List;
 
 /**
@@ -75,6 +76,15 @@ public class DesktopAPIGatewayAPITests extends BaseAPIClass {
         httpPost.addHeader("content-type", "application/json");
         httpPost.addHeader("Authorization", "Bearer " + tokenAPI);
         // JSON payload for adding items to the basket, contains a basket with two items
+        StringEntity entity = getJSONofBasketWithTwoProducts();
+        httpPost.setEntity(entity);
+        ResponseHandler<String> responseHandler = new BasicResponseHandler();
+        log.debug("Performing the request");
+
+        return httpclient.execute(httpPost, responseHandler);
+    }
+
+    private static StringEntity getJSONofBasketWithTwoProducts() throws UnsupportedEncodingException {
         String json = "{\n" +
                 "  \"buyerId\": \"" + getUser() + "\",\n" +
                 "  \"items\": [\n" +
@@ -92,16 +102,11 @@ public class DesktopAPIGatewayAPITests extends BaseAPIClass {
                 "  ]\n" +
                 "}";
         // Set JSON payload as entity for the HTTP request
-        StringEntity entity = new StringEntity(json);
-        httpPost.setEntity(entity);
-        ResponseHandler<String> responseHandler = new BasicResponseHandler();
-        log.debug("Performing the request");
-
-        return httpclient.execute(httpPost, responseHandler);
+        return new StringEntity(json);
     }
 
     /**
-     * The {@code getBasket} method retrieves the basket with the Id that is provided as param. The JSON object
+     * The {@code getBasket} method retrieves the basket with the ID that is provided as param. The JSON object
      * retrieved is an {@code Order}, because eShopContainer stores the Baskets as "draft" orders
      * @param basketId String with the basket identifier
      * @return JSON with the Order

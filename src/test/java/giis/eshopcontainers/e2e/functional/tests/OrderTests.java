@@ -3,7 +3,6 @@ package giis.eshopcontainers.e2e.functional.tests;
 import giis.eshopcontainers.e2e.functional.common.BaseLoggedClass;
 import giis.eshopcontainers.e2e.functional.common.ElementNotFoundException;
 import giis.eshopcontainers.e2e.functional.utils.Click;
-import giis.eshopcontainers.e2e.functional.utils.Waiter;
 import giis.retorch.annotations.AccessMode;
 import giis.retorch.annotations.Resource;
 import org.junit.jupiter.api.Assertions;
@@ -54,9 +53,8 @@ class OrderTests extends BaseLoggedClass {
 
         login();
         toOrdersPage(driver, waiter);
-        int initialNOrders = driver.findElements(By.className("esh-orders-items")).size();
         createOrder();
-        checkLastOrderState(initialNOrders, expectedStatesPriorCancelling);
+        checkLastOrderState(expectedStatesPriorCancelling);
         logout();
     }
 
@@ -91,33 +89,31 @@ class OrderTests extends BaseLoggedClass {
 
         login();
         toOrdersPage(driver, waiter);
-        int initialNOrders = driver.findElements(By.className("esh-orders-items")).size();
         createOrder();
-        checkLastOrderState(initialNOrders, expectedStatesPriorCancelling);
+        checkLastOrderState( expectedStatesPriorCancelling);
         cancelLastOrder();
 
-        checkLastOrderState(initialNOrders, expectedStatesPostCancelling);
+        checkLastOrderState( expectedStatesPostCancelling);
         logout();
     }
 
     /**
      * This method is used to check if the state of the last order is the expected. In eShopContainers order list, the
-     * different orders that the user create are ordered by inverse date. In this method we make a iterative order
+     * different orders that the user create are ordered by inverse date. In this method we make an iterative order
      * because
      * in some cases the order state it's not updated as soon as expected, and remains for miliseconds-seconds as
      * "awaitingvalidation"
      * state
-     * @param initialNOrders the initial number of orders
      * @param expectedStates List with the expected state of the last order
      */
-    private void checkLastOrderState(int initialNOrders, List<String> expectedStates) throws ElementNotFoundException {
+    private void checkLastOrderState( List<String> expectedStates) throws ElementNotFoundException {
         int maxIterations = 10;
         String actualState = "";
         for (int iter = 0; iter < maxIterations; iter++) {
             log.debug("Performing iteration {} over the orders", iter);
             toOrdersPage(driver, waiter);
             List<WebElement> listOrders = driver.findElements(By.className("esh-orders-items"));
-            Assertions.assertTrue(listOrders.size() > 0, "There's at least one order in the list");
+            Assertions.assertFalse(listOrders.isEmpty(), "There's at least one order in the list");
             WebElement lastOrder = listOrders.get(listOrders.size() - 1);
             WebElement statusElement = lastOrder.findElements(By.className("esh-orders-item")).get(3);
             actualState = statusElement.getText();
@@ -135,7 +131,7 @@ class OrderTests extends BaseLoggedClass {
             }
         }
         Assertions.assertTrue(expectedStates.contains(actualState), "Last order status is not as expected. Expected: "
-                + expectedStates.toString() + ", Actual: " + actualState);
+                + expectedStates + ", Actual: " + actualState);
     }
 
     /**
@@ -209,7 +205,7 @@ class OrderTests extends BaseLoggedClass {
     private void navigateToCheckout(String priceOrder) throws ElementNotFoundException {
         WebElement menuOrder = driver.findElement(By.xpath("/html/body/header/div/article/section[3]/a/div[2]"));
         Click.element(driver, waiter, menuOrder);
-        // Get the order price and check if its correct
+        // Get the order price and check if it's correct
         WebElement totalAmountBasket = driver.findElement(By.xpath("//*[@id=\"cartForm\"]/div/div[2]/div[4]/article[2" +
                 "]/section[2]"));
         Assertions.assertEquals(priceOrder, totalAmountBasket.getText());
