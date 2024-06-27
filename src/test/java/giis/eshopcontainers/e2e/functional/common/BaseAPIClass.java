@@ -20,18 +20,24 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
-
+/**
+ * The {@code BaseAPIClass} implements all the common methods required to perform the API testing
+ * of the different microservices that compose eShopOnContainers. Has the necessary operations to
+ * perform the oAuth2 authentication against the identity_service as well as the common set-up and
+ * tear-down methods.
+*/
 public class BaseAPIClass {
-    // Logger for logging messages
     public static final Logger log = LoggerFactory.getLogger(BaseAPIClass.class);
 
-    // Static fields for storing configuration properties and token
-    protected static String sutUrl;
     protected static String tokenAPI;
     protected static Properties properties;
     protected static String tJobName;
+    private static String desktopBFFURL;
+    private static String identityURL;
 
-    // Method to setup before all test cases
+    public String getIdentityURL() {return identityURL;}
+    public String getDesktopBFFURLOrders() {return desktopBFFURL+"/Order/draft/";}
+    public String getDesktopBFFURLBasket() {return desktopBFFURL+"/Basket";}
     @BeforeAll
     static void setupAll() {
         // Log start of global setup
@@ -45,66 +51,54 @@ public class BaseAPIClass {
             tJobName = System.getProperty("tjob_name");
             String envUrl = System.getProperty("SUT_URL") != null ? System.getProperty("SUT_URL") : System.getenv("SUT_URL");
             if (envUrl == null) {
-                // Outside CI
-                sutUrl = properties.getProperty("LOCALHOST_URL");
-                log.debug("Configuring the local browser to connect to a local System Under Test (SUT) at: {}", sutUrl);
+                // If the envURL still being null, means that we are in local, so retrieve the identity URL and SUT url
+                identityURL = properties.getProperty("LOCALHOST_IDENTITY_URL");
+                desktopBFFURL = properties.getProperty("LOCALHOST_DESKTOP_BFF_URL");
+                log.debug("Configuring to connect a local identity_api, whose URL is (SUT) at: {}", identityURL);
             } else {
-                sutUrl = envUrl + ":" + (System.getProperty("SUT_PORT") != null ? System.getProperty("SUT_PORT") : System.getenv("SUT_PORT")) + "/";
-                log.debug("Configuring the browser to connect to the remote System Under Test (SUT) at the following URL: {}", sutUrl);
+                identityURL = "http://identity_api_" + tJobName + ":80";
+                desktopBFFURL = "http://webshoppingagg_" + tJobName + ":80/api/v1";
+                log.debug("Configuring the API test to use docker network connectivity, identity api at following URL: {}", identityURL);
             }
-            // Get token for authentication
-            String url="http://identity_api_" + tJobName + ":80";
-            //temporal fix
-            //url="http://localhost:5022";
-            tokenAPI = getTokenWithPasswd(url);
+            tokenAPI = getTokenWithPasswd(identityURL);
             log.info("The token is: {}", tokenAPI);
         } catch (IOException e) {
-            // Log error if setup fails
             log.error("Failed to setup tests.", e);
         }
-        // Log end of global setup
         log.info("Ending global setup for all test cases.");
     }
 
-    // Method to retrieve token using HTTP request
+    /**
+     * Performs a basic oAuth2 authentication to get the Bearer token against the identity_service of
+     * eShopOnContainers. Creates one HTTP Request with the necessary headers using a custom scope and a secret.
+     * @param identityURI String with the URL of the identity API
+     * @return The bearer token to authenticate against the rest of the services
+     */
     public static String getTokenWithPasswd(String identityURI) throws IOException {
-        // Log start of token retrieval process
         log.debug("Starting creating the http request with URI: {}/connect/token", identityURI);
-
-        // Create HTTP client and POST request
+        // Create HTTP client and POST request to send start the auth handshake
         HttpClient httpclient = HttpClients.createDefault();
         HttpPost httppost = new HttpPost(identityURI + "/connect/token");
-
-        // Add headers
+        // Start adding the necessary heathers for auth
         httppost.addHeader("content-type", "application/x-www-form-urlencoded");
-
-        // Add parameters for authentication
+        // Add parameters for the authentication that would be attached to the request
         List<BasicNameValuePair> params = new ArrayList<>(3);
-        params.add(new BasicNameValuePair("grant_type", "password"));
-        params.add(new BasicNameValuePair("client_id", "testalice"));
-        params.add(new BasicNameValuePair("username", "alice"));
-        params.add(new BasicNameValuePair("password", "Pass123$"));
-        params.add(new BasicNameValuePair("client_secret", "secret"));
-        params.add(new BasicNameValuePair("scope", "basket"));
-
+        params.add(new BasicNameValuePair("grant_type", properties.getProperty("API_GRANT_TYPE")));
+        params.add(new BasicNameValuePair("client_id", properties.getProperty("API_CLIENT_ID")));
+        params.add(new BasicNameValuePair("username", properties.getProperty("USER_ESHOP")));
+        params.add(new BasicNameValuePair("password", properties.getProperty("USER_ESHOP_PASSWORD")));
+        params.add(new BasicNameValuePair("client_secret", properties.getProperty("API_SCOPE_SECRET")));
+        params.add(new BasicNameValuePair("scope", properties.getProperty("API_SCOPE")));
         // Set parameters for HTTP request
         httppost.setEntity(new UrlEncodedFormEntity(params, StandardCharsets.UTF_8));
-
         // Define response handler
         ResponseHandler<String> responseHandler = new BasicResponseHandler();
-
-        // Log performing the request
         log.debug("Performing the request...");
-
         // Execute HTTP request and handle response
-        String responsestr = httpclient.execute(httppost, responseHandler);
-
-        // Parse JSON response
-        JsonObject jsonObject = JsonParser.parseString(responsestr).getAsJsonObject();
-
-        // Log JSON output
-        log.debug("The JSON output is: {}", jsonObject.toString());
-
+        String httpResponseString = httpclient.execute(httppost, responseHandler);
+        // Parse JSON response to retrieve easily the access token
+        JsonObject jsonObject = JsonParser.parseString(httpResponseString).getAsJsonObject();
+        log.debug("The JSON output is: {}", jsonObject);
         // Return access token from JSON response
         return jsonObject.get("access_token").getAsString();
     }

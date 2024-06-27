@@ -24,9 +24,10 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.util.List;
 
-public class WebAggAPITests extends BaseAPIClass {
 
-    // Test to ensure items are added to the basket correctly
+public class DesktopAPIGatewayAPITests extends BaseAPIClass {
+
+
     @Resource(resID = "identity-api", replaceable = {})
     @AccessMode(resID = "identity-api", concurrency = 50, sharing = true, accessMode = "READONLY")
     @Resource(resID = "basket-api", replaceable = {})
@@ -35,16 +36,13 @@ public class WebAggAPITests extends BaseAPIClass {
     @AccessMode(resID = "eshopUser", concurrency = 1, accessMode = "READWRITE")
     @Test
     @DisplayName("testAddProductsBasketWebAgg")
-    void testAddProductsBasket() throws IOException, InterruptedException {
+    void testAddProductsBasket() throws IOException {
         // Initialize Gson for JSON serialization/deserialization
         Gson gson = new Gson();
-
         addItemsToBasket();
-
         // Retrieve the basket and deserialize JSON response into Order object
         String outputGetBasket = getBasket("testuserid");
         Order order = gson.fromJson(outputGetBasket, Order.class);
-
         // Assertions to validate basket content
         Assertions.assertEquals("testuserid", order.getBuyer(), "The user id doesn't match");
         Assertions.assertEquals(2, order.getOrderItems().size(), "More than 2 items were found in the order");
@@ -65,17 +63,14 @@ public class WebAggAPITests extends BaseAPIClass {
     // Method to add items to the basket
     public String addItemsToBasket() throws IOException {
         // Debug log for creating connection
-        log.debug("Creating the connection with URL: http://basket_api_" + tJobName + ":80/api/v1/Basket");
+        log.debug("Creating the connection with URL: {}",this.getDesktopBFFURLBasket());
         // Create HTTP client and POST request
         HttpClient httpclient = HttpClients.createDefault();
-        String requestURL ="http://webshoppingagg_" + tJobName + ":80/api/v1/Basket";
-        //requestURL = "http://localhost:5016//api/v1/Basket";
-        HttpPost httpPost = new HttpPost(requestURL);
+        HttpPost httpPost = new HttpPost(this.getDesktopBFFURLBasket());
         // Configure headers
         httpPost.addHeader("accept", "text/plain");
         httpPost.addHeader("content-type", "application/json");
         httpPost.addHeader("Authorization", "Bearer " + tokenAPI);
-
         // JSON payload for adding items to the basket
         String json = "{\n" +
                 "  \"buyerId\": \"testuserid\",\n" +
@@ -108,24 +103,16 @@ public class WebAggAPITests extends BaseAPIClass {
 
     // Method to get basket details
     public String getBasket(String basketId) {
-        // Define request URL
-        String requestURL = "http://webshoppingagg_" + tJobName + ":80/api/v1/Order/draft/" + basketId;
-        //requestURL = "http://localhost:5016/api/v1/Order/draft/" + basketId;
-        // Initialize result string
         String result = "";
-
         // Execute HTTP request and handle response
         try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
             // Create the HTTP Get Request
-            HttpGet request = new HttpGet(requestURL);
-
+            HttpGet request = new HttpGet(this.getDesktopBFFURLOrders()+basketId);
             // Configure headers
             request.addHeader("content-type", "application/json");
             request.addHeader("Authorization", "Bearer " + tokenAPI);
-
             // Execute the request and obtain the response
             HttpResponse response = httpClient.execute(request);
-
             // Obtain the body answer
             HttpEntity entity = response.getEntity();
             if (entity != null) {
@@ -135,7 +122,6 @@ public class WebAggAPITests extends BaseAPIClass {
             // Print stack trace for IOException
             log.debug("The connection failed");
         }
-
         // Return response result
         return result;
     }

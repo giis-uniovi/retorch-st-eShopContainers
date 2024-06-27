@@ -50,7 +50,7 @@ pipeline {
           steps {
               catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
                   sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-setup.sh tjobe 0'
-                  sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-testexecution.sh tjobe 0 http:// 5024 "WebAggAPITests#testAddProductsBasket"'
+                  sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-testexecution.sh tjobe 0 http:// 5024 "DesktopAPIGatewayAPITests#testAddProductsBasket"'
               }// EndExecutionStageErrorTJobE
               sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-teardown.sh tjobe 0'
           }// EndStepsTJobE
