@@ -27,28 +27,29 @@ import java.util.Properties;
  * tear-down methods.
 */
 public class BaseAPIClass {
-    public static final Logger log = LoggerFactory.getLogger(BaseAPIClass.class);
 
+    public static final Logger log = LoggerFactory.getLogger(BaseAPIClass.class);
     protected static String tokenAPI;
     protected static Properties properties;
     protected static String tJobName;
     private static String desktopBFFURL;
     private static String identityURL;
+    private static String user;
 
+    public static String getUser() {return user;}
     public String getIdentityURL() {return identityURL;}
     public String getDesktopBFFURLOrders() {return desktopBFFURL+"/Order/draft/";}
     public String getDesktopBFFURLBasket() {return desktopBFFURL+"/Basket";}
+
     @BeforeAll
     static void setupAll() {
-        // Log start of global setup
         log.info("Starting Global Set-up for all the Test Cases");
         try {
             log.info("Starting Global Set-up for all the Test Cases");
             properties = new Properties();
-            // load a properties file for reading
             properties.load(Files.newInputStream(Paths.get("src/test/resources/test.properties")));
-            // Retrieve test job name
             tJobName = System.getProperty("tjob_name");
+            user=System.getProperty("USER_ESHOP");
             String envUrl = System.getProperty("SUT_URL") != null ? System.getProperty("SUT_URL") : System.getenv("SUT_URL");
             if (envUrl == null) {
                 // If the envURL still being null, means that we are in local, so retrieve the identity URL and SUT url
@@ -89,17 +90,15 @@ public class BaseAPIClass {
         params.add(new BasicNameValuePair("password", properties.getProperty("USER_ESHOP_PASSWORD")));
         params.add(new BasicNameValuePair("client_secret", properties.getProperty("API_SCOPE_SECRET")));
         params.add(new BasicNameValuePair("scope", properties.getProperty("API_SCOPE")));
-        // Set parameters for HTTP request
+        // Set parameters for HTTP request and define the response handler
         httppost.setEntity(new UrlEncodedFormEntity(params, StandardCharsets.UTF_8));
-        // Define response handler
         ResponseHandler<String> responseHandler = new BasicResponseHandler();
         log.debug("Performing the request...");
-        // Execute HTTP request and handle response
+        // Execute HTTP request and handle response and parse JSON response to retrieve easily the access token
         String httpResponseString = httpclient.execute(httppost, responseHandler);
-        // Parse JSON response to retrieve easily the access token
         JsonObject jsonObject = JsonParser.parseString(httpResponseString).getAsJsonObject();
         log.debug("The JSON output is: {}", jsonObject);
-        // Return access token from JSON response
+
         return jsonObject.get("access_token").getAsString();
     }
 }

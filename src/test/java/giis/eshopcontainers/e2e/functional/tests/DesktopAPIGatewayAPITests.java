@@ -24,56 +24,59 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.util.List;
 
-
+/**
+ * The {@code DesktopAPIGatewayAPITests} implements all the test cases tha validate the different
+ * API endpoints of the Backend For Frontends (BFF) webshopingagg that is used by the two Desktop
+ * frontends. The different endpoints available can be seen in the Swagger UI
+ */
 public class DesktopAPIGatewayAPITests extends BaseAPIClass {
-
 
     @Resource(resID = "identity-api", replaceable = {})
     @AccessMode(resID = "identity-api", concurrency = 50, sharing = true, accessMode = "READONLY")
     @Resource(resID = "basket-api", replaceable = {})
-    @AccessMode(resID = "basket-api", concurrency = 30,sharing = true, accessMode = "READWRITE")
+    @AccessMode(resID = "basket-api", concurrency = 30, sharing = true, accessMode = "READWRITE")
     @Resource(resID = "eshopUser", replaceable = {})
     @AccessMode(resID = "eshopUser", concurrency = 1, accessMode = "READWRITE")
     @Test
     @DisplayName("testAddProductsBasketWebAgg")
     void testAddProductsBasket() throws IOException {
-        // Initialize Gson for JSON serialization/deserialization
+        // Initialize Gson object that would be used to deserialize the Basket (Draft order)
         Gson gson = new Gson();
-        addItemsToBasket();
-        // Retrieve the basket and deserialize JSON response into Order object
-        String outputGetBasket = getBasket("testuserid");
+        createBasketWithTwoItems();
+        // Retrieve the basket and deserialize JSON response into Order object,because the basket are stored as "draft" orders
+        String outputGetBasket = getBasket(getUser());
         Order order = gson.fromJson(outputGetBasket, Order.class);
-        // Assertions to validate basket content
-        Assertions.assertEquals("testuserid", order.getBuyer(), "The user id doesn't match");
+
+        Assertions.assertEquals(getUser(), order.getBuyer(), "The user id doesn't match");
         Assertions.assertEquals(2, order.getOrderItems().size(), "More than 2 items were found in the order");
 
-        List<OrderItem> listitems = order.getOrderItems();
-        // Assertions for each order item
-        Assertions.assertEquals(5, listitems.get(0).getProductId());
-        Assertions.assertEquals("Roslyn Red Pin", listitems.get(0).getProductName());
-        Assertions.assertEquals(2, listitems.get(0).getUnits());
-        Assertions.assertEquals(8.5, listitems.get(0).getUnitPrice());
-
-        Assertions.assertEquals(3, listitems.get(1).getProductId());
-        Assertions.assertEquals("Prism White T-Shirt", listitems.get(1).getProductName());
-        Assertions.assertEquals(1, listitems.get(1).getUnits());
-        Assertions.assertEquals(12, listitems.get(1).getUnitPrice());
+        List<OrderItem> listItems = order.getOrderItems();
+        Assertions.assertEquals(5, listItems.get(0).getProductId());
+        Assertions.assertEquals("Roslyn Red Pin", listItems.get(0).getProductName());
+        Assertions.assertEquals(2, listItems.get(0).getUnits());
+        Assertions.assertEquals(8.5, listItems.get(0).getUnitPrice());
+        Assertions.assertEquals(3, listItems.get(1).getProductId());
+        Assertions.assertEquals("Prism White T-Shirt", listItems.get(1).getProductName());
+        Assertions.assertEquals(1, listItems.get(1).getUnits());
+        Assertions.assertEquals(12, listItems.get(1).getUnitPrice());
     }
 
-    // Method to add items to the basket
-    public String addItemsToBasket() throws IOException {
-        // Debug log for creating connection
-        log.debug("Creating the connection with URL: {}",this.getDesktopBFFURLBasket());
+    /**
+     * The {@code createBasketWithTwoItems} method creates a default basket with two items. Creates an HTTP request
+     * with the bearer token to authenticate against the API, and which body contains the basket in JSON format
+     */
+    public String createBasketWithTwoItems() throws IOException {
+        log.debug("Creating the connection with URL: {}", this.getDesktopBFFURLBasket());
         // Create HTTP client and POST request
         HttpClient httpclient = HttpClients.createDefault();
         HttpPost httpPost = new HttpPost(this.getDesktopBFFURLBasket());
-        // Configure headers
+        // Configure headers and the authorization Bearer Token
         httpPost.addHeader("accept", "text/plain");
         httpPost.addHeader("content-type", "application/json");
         httpPost.addHeader("Authorization", "Bearer " + tokenAPI);
-        // JSON payload for adding items to the basket
+        // JSON payload for adding items to the basket, contains a basket with two items
         String json = "{\n" +
-                "  \"buyerId\": \"testuserid\",\n" +
+                "  \"buyerId\": \"" + getUser() + "\",\n" +
                 "  \"items\": [\n" +
                 "    {\n" +
                 "      \"id\": \"testproductid1\",\n" +
@@ -88,41 +91,36 @@ public class DesktopAPIGatewayAPITests extends BaseAPIClass {
                 "\n" +
                 "  ]\n" +
                 "}";
-
         // Set JSON payload as entity for the HTTP request
         StringEntity entity = new StringEntity(json);
         httpPost.setEntity(entity);
-
-        // Define response handler
         ResponseHandler<String> responseHandler = new BasicResponseHandler();
-        // Debug log for performing the request
         log.debug("Performing the request");
-        // Execute HTTP request and return response
+
         return httpclient.execute(httpPost, responseHandler);
     }
 
-    // Method to get basket details
+    /**
+     * The {@code getBasket} method retrieves the basket with the Id that is provided as param. The JSON object
+     * retrieved is an {@code Order}, because eShopContainer stores the Baskets as "draft" orders
+     * @param basketId String with the basket identifier
+     * @return JSON with the Order
+     */
     public String getBasket(String basketId) {
         String result = "";
-        // Execute HTTP request and handle response
         try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
-            // Create the HTTP Get Request
-            HttpGet request = new HttpGet(this.getDesktopBFFURLOrders()+basketId);
-            // Configure headers
+            HttpGet request = new HttpGet(this.getDesktopBFFURLOrders() + basketId);
             request.addHeader("content-type", "application/json");
             request.addHeader("Authorization", "Bearer " + tokenAPI);
-            // Execute the request and obtain the response
             HttpResponse response = httpClient.execute(request);
-            // Obtain the body answer
             HttpEntity entity = response.getEntity();
             if (entity != null) {
                 result = EntityUtils.toString(entity);
             }
         } catch (IOException e) {
-            // Print stack trace for IOException
-            log.debug("The connection failed");
+            log.debug("The connection getting the Basket at the endpoint {}{} has failed",this.getDesktopBFFURLOrders(),basketId);
         }
-        // Return response result
+
         return result;
     }
 }
