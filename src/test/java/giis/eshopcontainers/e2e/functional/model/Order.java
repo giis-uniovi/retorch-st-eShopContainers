@@ -100,9 +100,7 @@ public class Order {
     public void setCity(String city) {
         this.city = city;
     }
-    public void setStreet(String street) {
-        this.street = street;
-    }
+    public void setStreet(String street) { this.street = street; }
     public void setState(String state) {
         this.state = state;
     }
@@ -139,5 +137,5 @@ public class Order {
     public void setOrderItems(List<OrderItem> orderItems) {
         this.orderItems = orderItems;
     }
-    
+
 }

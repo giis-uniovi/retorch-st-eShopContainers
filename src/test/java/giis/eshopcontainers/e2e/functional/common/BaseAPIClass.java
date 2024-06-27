@@ -49,7 +49,7 @@ public class BaseAPIClass {
             properties = new Properties();
             properties.load(Files.newInputStream(Paths.get("src/test/resources/test.properties")));
             tJobName = System.getProperty("tjob_name");
-            user=System.getProperty("USER_ESHOP");
+            user=properties.getProperty("USER_ESHOP");
             String envUrl = System.getProperty("SUT_URL") != null ? System.getProperty("SUT_URL") : System.getenv("SUT_URL");
             if (envUrl == null) {
                 // If the envURL still being null, means that we are in local, so retrieve the identity URL and SUT url

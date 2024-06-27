@@ -1,6 +1,7 @@
 package giis.eshopcontainers.e2e.functional.model;
 
 public class OrderItem {
+
     private int productId;
     private String productName;
     private double unitPrice;
