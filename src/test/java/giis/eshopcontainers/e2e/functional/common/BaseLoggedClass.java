@@ -43,6 +43,9 @@ public class BaseLoggedClass {
     private String userName;
     private String password;
     private boolean isLogged = false;
+    private static String dbURL;
+
+    public static String getDbURL() {return dbURL;}
 
     @BeforeAll()
     static void setupAll() throws IOException { //28 lines
@@ -56,10 +59,12 @@ public class BaseLoggedClass {
         if (envUrl == null) {
             // Outside CI
             sutUrl = properties.getProperty("LOCALHOST_URL");
-            log.debug("Configuring the local browser to connect to a local System Under Test (SUT) at: " + sutUrl);
+            dbURL = properties.getProperty("LOCALHOST_DB_URL");
+            log.debug("Configuring the local browser to connect to a local System Under Test (SUT) at: {} and the DB in {}" , sutUrl, dbURL);
         } else {
             sutUrl = envUrl + ":" + (System.getProperty("SUT_PORT") != null ? System.getProperty("SUT_PORT") : System.getenv("SUT_PORT")) + "/";
-            log.debug("Configuring the browser to connect to the remote System Under Test (SUT) at the following URL: " + sutUrl);
+            dbURL="sqldata_" + tJobName;
+            log.debug("Configuring the browser to connect to the remote System Under Test (SUT) at the following URL: {} and the DB in {}" , sutUrl, dbURL);
         }
         checkDBMigration();
         checkCatalogDBStatus();
@@ -181,14 +186,12 @@ public class BaseLoggedClass {
         // Get properties
         String user = properties.getProperty("SQLDB_USER");
         String password = properties.getProperty("SQLDB_PASSWORD");
-        String host = "sqldata_" + tJobName;
-        //host="127.0.0.1";
         // Minimal number of databases expected in the MSQL Instance. The SUT creates 5 databases+ 2 databases that are by default in the container.
         final int MIN_DATABASES = 7;
         final int MAX_ITERATIONS = 10;
         final int WAIT_TIME_MS = 5000;
         String query = "SELECT name FROM master.sys.databases";
-        String url = "jdbc:sqlserver://" + host + ":1433;Encrypt=True;TrustServerCertificate=True;user=" + user + ";password=" + password;
+        String url = "jdbc:sqlserver://" + getDbURL() + ":1433;Encrypt=True;TrustServerCertificate=True;user=" + user + ";password=" + password;
         int iter = 0;
         boolean found = false;
         //Iterate until the migration is performed or the number of iterations reached
@@ -232,10 +235,8 @@ public class BaseLoggedClass {
         // Get properties
         String user = properties.getProperty("SQLDB_USER");
         String password = properties.getProperty("SQLDB_PASSWORD");
-        String host = "sqldata_" + tJobName;
-        //host="127.0.0.1";
         // Build JDBC URL
-        String url = "jdbc:sqlserver://" + host + ":1433;databaseName=" + dbName + ";Encrypt=True;TrustServerCertificate=True;user=" + user + ";password=" + password;
+        String url = "jdbc:sqlserver://" + getDbURL() + ":1433;databaseName=" + dbName + ";Encrypt=True;TrustServerCertificate=True;user=" + user + ";password=" + password;
         // Retry logic
         boolean found = false;
         int iter = 0;
