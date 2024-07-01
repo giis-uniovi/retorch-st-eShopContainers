@@ -55,5 +55,5 @@ public class OrderItem {
     public void setPictureUrl(String pictureUrl) {
         this.pictureUrl = pictureUrl;
     }
-// Agregar getters y setters
+
 }

@@ -1,8 +1,6 @@
 package giis.eshopcontainers.e2e.functional.model;
 import java.util.List;
 
-
-
 public class Order {
     private String orderNumber;
     private String date;
@@ -175,6 +173,5 @@ public class Order {
     public void setOrderItems(List<OrderItem> orderItems) {
         this.orderItems = orderItems;
     }
-
 
 }
