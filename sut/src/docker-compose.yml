@@ -187,6 +187,8 @@ services:
       context: .
       dockerfile: Services/Ordering/Ordering.BackgroundTasks/Dockerfile
     depends_on:
+      ordering-api:
+        condition: service_healthy
       sqldata:
         condition: service_healthy
       rabbitmq:
