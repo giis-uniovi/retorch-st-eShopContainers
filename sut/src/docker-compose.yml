@@ -9,7 +9,7 @@ services:
 
   sqldata:
     container_name: sqldata_${tjobname}
-    image: mcr.microsoft.com/mssql/server:2019-latest
+    image: mcr.microsoft.com/mssql/server:2019-CU28-ubuntu-20.04
     environment:
       - SA_PASSWORD=Pass@word
       - ACCEPT_EULA=Y
@@ -18,9 +18,11 @@ services:
     networks:
       - jenkins_network
     healthcheck:
-      test: "/opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P \"Pass@word\" -Q \"SELECT name FROM master.sys.databases\""
-      timeout: 20s
+      test: "/opt/mssql-tools18/bin/sqlcmd -C -S localhost -U SA -P \"Pass@word\" -Q \"SELECT name FROM master.sys.databases\""
+      interval: 10s
+      timeout: 3s
       retries: 10
+      start_period: 20s
 
   nosqldata:
     container_name: nosqldata_${tjobname}
@@ -149,8 +151,9 @@ services:
     healthcheck:
       test: "curl -f http://localhost/hc || exit 1"
       interval: 30s
-      timeout: 30s
-      retries: 10
+      timeout: 3s
+      retries: 15
+      start_period: 25s
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - Kestrel__Endpoints__HTTP__Url=http://0.0.0.0:80
@@ -184,6 +187,8 @@ services:
       context: .
       dockerfile: Services/Ordering/Ordering.BackgroundTasks/Dockerfile
     depends_on:
+      ordering-api:
+        condition: service_healthy
       sqldata:
         condition: service_healthy
       rabbitmq:

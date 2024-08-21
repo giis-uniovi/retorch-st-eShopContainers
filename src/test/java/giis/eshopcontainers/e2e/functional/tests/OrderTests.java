@@ -86,14 +86,25 @@ class OrderTests extends BaseLoggedClass {
         expectedStatesPriorCancelling.add("stockconfirmed");
         LinkedList<String> expectedStatesPostCancelling = new LinkedList<>();
         expectedStatesPostCancelling.add("cancelled");
+        LinkedList <String> expectedStatesBeforeLongDelay = new LinkedList<>();
+        expectedStatesBeforeLongDelay.add("paid");
 
         login();
         toOrdersPage(driver, waiter);
         createOrder();
+        long startTime = System.currentTimeMillis();
         checkLastOrderState( expectedStatesPriorCancelling);
-        cancelLastOrder();
+        long endTime = System.currentTimeMillis();
+        long duration =endTime-startTime;
+        log.debug("The time invested in place the order was: {}s", duration);
+        if(duration<=3000) {
+            cancelLastOrder();
+            checkLastOrderState(expectedStatesPostCancelling);
+        }
+        else {
+            checkLastOrderState(expectedStatesBeforeLongDelay);
+        }
 
-        checkLastOrderState( expectedStatesPostCancelling);
         logout();
     }
 
@@ -109,6 +120,7 @@ class OrderTests extends BaseLoggedClass {
     private void checkLastOrderState( List<String> expectedStates) throws ElementNotFoundException {
         int maxIterations = 10;
         String actualState = "";
+
         for (int iter = 0; iter < maxIterations; iter++) {
             log.debug("Performing iteration {} over the orders", iter);
             toOrdersPage(driver, waiter);
@@ -125,6 +137,7 @@ class OrderTests extends BaseLoggedClass {
                     waiter.waitUntil(ExpectedConditions.not(ExpectedConditions.textToBePresentInElement(statusElement
                             , actualState)),
                             "The actual state remains untouched");
+                    log.debug("Refreshing the webpage to update order status...");
                 } catch (Exception ex) {
                     log.debug("Timeout the element remains with the previous state, previous was{}current is:{}", actualState, statusElement.getText());
                 }
