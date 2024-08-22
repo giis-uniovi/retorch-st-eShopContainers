@@ -88,9 +88,8 @@
 			</dependency>
 		</dependencies>
 	<build>
-		<!-- To avoid problems with concurrency we change the directories of the reports and outputs -->
-		<testOutputDirectory>${basedir}/target/test-classes/${dirtarget}</testOutputDirectory>
-		<outputDirectory>${basedir}/target/classes/${dirtarget}</outputDirectory>
+		<!-- To avoid problems with concurrency we change the directories of the reports, outputs and build -->
+		<directory>${project.basedir}/target/${tjob_name}</directory>
 		<pluginManagement>
 			<plugins>
 				<plugin>

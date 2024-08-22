@@ -36,7 +36,7 @@ EXECUTE_TIMESTAMP_SCRIPT "$STAGE" "$TJOB_NAME"
 
 LOCALHOST="$DOCKER_HOST_IP:$PORT"
 # Run Maven test
-mvn test -Ddirtarget="$TJOBNAME" -Dtest="$TEST_NAME" -Dtjob_name="$TJOB_NAME" -DSUT_URL="$SUT_URL" -DSUT_PORT="$PORT"
+mvn test -Dtest="$TEST_NAME" -Dtjob_name="$TJOB_NAME" -DSUT_URL="$SUT_URL" -DSUT_PORT="$PORT"
 
 # Store Test result
 MVN_EXIT_CODE=$?
