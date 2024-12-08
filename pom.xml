@@ -25,11 +25,11 @@
 
         <slf4j-api.version>2.0.16</slf4j-api.version>
 
-        <log4j-slf4j2-impl.version>2.24.1</log4j-slf4j2-impl.version>
+        <log4j-slf4j2-impl.version>2.24.2</log4j-slf4j2-impl.version>
 
         <junit-jupiter-api.version>5.11.3</junit-jupiter-api.version>
 
-        <selenium-java.version>4.26.0</selenium-java.version>
+        <selenium-java.version>4.27.0</selenium-java.version>
 
 		<selema.version>3.2.3</selema.version>
 
@@ -84,7 +84,7 @@
 			<dependency>
 				<groupId>com.microsoft.sqlserver</groupId>
 				<artifactId>mssql-jdbc</artifactId>
-				<version>12.8.1.jre11</version>
+				<version>12.9.0.jre11-preview</version>
 			</dependency>
 		</dependencies>
 	<build>
