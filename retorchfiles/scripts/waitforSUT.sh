@@ -10,7 +10,7 @@ DOCKER_HOST_IP=$(/sbin/ip route | awk '/default/ { print $3 }')
 COUNTER=0
 WAIT_LIMIT=40
 
-while ! curl --insecure -s "http://webmvc_$1:80" | grep -q "<div class="esh-catalog-item col-md-4">"; do
+while ! curl --insecure -s "http://webmvc_$1:80" | grep -q "<div class=\"esh-catalog-item col-md-4\">"; do
   "$SCRIPTS_FOLDER/printLog.sh" "DEBUG" "TJob-$1-set-up" "Waiting $COUNTER seconds for $1 with URL http://webmvc_$1:80"
   sleep 5
   ((COUNTER++))
