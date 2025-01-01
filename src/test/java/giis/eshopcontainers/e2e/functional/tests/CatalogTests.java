@@ -5,7 +5,6 @@ import giis.eshopcontainers.e2e.functional.common.ElementNotFoundException;
 import giis.eshopcontainers.e2e.functional.utils.Click;
 import giis.eshopcontainers.e2e.functional.utils.Navigation;
 import giis.retorch.annotations.AccessMode;
-import giis.retorch.annotations.Resource;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -18,17 +17,11 @@ import static giis.eshopcontainers.e2e.functional.utils.Shopping.addProductToBas
 
 class CatalogTests extends BaseLoggedClass {
 
-    @Resource(resID = "webmvc", replaceable = {})
     @AccessMode(resID = "webmvc", concurrency = 10, sharing = true, accessMode = "READONLY")
-    @Resource(resID = "identity-api", replaceable = {})
     @AccessMode(resID = "identity-api", concurrency = 50, sharing = true, accessMode = "READONLY")
-    @Resource(resID = "catalog-api", replaceable = {})
     @AccessMode(resID = "catalog-api", concurrency = 60, sharing = true, accessMode = "READONLY")
-    @Resource(resID = "basket-api", replaceable = {})
     @AccessMode(resID = "basket-api", concurrency = 30,sharing = true, accessMode = "READWRITE")
-    @Resource(resID = "chrome-browser", replaceable = {})
     @AccessMode(resID = "chrome-browser", concurrency = 1, sharing = false, accessMode = "READWRITE")
-    @Resource(resID = "eshopUser", replaceable = {})
     @AccessMode(resID = "eshopUser", concurrency = 1, accessMode = "READWRITE")
     @Test
     @DisplayName("AddProductsToBasket")
@@ -63,11 +56,8 @@ class CatalogTests extends BaseLoggedClass {
                 "The eShop product button was expected to be disabled but was enabled");
     }
 
-    @Resource(resID = "webmvc", replaceable = {})
     @AccessMode(resID = "webmvc", concurrency = 10, sharing = true, accessMode = "READONLY")
-    @Resource(resID = "catalog-api", replaceable = {})
     @AccessMode(resID = "catalog-api", concurrency = 60, sharing = true, accessMode = "READONLY")
-    @Resource(resID = "chrome-browser", replaceable = {})
     @AccessMode(resID = "chrome-browser", concurrency = 1, accessMode = "READWRITE")
     @Test
     @DisplayName("FilterProductsByBrand")

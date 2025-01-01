@@ -5,7 +5,6 @@ import giis.eshopcontainers.e2e.functional.common.BaseAPIClass;
 import giis.eshopcontainers.e2e.functional.model.Order;
 import giis.eshopcontainers.e2e.functional.model.OrderItem;
 import giis.retorch.annotations.AccessMode;
-import giis.retorch.annotations.Resource;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -30,13 +29,10 @@ import java.util.List;
  * API endpoints of the Backend For Frontends (BFF) webshopingagg that is used by the two Desktop
  * frontends. The different endpoints available can be seen in the Swagger UI
  */
-public class DesktopAPIGatewayAPITests extends BaseAPIClass {
+class DesktopAPIGatewayAPITests extends BaseAPIClass {
 
-    @Resource(resID = "identity-api", replaceable = {})
     @AccessMode(resID = "identity-api", concurrency = 50, sharing = true, accessMode = "READONLY")
-    @Resource(resID = "basket-api", replaceable = {})
     @AccessMode(resID = "basket-api", concurrency = 30, sharing = true, accessMode = "READWRITE")
-    @Resource(resID = "eshopUser", replaceable = {})
     @AccessMode(resID = "eshopUser", concurrency = 1, accessMode = "READWRITE")
     @Test
     @DisplayName("testAddProductsBasketWebAgg")

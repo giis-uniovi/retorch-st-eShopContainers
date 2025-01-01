@@ -1,4 +1,7 @@
 #!/bin/bash
+# The waitforSUT.sh script waits for the readiness of the SUT frontend. It performs a wait of up to 200 seconds,
+# checking the frontend every 5 seconds. If the SUT is not ready after this period, all containers are teared down.
+
 if [ "$#" -ne 1 ]; then
   "$SCRIPTS_FOLDER/printLog.sh" "ERROR" "TJob-$1-set-up"  "Usage: $0 <TJobName>"
   exit 1
@@ -7,7 +10,7 @@ DOCKER_HOST_IP=$(/sbin/ip route | awk '/default/ { print $3 }')
 COUNTER=0
 WAIT_LIMIT=40
 
-while ! curl --insecure -s "http://webmvc_$1:80" | grep -q "<div class=\"esh-catalog-item col-md-4\">"; do
+while ! curl --insecure -s "http://webmvc_$1:80" | grep -q "<div class="esh-catalog-item col-md-4">"; do
   "$SCRIPTS_FOLDER/printLog.sh" "DEBUG" "TJob-$1-set-up" "Waiting $COUNTER seconds for $1 with URL http://webmvc_$1:80"
   sleep 5
   ((COUNTER++))
