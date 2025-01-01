@@ -48,7 +48,7 @@ public class BaseAPIClass {
             log.info("Starting Global Set-up for all the Test Cases");
             properties = new Properties();
             properties.load(Files.newInputStream(Paths.get("src/test/resources/test.properties")));
-            tJobName = System.getProperty("tjob_name");
+            tJobName = System.getProperty("TJOB_NAME");
             user = properties.getProperty("USER_ESHOP");
             String envUrl = System.getProperty("SUT_URL") != null ? System.getProperty("SUT_URL") : System.getenv("SUT_URL");
             if (envUrl == null) {

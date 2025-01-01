@@ -39,7 +39,7 @@ public class BaseLoggedClass {
     protected static Properties properties;
     protected WebDriver driver;
     protected Waiter waiter;
-    private static final SeleManager seleManager = new SeleManager(new SelemaConfig().setReportSubdir("target/containerlogs/" + (System.getProperty("tjob_name") == null ? "" : System.getProperty("tjob_name"))).setName(System.getProperty("tjob_name") == null ? "locallogs" : System.getProperty("tjob_name")));
+    private static final SeleManager seleManager = new SeleManager(new SelemaConfig().setReportSubdir("target/containerlogs/" + (System.getProperty("TJOB_NAME") == null ? "" : System.getProperty("TJOB_NAME"))).setName(System.getProperty("TJOB_NAME") == null ? "locallogs" : System.getProperty("TJOB_NAME")));
     private String userName;
     private String password;
     private boolean isLogged = false;
@@ -54,7 +54,7 @@ public class BaseLoggedClass {
         // load a properties file for reading
         properties.load(Files.newInputStream(Paths.get("src/test/resources/test.properties")));
         // Retrieve test job name
-        tJobName = System.getProperty("tjob_name");
+        tJobName = System.getProperty("TJOB_NAME");
         String envUrl = System.getProperty("SUT_URL") != null ? System.getProperty("SUT_URL") : System.getenv("SUT_URL");
         if (envUrl == null) {
             // Outside CI
@@ -62,7 +62,7 @@ public class BaseLoggedClass {
             dbURL = properties.getProperty("LOCALHOST_DB_URL");
             log.debug("Configuring the local browser to connect to a local System Under Test (SUT) at: {} and the DB in {}" , sutUrl, dbURL);
         } else {
-            sutUrl = envUrl + ":" + (System.getProperty("SUT_PORT") != null ? System.getProperty("SUT_PORT") : System.getenv("SUT_PORT")) + "/";
+            sutUrl = envUrl;
             dbURL="sqldata_" + tJobName;
             log.debug("Configuring the browser to connect to the remote System Under Test (SUT) at the following URL: {} and the DB in {}" , sutUrl, dbURL);
         }
