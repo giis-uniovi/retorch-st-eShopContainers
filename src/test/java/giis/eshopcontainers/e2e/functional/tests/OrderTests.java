@@ -4,7 +4,6 @@ import giis.eshopcontainers.e2e.functional.common.BaseLoggedClass;
 import giis.eshopcontainers.e2e.functional.common.ElementNotFoundException;
 import giis.eshopcontainers.e2e.functional.utils.Click;
 import giis.retorch.annotations.AccessMode;
-import giis.retorch.annotations.Resource;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -28,21 +27,14 @@ class OrderTests extends BaseLoggedClass {
     /**
      * Tests the creation of a new order and its correct state configuration.
      */
-    @Resource(resID = "webmvc", replaceable = {})
+
     @AccessMode(resID = "webmvc", concurrency = 10, sharing = true, accessMode = "READONLY")
-    @Resource(resID = "identity-api", replaceable = {})
     @AccessMode(resID = "identity-api", concurrency = 50, sharing = true, accessMode = "READONLY")
-    @Resource(resID = "catalog-api", replaceable = {})
     @AccessMode(resID = "catalog-api", concurrency = 60, sharing = true, accessMode = "READONLY")
-    @Resource(resID = "basket-api", replaceable = {})
     @AccessMode(resID = "basket-api", concurrency = 30, sharing = true, accessMode = "READWRITE")
-    @Resource(resID = "ordering-api", replaceable = {})
     @AccessMode(resID = "ordering-api", concurrency = 50, sharing = true, accessMode = "READWRITE")
-    @Resource(resID = "payment-api", replaceable = {})
     @AccessMode(resID = "payment-api", concurrency = 20, sharing = true, accessMode = "READWRITE")
-    @Resource(resID = "chrome-browser", replaceable = {})
     @AccessMode(resID = "chrome-browser", concurrency = 1, accessMode = "READWRITE")
-    @Resource(resID = "eshopUser", replaceable = {})
     @AccessMode(resID = "eshopUser", concurrency = 1, accessMode = "READWRITE")
     @Test
     @DisplayName("testCreateNewOrder")
@@ -62,21 +54,14 @@ class OrderTests extends BaseLoggedClass {
      * Created an order with three different products, fullfil the order data (payment and address) and removes it
      * checking that the order state changes as expected.
      */
-    @Resource(resID = "webmvc", replaceable = {})
+
     @AccessMode(resID = "webmvc", concurrency = 10, sharing = true, accessMode = "READONLY")
-    @Resource(resID = "identity-api", replaceable = {})
     @AccessMode(resID = "identity-api", concurrency = 50, sharing = true, accessMode = "READONLY")
-    @Resource(resID = "catalog-api", replaceable = {})
     @AccessMode(resID = "catalog-api", concurrency = 60, sharing = true, accessMode = "READONLY")
-    @Resource(resID = "basket-api", replaceable = {})
     @AccessMode(resID = "basket-api", concurrency = 30, sharing = true, accessMode = "READWRITE")
-    @Resource(resID = "ordering-api", replaceable = {})
     @AccessMode(resID = "ordering-api", concurrency = 30, sharing = true, accessMode = "READWRITE")
-    @Resource(resID = "payment-api", replaceable = {})
     @AccessMode(resID = "payment-api", concurrency = 20, sharing = true, accessMode = "READWRITE")
-    @Resource(resID = "chrome-browser", replaceable = {})
     @AccessMode(resID = "chrome-browser", concurrency = 1, sharing = false, accessMode = "READWRITE")
-    @Resource(resID = "eshopUser", replaceable = {})
     @AccessMode(resID = "eshopUser", concurrency = 1, accessMode = "READWRITE")
     @Test
     @DisplayName("testCancelOrder")
