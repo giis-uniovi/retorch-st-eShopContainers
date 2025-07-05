@@ -25,11 +25,11 @@
 
         <slf4j-api.version>2.0.17</slf4j-api.version>
 
-        <log4j-slf4j2-impl.version>2.24.3</log4j-slf4j2-impl.version>
+        <log4j-slf4j2-impl.version>2.25.0</log4j-slf4j2-impl.version>
 
-        <junit-jupiter-api.version>5.13.0</junit-jupiter-api.version>
+        <junit-jupiter-api.version>5.13.2</junit-jupiter-api.version>
 
-        <selenium-java.version>4.33.0</selenium-java.version>
+        <selenium-java.version>4.34.0</selenium-java.version>
 
 		<selema.version>3.4.1</selema.version>
 
@@ -84,7 +84,7 @@
 			<dependency>
 				<groupId>com.microsoft.sqlserver</groupId>
 				<artifactId>mssql-jdbc</artifactId>
-				<version>12.10.0.jre11</version>
+				<version>12.10.1.jre11</version>
 			</dependency>
 		</dependencies>
 	<build>
@@ -279,7 +279,7 @@
 					<plugin>
 						<groupId>org.apache.maven.plugins</groupId>
 						<artifactId>maven-gpg-plugin</artifactId>
-						<version>3.2.7</version>
+						<version>3.2.8</version>
 						<executions>
 							<execution>
 								<id>sign-artifacts</id>
