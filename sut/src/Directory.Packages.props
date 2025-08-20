@@ -76,7 +76,7 @@
     <PackageVersion Include="Microsoft.NETCore.Platforms" Version="7.0.0" />
     <PackageVersion Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.17.0" />
     <PackageVersion Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="7.0.4" />
-    <PackageVersion Include="Microsoft.Web.LibraryManager.Build" Version="2.1.175" />
+    <PackageVersion Include="Microsoft.Web.LibraryManager.Build" Version="3.0.71" />
     <PackageVersion Include="Moq" Version="4.18.4" />
     <PackageVersion Include="Newtonsoft.Json" Version="13.0.2" />
     <PackageVersion Include="Polly" Version="7.2.3" />
