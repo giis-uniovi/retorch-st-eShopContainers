@@ -1,0 +1,467 @@
+Total reclaimed space: 0B
+Total reclaimed space: 0B
+Building images...
+#1 [internal] load local bake definitions
+#1 reading from stdin 9.27kB 0.0s done
+#1 DONE 0.0s
+
+#2 [webshoppingapigw internal] load build definition from Dockerfile
+#2 transferring dockerfile: 240B done
+#2 DONE 0.0s
+
+#3 [webhooks-client internal] load build definition from Dockerfile
+#3 transferring dockerfile: 4.74kB done
+#3 DONE 0.0s
+
+#4 [webspa internal] load build definition from Dockerfile
+#4 transferring dockerfile: 5.13kB done
+#4 WARN: FromAsCasing: 'as' and 'FROM' keywords' casing do not match (line 8)
+#4 DONE 0.1s
+
+#5 [ordering-backgroundtasks internal] load build definition from Dockerfile
+#5 transferring dockerfile: 4.76kB done
+#5 DONE 0.1s
+
+#6 [ordering-backgroundtasks internal] load metadata for mcr.microsoft.com/dotnet/sdk:8.0
+#6 ...
+
+#7 [basket-api internal] load build definition from Dockerfile
+#7 transferring dockerfile: 4.89kB done
+#7 WARN: FromAsCasing: 'as' and 'FROM' keywords' casing do not match (line 54)
+#7 WARN: FromAsCasing: 'as' and 'FROM' keywords' casing do not match (line 57)
+#7 DONE 0.1s
+
+#8 [identity-api internal] load build definition from Dockerfile
+#8 transferring dockerfile: 4.74kB done
+#8 DONE 0.1s
+
+#9 [catalog-api internal] load build definition from Dockerfile
+#9 transferring dockerfile: 5.05kB 0.0s done
+#9 WARN: FromAsCasing: 'as' and 'FROM' keywords' casing do not match (line 55)
+#9 WARN: FromAsCasing: 'as' and 'FROM' keywords' casing do not match (line 58)
+#9 DONE 0.2s
+
+#10 [ordering-signalrhub internal] load build definition from Dockerfile
+#10 transferring dockerfile: 4.75kB 0.0s done
+#10 DONE 0.2s
+
+#11 [webstatus internal] load build definition from Dockerfile
+#11 transferring dockerfile: 4.71kB 0.0s done
+#11 DONE 0.2s
+
+#6 [ordering-signalrhub internal] load metadata for mcr.microsoft.com/dotnet/sdk:8.0
+#6 ...
+
+#12 [webhooks-api internal] load build definition from Dockerfile
+#12 transferring dockerfile: 4.74kB 0.0s done
+#12 DONE 0.2s
+
+#13 [webmvc internal] load build definition from Dockerfile
+#13 transferring dockerfile: 4.71kB done
+#13 DONE 0.2s
+
+#14 [mobileshoppingagg internal] load build definition from Dockerfile
+#14 transferring dockerfile: 4.77kB 0.0s done
+#14 DONE 0.2s
+
+#15 [ordering-api internal] load build definition from Dockerfile
+#15 transferring dockerfile: 4.91kB 0.0s done
+#15 DONE 0.3s
+
+#6 [webhooks-api internal] load metadata for mcr.microsoft.com/dotnet/sdk:8.0
+#6 ...
+
+#16 [webshoppingagg internal] load build definition from Dockerfile
+#16 transferring dockerfile: 4.76kB 0.0s done
+#16 DONE 0.3s
+
+#17 [mobileshoppingapigw internal] load build definition from Dockerfile
+#17 transferring dockerfile: 243B 0.0s done
+#17 DONE 0.3s
+
+#18 [payment-api internal] load build definition from Dockerfile
+#18 transferring dockerfile: 4.74kB 0.0s done
+#18 DONE 0.4s
+
+#19 [webstatus internal] load .dockerignore
+#19 transferring context: 341B 0.0s done
+#19 DONE 0.1s
+
+#6 [ordering-api internal] load metadata for mcr.microsoft.com/dotnet/sdk:8.0
+#6 DONE 0.4s
+
+#19 [ordering-api internal] load .dockerignore
+#19 transferring context: 341B 0.0s done
+#19 DONE 0.1s
+
+#20 [ordering-api base 1/2] FROM mcr.microsoft.com/dotnet/aspnet:8.0@sha256:53f73fbe620361e5116f68752bf42958dfcda8699a94a785dcb4657bc571c8f3
+#20 DONE 0.0s
+
+#21 [ordering-api build  1/40] FROM mcr.microsoft.com/dotnet/sdk:8.0@sha256:ff8311847c54c04d1a14c488362807997d59b61372da5095a95f89cbcda7f9b7
+#21 DONE 0.0s
+
+#22 [payment-api internal] load metadata for mcr.microsoft.com/dotnet/aspnet:8.0
+#22 DONE 0.4s
+
+#23 [ordering-api internal] load build context
+#23 transferring context: 104.15kB 0.2s done
+#23 DONE 0.2s
+
+#19 [webspa internal] load .dockerignore
+#19 transferring context: 341B 0.0s done
+#19 DONE 0.1s
+
+#20 [webspa base 1/2] FROM mcr.microsoft.com/dotnet/aspnet:8.0@sha256:53f73fbe620361e5116f68752bf42958dfcda8699a94a785dcb4657bc571c8f3
+#20 DONE 0.0s
+
+#21 [webspa build  1/40] FROM mcr.microsoft.com/dotnet/sdk:8.0@sha256:ff8311847c54c04d1a14c488362807997d59b61372da5095a95f89cbcda7f9b7
+#21 DONE 0.0s
+
+#24 [webshoppingapigw internal] load metadata for docker.io/envoyproxy/envoy:v1.11.1
+#24 DONE 0.6s
+
+#25 [mobileshoppingapigw 1/3] FROM docker.io/envoyproxy/envoy:v1.11.1@sha256:9ef9c4fd6189fdb903929dc5aa0492a51d6783777de65e567382ac7d9a28106b
+#25 DONE 0.0s
+
+#26 [webspa internal] load metadata for docker.io/library/node:16-bullseye
+#26 DONE 0.6s
+
+#27 [webshoppingapigw internal] load build context
+#27 transferring context: 4.69kB 0.0s done
+#27 DONE 0.0s
+
+#28 [mobileshoppingapigw internal] load build context
+#28 transferring context: 4.58kB 0.0s done
+#28 DONE 0.1s
+
+#29 [webshoppingapigw 2/3] ADD ApiGateways/Envoy/config/webshopping/envoy.yaml /etc/envoy/envoy.yaml
+#29 CACHED
+
+#30 [mobileshoppingapigw 2/3] ADD ApiGateways/Envoy/config/mobileshopping/envoy.yaml /etc/envoy/envoy.yaml
+#30 CACHED
+
+#31 [mobileshoppingapigw 3/3] RUN sed -i "s/${tjobname}/$TAG/g" /etc/envoy/envoy.yaml
+#31 CACHED
+
+#32 [webshoppingapigw 3/3] RUN sed -i "s/${tjobname}/$TAG/g" /etc/envoy/envoy.yaml
+#32 CACHED
+
+#33 [basket-api build 17/40] COPY Services/Catalog/Catalog.UnitTests/Catalog.UnitTests.csproj Services/Catalog/Catalog.UnitTests/Catalog.UnitTests.csproj
+#33 CACHED
+
+#34 [basket-api build 21/40] COPY Services/Ordering/Ordering.Domain/Ordering.Domain.csproj Services/Ordering/Ordering.Domain/Ordering.Domain.csproj
+#34 CACHED
+
+#35 [basket-api build  9/40] COPY BuildingBlocks/EventBus/EventBusServiceBus/EventBusServiceBus.csproj BuildingBlocks/EventBus/EventBusServiceBus/EventBusServiceBus.csproj
+#35 CACHED
+
+#36 [basket-api build  4/40] COPY ApiGateways/Mobile.Bff.Shopping/aggregator/Mobile.Shopping.HttpAggregator.csproj ApiGateways/Mobile.Bff.Shopping/aggregator/Mobile.Shopping.HttpAggregator.csproj
+#36 CACHED
+
+#37 [basket-api build 24/40] COPY Services/Ordering/Ordering.SignalrHub/Ordering.SignalrHub.csproj Services/Ordering/Ordering.SignalrHub/Ordering.SignalrHub.csproj
+#37 CACHED
+
+#38 [basket-api build 28/40] COPY Services/Webhooks/Webhooks.API/Webhooks.API.csproj Services/Webhooks/Webhooks.API/Webhooks.API.csproj
+#38 CACHED
+
+#39 [basket-api build 13/40] COPY Services/Basket/Basket.FunctionalTests/Basket.FunctionalTests.csproj Services/Basket/Basket.FunctionalTests/Basket.FunctionalTests.csproj
+#39 CACHED
+
+#40 [basket-api build 14/40] COPY Services/Basket/Basket.UnitTests/Basket.UnitTests.csproj Services/Basket/Basket.UnitTests/Basket.UnitTests.csproj
+#40 CACHED
+
+#41 [basket-api build  5/40] COPY ApiGateways/Web.Bff.Shopping/aggregator/Web.Shopping.HttpAggregator.csproj ApiGateways/Web.Bff.Shopping/aggregator/Web.Shopping.HttpAggregator.csproj
+#41 CACHED
+
+#42 [basket-api build  7/40] COPY BuildingBlocks/EventBus/EventBus.Tests/EventBus.Tests.csproj BuildingBlocks/EventBus/EventBus.Tests/EventBus.Tests.csproj
+#42 CACHED
+
+#43 [basket-api build 26/40] COPY Services/Payment/Payment.API/Payment.API.csproj Services/Payment/Payment.API/Payment.API.csproj
+#43 CACHED
+
+#44 [basket-api build 16/40] COPY Services/Catalog/Catalog.FunctionalTests/Catalog.FunctionalTests.csproj Services/Catalog/Catalog.FunctionalTests/Catalog.FunctionalTests.csproj
+#44 CACHED
+
+#45 [basket-api build 34/40] COPY docker-compose.dcproj docker-compose.dcproj
+#45 CACHED
+
+#46 [basket-api build 25/40] COPY Services/Ordering/Ordering.UnitTests/Ordering.UnitTests.csproj Services/Ordering/Ordering.UnitTests/Ordering.UnitTests.csproj
+#46 CACHED
+
+#47 [basket-api build 11/40] COPY BuildingBlocks/WebHostCustomization/WebHost.Customization/WebHost.Customization.csproj BuildingBlocks/WebHostCustomization/WebHost.Customization/WebHost.Customization.csproj
+#47 CACHED
+
+#48 [basket-api build 15/40] COPY Services/Catalog/Catalog.API/Catalog.API.csproj Services/Catalog/Catalog.API/Catalog.API.csproj
+#48 CACHED
+
+#49 [basket-api build 12/40] COPY Services/Basket/Basket.API/Basket.API.csproj Services/Basket/Basket.API/Basket.API.csproj
+#49 CACHED
+
+#50 [basket-api build 10/40] COPY BuildingBlocks/EventBus/IntegrationEventLogEF/IntegrationEventLogEF.csproj BuildingBlocks/EventBus/IntegrationEventLogEF/IntegrationEventLogEF.csproj
+#50 CACHED
+
+#51 [basket-api build 22/40] COPY Services/Ordering/Ordering.FunctionalTests/Ordering.FunctionalTests.csproj Services/Ordering/Ordering.FunctionalTests/Ordering.FunctionalTests.csproj
+#51 CACHED
+
+#52 [basket-api build 31/40] COPY Web/WebMVC/WebMVC.csproj Web/WebMVC/WebMVC.csproj
+#52 CACHED
+
+#53 [basket-api build 35/40] COPY Directory.Packages.props Directory.Packages.props
+#53 CACHED
+
+#54 [basket-api build  2/40] WORKDIR /src
+#54 CACHED
+
+#55 [basket-api build 32/40] COPY Web/WebSPA/WebSPA.csproj Web/WebSPA/WebSPA.csproj
+#55 CACHED
+
+#56 [basket-api build 29/40] COPY Tests/Services/Application.FunctionalTests/Application.FunctionalTests.csproj Tests/Services/Application.FunctionalTests/Application.FunctionalTests.csproj
+#56 CACHED
+
+#57 [basket-api build 33/40] COPY Web/WebStatus/WebStatus.csproj Web/WebStatus/WebStatus.csproj
+#57 CACHED
+
+#58 [basket-api build 19/40] COPY Services/Ordering/Ordering.API/Ordering.API.csproj Services/Ordering/Ordering.API/Ordering.API.csproj
+#58 CACHED
+
+#59 [basket-api build 20/40] COPY Services/Ordering/Ordering.BackgroundTasks/Ordering.BackgroundTasks.csproj Services/Ordering/Ordering.BackgroundTasks/Ordering.BackgroundTasks.csproj
+#59 CACHED
+
+#60 [basket-api build  8/40] COPY BuildingBlocks/EventBus/EventBusRabbitMQ/EventBusRabbitMQ.csproj BuildingBlocks/EventBus/EventBusRabbitMQ/EventBusRabbitMQ.csproj
+#60 CACHED
+
+#61 [basket-api build  6/40] COPY BuildingBlocks/EventBus/EventBus/EventBus.csproj BuildingBlocks/EventBus/EventBus/EventBus.csproj
+#61 CACHED
+
+#62 [basket-api build  3/40] COPY eShopOnContainers-ServicesAndWebApps.sln eShopOnContainers-ServicesAndWebApps.sln
+#62 CACHED
+
+#63 [basket-api build 23/40] COPY Services/Ordering/Ordering.Infrastructure/Ordering.Infrastructure.csproj Services/Ordering/Ordering.Infrastructure/Ordering.Infrastructure.csproj
+#63 CACHED
+
+#64 [basket-api build 18/40] COPY Services/Identity/Identity.API/Identity.API.csproj Services/Identity/Identity.API/Identity.API.csproj
+#64 CACHED
+
+#65 [basket-api build 30/40] COPY Web/WebhookClient/WebhookClient.csproj Web/WebhookClient/WebhookClient.csproj
+#65 CACHED
+
+#66 [basket-api build 27/40] COPY Services/Services.Common/Services.Common.csproj Services/Services.Common/Services.Common.csproj
+#66 CACHED
+
+#67 [basket-api build 36/40] COPY NuGet.config NuGet.config
+#67 CACHED
+
+#68 [webspa node-build 1/8] FROM docker.io/library/node:16-bullseye@sha256:cd59a61258b82b86c1ff0ead50c8a689f6c3483c5ed21036e11ee741add419eb
+#68 DONE 0.0s
+
+#69 [webspa node-build 3/8] COPY Web/WebSPA/Client/package.json .
+#69 CACHED
+
+#70 [webspa node-build 5/8] RUN npm install -g npm@9.5.1
+#70 CACHED
+
+#71 [webspa node-build 4/8] COPY Web/WebSPA/Client/package-lock.json .
+#71 CACHED
+
+#72 [webspa node-build 7/8] COPY Web/WebSPA/Client .
+#72 CACHED
+
+#73 [webspa node-build 2/8] WORKDIR /web/src
+#73 CACHED
+
+#74 [webspa node-build 6/8] RUN npm install
+#74 CACHED
+
+#75 [webspa node-build 8/8] RUN npm run build:prod
+#75 CACHED
+
+#41 [catalog-api build  5/40] COPY ApiGateways/Web.Bff.Shopping/aggregator/Web.Shopping.HttpAggregator.csproj ApiGateways/Web.Bff.Shopping/aggregator/Web.Shopping.HttpAggregator.csproj
+#41 CACHED
+
+#38 [catalog-api build 28/40] COPY Services/Webhooks/Webhooks.API/Webhooks.API.csproj Services/Webhooks/Webhooks.API/Webhooks.API.csproj
+#38 CACHED
+
+#64 [catalog-api build 18/40] COPY Services/Identity/Identity.API/Identity.API.csproj Services/Identity/Identity.API/Identity.API.csproj
+#64 CACHED
+
+#62 [catalog-api build  3/40] COPY eShopOnContainers-ServicesAndWebApps.sln eShopOnContainers-ServicesAndWebApps.sln
+#62 CACHED
+
+#61 [catalog-api build  6/40] COPY BuildingBlocks/EventBus/EventBus/EventBus.csproj BuildingBlocks/EventBus/EventBus/EventBus.csproj
+#61 CACHED
+
+#50 [catalog-api build 10/40] COPY BuildingBlocks/EventBus/IntegrationEventLogEF/IntegrationEventLogEF.csproj BuildingBlocks/EventBus/IntegrationEventLogEF/IntegrationEventLogEF.csproj
+#50 CACHED
+
+#46 [catalog-api build 25/40] COPY Services/Ordering/Ordering.UnitTests/Ordering.UnitTests.csproj Services/Ordering/Ordering.UnitTests/Ordering.UnitTests.csproj
+#46 CACHED
+
+#56 [catalog-api build 29/40] COPY Tests/Services/Application.FunctionalTests/Application.FunctionalTests.csproj Tests/Services/Application.FunctionalTests/Application.FunctionalTests.csproj
+#56 CACHED
+
+#60 [catalog-api build  8/40] COPY BuildingBlocks/EventBus/EventBusRabbitMQ/EventBusRabbitMQ.csproj BuildingBlocks/EventBus/EventBusRabbitMQ/EventBusRabbitMQ.csproj
+#60 CACHED
+
+#59 [catalog-api build 20/40] COPY Services/Ordering/Ordering.BackgroundTasks/Ordering.BackgroundTasks.csproj Services/Ordering/Ordering.BackgroundTasks/Ordering.BackgroundTasks.csproj
+#59 CACHED
+
+#58 [catalog-api build 19/40] COPY Services/Ordering/Ordering.API/Ordering.API.csproj Services/Ordering/Ordering.API/Ordering.API.csproj
+#58 CACHED
+
+#52 [catalog-api build 31/40] COPY Web/WebMVC/WebMVC.csproj Web/WebMVC/WebMVC.csproj
+#52 CACHED
+
+#55 [catalog-api build 32/40] COPY Web/WebSPA/WebSPA.csproj Web/WebSPA/WebSPA.csproj
+#55 CACHED
+
+#35 [catalog-api build  9/40] COPY BuildingBlocks/EventBus/EventBusServiceBus/EventBusServiceBus.csproj BuildingBlocks/EventBus/EventBusServiceBus/EventBusServiceBus.csproj
+#35 CACHED
+
+#43 [catalog-api build 26/40] COPY Services/Payment/Payment.API/Payment.API.csproj Services/Payment/Payment.API/Payment.API.csproj
+#43 CACHED
+
+#65 [catalog-api build 30/40] COPY Web/WebhookClient/WebhookClient.csproj Web/WebhookClient/WebhookClient.csproj
+#65 CACHED
+
+#42 [catalog-api build  7/40] COPY BuildingBlocks/EventBus/EventBus.Tests/EventBus.Tests.csproj BuildingBlocks/EventBus/EventBus.Tests/EventBus.Tests.csproj
+#42 CACHED
+
+#44 [catalog-api build 16/40] COPY Services/Catalog/Catalog.FunctionalTests/Catalog.FunctionalTests.csproj Services/Catalog/Catalog.FunctionalTests/Catalog.FunctionalTests.csproj
+#44 CACHED
+
+#37 [catalog-api build 24/40] COPY Services/Ordering/Ordering.SignalrHub/Ordering.SignalrHub.csproj Services/Ordering/Ordering.SignalrHub/Ordering.SignalrHub.csproj
+#37 CACHED
+
+#53 [catalog-api build 35/40] COPY Directory.Packages.props Directory.Packages.props
+#53 CACHED
+
+#34 [catalog-api build 21/40] COPY Services/Ordering/Ordering.Domain/Ordering.Domain.csproj Services/Ordering/Ordering.Domain/Ordering.Domain.csproj
+#34 CACHED
+
+#54 [catalog-api build  2/40] WORKDIR /src
+#54 CACHED
+
+#48 [catalog-api build 15/40] COPY Services/Catalog/Catalog.API/Catalog.API.csproj Services/Catalog/Catalog.API/Catalog.API.csproj
+#48 CACHED
+
+#36 [catalog-api build  4/40] COPY ApiGateways/Mobile.Bff.Shopping/aggregator/Mobile.Shopping.HttpAggregator.csproj ApiGateways/Mobile.Bff.Shopping/aggregator/Mobile.Shopping.HttpAggregator.csproj
+#36 CACHED
+
+#45 [catalog-api build 34/40] COPY docker-compose.dcproj docker-compose.dcproj
+#45 CACHED
+
+#49 [catalog-api build 12/40] COPY Services/Basket/Basket.API/Basket.API.csproj Services/Basket/Basket.API/Basket.API.csproj
+#49 CACHED
+
+#51 [catalog-api build 22/40] COPY Services/Ordering/Ordering.FunctionalTests/Ordering.FunctionalTests.csproj Services/Ordering/Ordering.FunctionalTests/Ordering.FunctionalTests.csproj
+#51 CACHED
+
+#40 [catalog-api build 14/40] COPY Services/Basket/Basket.UnitTests/Basket.UnitTests.csproj Services/Basket/Basket.UnitTests/Basket.UnitTests.csproj
+#40 CACHED
+
+#66 [catalog-api build 27/40] COPY Services/Services.Common/Services.Common.csproj Services/Services.Common/Services.Common.csproj
+#66 CACHED
+
+#33 [catalog-api build 17/40] COPY Services/Catalog/Catalog.UnitTests/Catalog.UnitTests.csproj Services/Catalog/Catalog.UnitTests/Catalog.UnitTests.csproj
+#33 CACHED
+
+#57 [catalog-api build 33/40] COPY Web/WebStatus/WebStatus.csproj Web/WebStatus/WebStatus.csproj
+#57 CACHED
+
+#47 [catalog-api build 11/40] COPY BuildingBlocks/WebHostCustomization/WebHost.Customization/WebHost.Customization.csproj BuildingBlocks/WebHostCustomization/WebHost.Customization/WebHost.Customization.csproj
+#47 CACHED
+
+#39 [catalog-api build 13/40] COPY Services/Basket/Basket.FunctionalTests/Basket.FunctionalTests.csproj Services/Basket/Basket.FunctionalTests/Basket.FunctionalTests.csproj
+#39 CACHED
+
+#63 [catalog-api build 23/40] COPY Services/Ordering/Ordering.Infrastructure/Ordering.Infrastructure.csproj Services/Ordering/Ordering.Infrastructure/Ordering.Infrastructure.csproj
+#63 CACHED
+
+#67 [webhooks-client build 36/40] COPY NuGet.config NuGet.config
+#67 CACHED
+
+#76 [mobileshoppingapigw] exporting to image
+#76 exporting layers done
+#76 writing image sha256:dd74334fa93c4c379b86dd870f6ac2f4dba0a76031cafa0584c6179681a80493 done
+#76 naming to docker.io/library/src-mobileshoppingapigw 0.0s done
+#76 DONE 0.1s
+
+#77 [webshoppingapigw] exporting to image
+#77 exporting layers done
+#77 writing image sha256:1d89a51cff4dc3056f5d6c4fe7158659f62134c2303aa6af9f698edb3f1d472e 0.0s done
+#77 naming to docker.io/library/src-webshoppingapigw 0.0s done
+#77 DONE 0.1s
+
+#78 [catalog-api build 37/40] RUN dotnet restore "eShopOnContainers-ServicesAndWebApps.sln"
+#78 ...
+
+#79 [mobileshoppingapigw] resolving provenance for metadata file
+#79 DONE 0.0s
+
+#80 [webshoppingapigw] resolving provenance for metadata file
+#80 DONE 0.0s
+
+#81 [webstatus build 37/39] COPY . .
+#81 DONE 0.7s
+
+#78 [catalog-api build 37/40] RUN dotnet restore "eShopOnContainers-ServicesAndWebApps.sln"
+#78 ...
+
+#82 [webstatus build 38/39] WORKDIR /src/Web/WebStatus
+#82 DONE 0.1s
+
+#83 [webstatus build 39/39] RUN dotnet publish -c Release -o /app
+#83 1.994   Determining projects to restore...
+#83 ...
+
+#78 [catalog-api build 37/40] RUN dotnet restore "eShopOnContainers-ServicesAndWebApps.sln"
+#78 2.539   Determining projects to restore...
+#78 3.983   Restored /src/BuildingBlocks/EventBus/EventBus/EventBus.csproj (in 220 ms).
+#78 8.566 /src/BuildingBlocks/EventBus/EventBusRabbitMQ/EventBusRabbitMQ.csproj : warning NU1603: EventBusRabbitMQ depends on Microsoft.Extensions.DependencyInjection.Abstractions (>= 7.0.10) but Microsoft.Extensions.DependencyInjection.Abstractions 7.0.10 was not found. An approximate best match of Microsoft.Extensions.DependencyInjection.Abstractions 8.0.0 was resolved. [/src/eShopOnContainers-ServicesAndWebApps.sln]
+#78 8.566 /src/BuildingBlocks/EventBus/EventBusServiceBus/EventBusServiceBus.csproj : warning NU1603: EventBusServiceBus depends on Microsoft.Extensions.DependencyInjection.Abstractions (>= 7.0.10) but Microsoft.Extensions.DependencyInjection.Abstractions 7.0.10 was not found. An approximate best match of Microsoft.Extensions.DependencyInjection.Abstractions 8.0.0 was resolved. [/src/eShopOnContainers-ServicesAndWebApps.sln]
+#78 8.566 /src/BuildingBlocks/EventBus/EventBusRabbitMQ/EventBusRabbitMQ.csproj : warning NU1603: EventBusRabbitMQ depends on Microsoft.Extensions.Logging (>= 7.0.10) but Microsoft.Extensions.Logging 7.0.10 was not found. An approximate best match of Microsoft.Extensions.Logging 8.0.0 was resolved. [/src/eShopOnContainers-ServicesAndWebApps.sln]
+#78 8.566 /src/BuildingBlocks/EventBus/EventBusRabbitMQ/EventBusRabbitMQ.csproj : warning NU1603: EventBusRabbitMQ depends on Microsoft.Extensions.Logging.Abstractions (>= 7.0.10) but Microsoft.Extensions.Logging.Abstractions 7.0.10 was not found. An approximate best match of Microsoft.Extensions.Logging.Abstractions 8.0.0 was resolved. [/src/eShopOnContainers-ServicesAndWebApps.sln]
+#78 8.566 /src/BuildingBlocks/EventBus/EventBusServiceBus/EventBusServiceBus.csproj : warning NU1603: EventBusServiceBus depends on Microsoft.Extensions.Logging (>= 7.0.10) but Microsoft.Extensions.Logging 7.0.10 was not found. An approximate best match of Microsoft.Extensions.Logging 8.0.0 was resolved. [/src/eShopOnContainers-ServicesAndWebApps.sln]
+#78 8.566 /src/BuildingBlocks/EventBus/EventBusServiceBus/EventBusServiceBus.csproj : warning NU1603: EventBusServiceBus depends on Microsoft.Extensions.Logging.Abstractions (>= 7.0.10) but Microsoft.Extensions.Logging.Abstractions 7.0.10 was not found. An approximate best match of Microsoft.Extensions.Logging.Abstractions 8.0.0 was resolved. [/src/eShopOnContainers-ServicesAndWebApps.sln]
+#78 8.797   Restored /src/BuildingBlocks/EventBus/EventBusRabbitMQ/EventBusRabbitMQ.csproj (in 5.1 sec).
+#78 8.797   Restored /src/BuildingBlocks/EventBus/EventBusServiceBus/EventBusServiceBus.csproj (in 5.1 sec).
+#78 10.78 /src/BuildingBlocks/EventBus/EventBus.Tests/EventBus.Tests.csproj : warning NU1603: EventBus.Tests depends on Microsoft.Extensions.DependencyInjection.Abstractions (>= 7.0.10) but Microsoft.Extensions.DependencyInjection.Abstractions 7.0.10 was not found. An approximate best match of Microsoft.Extensions.DependencyInjection.Abstractions 8.0.0 was resolved. [/src/eShopOnContainers-ServicesAndWebApps.sln]
+#78 10.78 /src/BuildingBlocks/EventBus/EventBus.Tests/EventBus.Tests.csproj : warning NU1603: EventBus.Tests depends on Microsoft.Extensions.Logging (>= 7.0.10) but Microsoft.Extensions.Logging 7.0.10 was not found. An approximate best match of Microsoft.Extensions.Logging 8.0.0 was resolved. [/src/eShopOnContainers-ServicesAndWebApps.sln]
+#78 10.78 /src/BuildingBlocks/EventBus/EventBus.Tests/EventBus.Tests.csproj : warning NU1603: EventBus.Tests depends on Microsoft.Extensions.Logging.Abstractions (>= 7.0.10) but Microsoft.Extensions.Logging.Abstractions 7.0.10 was not found. An approximate best match of Microsoft.Extensions.Logging.Abstractions 8.0.0 was resolved. [/src/eShopOnContainers-ServicesAndWebApps.sln]
+#78 11.02   Restored /src/BuildingBlocks/EventBus/EventBus.Tests/EventBus.Tests.csproj (in 7.31 sec).
+#78 12.29 /src/BuildingBlocks/EventBus/IntegrationEventLogEF/IntegrationEventLogEF.csproj : warning NU1603: IntegrationEventLogEF depends on Microsoft.Extensions.DependencyInjection.Abstractions (>= 7.0.10) but Microsoft.Extensions.DependencyInjection.Abstractions 7.0.10 was not found. An approximate best match of Microsoft.Extensions.DependencyInjection.Abstractions 8.0.0 was resolved. [/src/eShopOnContainers-ServicesAndWebApps.sln]
+#78 12.29 /src/BuildingBlocks/EventBus/IntegrationEventLogEF/IntegrationEventLogEF.csproj : warning NU1603: IntegrationEventLogEF depends on Microsoft.Extensions.DependencyModel (>= 7.0.10) but Microsoft.Extensions.DependencyModel 7.0.10 was not found. An approximate best match of Microsoft.Extensions.DependencyModel 8.0.0 was resolved. [/src/eShopOnContainers-ServicesAndWebApps.sln]
+#78 12.29 /src/BuildingBlocks/EventBus/IntegrationEventLogEF/IntegrationEventLogEF.csproj : warning NU1603: IntegrationEventLogEF depends on Microsoft.Extensions.Logging (>= 7.0.10) but Microsoft.Extensions.Logging 7.0.10 was not found. An approximate best match of Microsoft.Extensions.Logging 8.0.0 was resolved. [/src/eShopOnContainers-ServicesAndWebApps.sln]
+#78 12.29 /src/BuildingBlocks/EventBus/IntegrationEventLogEF/IntegrationEventLogEF.csproj : warning NU1603: IntegrationEventLogEF depends on Microsoft.Extensions.Logging.Abstractions (>= 7.0.10) but Microsoft.Extensions.Logging.Abstractions 7.0.10 was not found. An approximate best match of Microsoft.Extensions.Logging.Abstractions 8.0.0 was resolved. [/src/eShopOnContainers-ServicesAndWebApps.sln]
+#78 12.29 /src/Services/Ordering/Ordering.Infrastructure/Ordering.Infrastructure.csproj : warning NU1603: Ordering.Infrastructure depends on Microsoft.Extensions.DependencyInjection.Abstractions (>= 7.0.10) but Microsoft.Extensions.DependencyInjection.Abstractions 7.0.10 was not found. An approximate best match of Microsoft.Extensions.DependencyInjection.Abstractions 8.0.0 was resolved. [/src/eShopOnContainers-ServicesAndWebApps.sln]
+#78 12.29 /src/Services/Ordering/Ordering.Infrastructure/Ordering.Infrastructure.csproj : warning NU1603: Ordering.Infrastructure depends on Microsoft.Extensions.Logging (>= 7.0.10) but Microsoft.Extensions.Logging 7.0.10 was not found. An approximate best match of Microsoft.Extensions.Logging 8.0.0 was resolved. [/src/eShopOnContainers-ServicesAndWebApps.sln]
+#78 12.29 /src/Services/Ordering/Ordering.Infrastructure/Ordering.Infrastructure.csproj : warning NU1603: Ordering.Infrastructure depends on Microsoft.Extensions.Logging.Abstractions (>= 7.0.10) but Microsoft.Extensions.Logging.Abstractions 7.0.10 was not found. An approximate best match of Microsoft.Extensions.Logging.Abstractions 8.0.0 was resolved. [/src/eShopOnContainers-ServicesAndWebApps.sln]
+#78 12.30 /src/Services/Ordering/Ordering.Infrastructure/Ordering.Infrastructure.csproj : error NU1102: Unable to find package Azure.Identity with version (>= 2.14.0) [/src/eShopOnContainers-ServicesAndWebApps.sln]
+#78 12.30 /src/Services/Ordering/Ordering.Infrastructure/Ordering.Infrastructure.csproj : error NU1102:   - Found 79 version(s) in nuget.org [ Nearest version: 1.17.0 ] [/src/eShopOnContainers-ServicesAndWebApps.sln]
+#78 12.30 /src/Services/Ordering/Ordering.Infrastructure/Ordering.Infrastructure.csproj : error NU1102: Unable to find package System.IdentityModel.Tokens.Jwt with version (>= 8.15.0) [/src/eShopOnContainers-ServicesAndWebApps.sln]
+#78 12.30 /src/Services/Ordering/Ordering.Infrastructure/Ordering.Infrastructure.csproj : error NU1102:   - Found 146 version(s) in nuget.org [ Nearest version: 8.14.0 ] [/src/eShopOnContainers-ServicesAndWebApps.sln]
+#78 12.30 /src/BuildingBlocks/EventBus/IntegrationEventLogEF/IntegrationEventLogEF.csproj : error NU1102: Unable to find package Azure.Identity with version (>= 2.14.0) [/src/eShopOnContainers-ServicesAndWebApps.sln]
+#78 12.30 /src/BuildingBlocks/EventBus/IntegrationEventLogEF/IntegrationEventLogEF.csproj : error NU1102:   - Found 79 version(s) in nuget.org [ Nearest version: 1.17.0 ] [/src/eShopOnContainers-ServicesAndWebApps.sln]
+#78 12.30 /src/BuildingBlocks/EventBus/IntegrationEventLogEF/IntegrationEventLogEF.csproj : error NU1102: Unable to find package System.IdentityModel.Tokens.Jwt with version (>= 8.15.0) [/src/eShopOnContainers-ServicesAndWebApps.sln]
+#78 12.30 /src/BuildingBlocks/EventBus/IntegrationEventLogEF/IntegrationEventLogEF.csproj : error NU1102:   - Found 146 version(s) in nuget.org [ Nearest version: 8.14.0 ] [/src/eShopOnContainers-ServicesAndWebApps.sln]
+#78 12.38 /usr/share/dotnet/sdk/8.0.414/NuGet.targets(174,5): error : The given key 'Azure.Identity' was not present in the dictionary. [/src/eShopOnContainers-ServicesAndWebApps.sln]
+#78 ERROR: process "/bin/sh -c dotnet restore \"eShopOnContainers-ServicesAndWebApps.sln\"" did not complete successfully: exit code: 1
+
+#83 [webstatus build 39/39] RUN dotnet publish -c Release -o /app
+#83 CANCELED
+------
+ > [catalog-api build 37/40] RUN dotnet restore "eShopOnContainers-ServicesAndWebApps.sln":
+12.29 /src/Services/Ordering/Ordering.Infrastructure/Ordering.Infrastructure.csproj : warning NU1603: Ordering.Infrastructure depends on Microsoft.Extensions.Logging.Abstractions (>= 7.0.10) but Microsoft.Extensions.Logging.Abstractions 7.0.10 was not found. An approximate best match of Microsoft.Extensions.Logging.Abstractions 8.0.0 was resolved. [/src/eShopOnContainers-ServicesAndWebApps.sln]
+12.30 /src/Services/Ordering/Ordering.Infrastructure/Ordering.Infrastructure.csproj : error NU1102: Unable to find package Azure.Identity with version (>= 2.14.0) [/src/eShopOnContainers-ServicesAndWebApps.sln]
+12.30 /src/Services/Ordering/Ordering.Infrastructure/Ordering.Infrastructure.csproj : error NU1102:   - Found 79 version(s) in nuget.org [ Nearest version: 1.17.0 ] [/src/eShopOnContainers-ServicesAndWebApps.sln]
+12.30 /src/Services/Ordering/Ordering.Infrastructure/Ordering.Infrastructure.csproj : error NU1102: Unable to find package System.IdentityModel.Tokens.Jwt with version (>= 8.15.0) [/src/eShopOnContainers-ServicesAndWebApps.sln]
+12.30 /src/Services/Ordering/Ordering.Infrastructure/Ordering.Infrastructure.csproj : error NU1102:   - Found 146 version(s) in nuget.org [ Nearest version: 8.14.0 ] [/src/eShopOnContainers-ServicesAndWebApps.sln]
+12.30 /src/BuildingBlocks/EventBus/IntegrationEventLogEF/IntegrationEventLogEF.csproj : error NU1102: Unable to find package Azure.Identity with version (>= 2.14.0) [/src/eShopOnContainers-ServicesAndWebApps.sln]
+12.30 /src/BuildingBlocks/EventBus/IntegrationEventLogEF/IntegrationEventLogEF.csproj : error NU1102:   - Found 79 version(s) in nuget.org [ Nearest version: 1.17.0 ] [/src/eShopOnContainers-ServicesAndWebApps.sln]
+12.30 /src/BuildingBlocks/EventBus/IntegrationEventLogEF/IntegrationEventLogEF.csproj : error NU1102: Unable to find package System.IdentityModel.Tokens.Jwt with version (>= 8.15.0) [/src/eShopOnContainers-ServicesAndWebApps.sln]
+12.30 /src/BuildingBlocks/EventBus/IntegrationEventLogEF/IntegrationEventLogEF.csproj : error NU1102:   - Found 146 version(s) in nuget.org [ Nearest version: 8.14.0 ] [/src/eShopOnContainers-ServicesAndWebApps.sln]
+12.38 /usr/share/dotnet/sdk/8.0.414/NuGet.targets(174,5): error : The given key 'Azure.Identity' was not present in the dictionary. [/src/eShopOnContainers-ServicesAndWebApps.sln]
+------
+Deploying containers...
+Waiting for the system to be up...
+ordering_api_tjobeshoptesting git push 

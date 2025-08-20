@@ -4,6 +4,7 @@ services:
     image: datalust/seq:latest
     environment:
       - ACCEPT_EULA=Y
+      - SEQ_FIRSTRUN_NOAUTHENTICATION=true
     networks:
       - jenkins_network
 
@@ -294,6 +295,7 @@ services:
           service_started
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://0.0.0.0:80
       - urls__basket=http://basket_api_${tjobname}
       - urls__catalog=http://catalog_api_${tjobname}
       - urls__orders=http://ordering_api_${tjobname}
@@ -343,6 +345,7 @@ services:
           service_started
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://0.0.0.0:80
       - urls__basket=http://basket_api_${tjobname}
       - urls__catalog=http://catalog_api_${tjobname}
       - urls__orders=http://ordering_api_${tjobname}
