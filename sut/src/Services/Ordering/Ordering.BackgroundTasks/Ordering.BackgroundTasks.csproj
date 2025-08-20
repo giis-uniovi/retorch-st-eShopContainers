@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Worker">
 
   <PropertyGroup>
-    <TargetFramework>net7.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <UserSecretsId>dotnet-Ordering.BackgroundTasks-9D3E1DD6-405B-447F-8AAB-1708B36D260E</UserSecretsId>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>    
