@@ -1,7 +1,7 @@
 services:
   seq:
     container_name: seq_${tjobname}
-    image: datalust/seq:latest
+    image: datalust/seq:2024
     environment:
       - ACCEPT_EULA=Y
     networks:
