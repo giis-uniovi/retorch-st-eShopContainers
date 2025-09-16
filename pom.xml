@@ -69,6 +69,11 @@
 				<artifactId>retorch-annotations</artifactId>
 				<version>${retorch-annotations.version}</version>
 			</dependency>
+			<dependency>
+				<groupId>io.github.giis-uniovi</groupId>
+				<artifactId>retorch-orchestration</artifactId>
+				<version>1.1.1-ft_migrateschedulerorchestrator-SNAPSHOT</version>   <!--TO-DO Replace with the correct version when released-->
+			</dependency>
             <!-- https://mvnrepository.com/artifact/org.apache.httpcomponents/httpclient -->
             <dependency>
                 <groupId>org.apache.httpcomponents</groupId>
