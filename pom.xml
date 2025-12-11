@@ -29,7 +29,7 @@
 
         <junit-jupiter-api.version>5.13.3</junit-jupiter-api.version>
 
-        <selenium-java.version>4.34.0</selenium-java.version>
+        <selenium-java.version>4.39.0</selenium-java.version>
 
 		<selema.version>3.4.1</selema.version>
 
