@@ -16,10 +16,11 @@ Write-Host "Building images..."
 docker compose -f $DOCKER_COMPOSE_FILE --env-file "..\..\retorchfiles\envfiles\tjobeshoptesting.env" build
 
 Write-Host "Deploying containers..."
-docker compose -f $DOCKER_COMPOSE_FILE --env-file "..\..\retorchfiles\envfiles\tjobeshoptesting.env" up -d
+docker compose -f $DOCKER_COMPOSE_FILE --env-file "..\..\retorchfiles\envfiles\tjobeshoptesting.env" up
 
 Write-Host "Waiting for the system to be up..."
 # Add a sleep command or other suitable mechanism here to wait for the system to be fully up
 
+Read-Host -Prompt "Presiona Enter para continuar"
 # Clean up containers and volumes
 #docker-compose -f $DOCKER_COMPOSE_FILE --env-file $ENV_FILE down --volumes
