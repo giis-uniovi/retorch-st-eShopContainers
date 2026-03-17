@@ -7,16 +7,16 @@
       "destination": "wwwroot/lib/jquery/"
     },
     {
-      "provider": "unpkg",
+      "provider": "cdnjs",
       "library": "bootstrap@5.2.3",
       "destination": "wwwroot/lib/bootstrap/",
       "files": [
-        "dist/css/bootstrap.css",
-        "dist/css/bootstrap.css.map",
-        "dist/css/bootstrap.min.css",
-        "dist/css/bootstrap.min.css.map",
-        "dist/js/bootstrap.js",
-        "dist/js/bootstrap.min.js"
+        "css/bootstrap.css",
+        "css/bootstrap.css.map",
+        "css/bootstrap.min.css",
+        "css/bootstrap.min.css.map",
+        "js/bootstrap.js",
+        "js/bootstrap.min.js"
       ]
     },
     {
@@ -36,7 +36,7 @@
       "destination": "wwwroot/lib/toastr/"
     },
     {
-      "provider": "unpkg",
+      "provider": "jsdelivr",
       "library": "@microsoft/signalr@latest",
       "destination": "wwwroot/lib/@microsoft/signalr/",
       "files": [
