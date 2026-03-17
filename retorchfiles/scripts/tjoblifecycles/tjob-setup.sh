@@ -21,6 +21,9 @@ docker compose -f "docker-compose.yml" --env-file "$WORKSPACE/retorchfiles/envfi
 
 
 "$SCRIPTS_FOLDER/printLog.sh" "DEBUG" "$1-set-up" "End executing custom commands"
+# Increase inotify limits to handle multiple instances
+sysctl -w fs.inotify.max_user_instances=2048
+sysctl -w fs.inotify.max_user_watches=1048576
 # Deploy containers
 cd "$SUT_LOCATION"
 "$SCRIPTS_FOLDER/printLog.sh" "DEBUG" "$1-set-up" "Deploying containers for TJOB $1"

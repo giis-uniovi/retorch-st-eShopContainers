@@ -155,7 +155,7 @@ class OrderTests extends BaseLoggedClass {
         toOrdersPage(driver, waiter);
         List<WebElement> listOrders = driver.findElements(By.className("esh-orders-items"));
         WebElement lastOrder = listOrders.get(listOrders.size() - 1);
-        WebElement cancelButton = lastOrder.findElements(By.className("esh-orders-item")).get(5);
+        WebElement cancelButton = lastOrder.findElement(By.linkText("Cancel"));
         Click.element(driver, waiter, cancelButton);
     }
 
@@ -168,7 +168,7 @@ class OrderTests extends BaseLoggedClass {
         addProductsToBasket();
         navigateToCheckout("$ 36.00");
         fillAddressDetails("Campus de Viesques, Edif. Polivalente – D.2.6.06", "Asturias", "Gijon", "Spain");
-        fillPaymentDetails("6271 7012 2597 9642", "Jose Ramon", "03/26", "456");
+        fillPaymentDetails("6271 7012 2597 9642", "Jose Ramon", "03/38", "456");
         checkOrderAmountAndNumItems("$ 36.00", 4);
         WebElement buttonPlaceOrder = driver.findElement(By.name("action"));
         Click.element(driver, waiter, buttonPlaceOrder);
