@@ -57,5 +57,3 @@ FROM base AS final
 WORKDIR /app
 COPY --from=publish /app .
 ENTRYPOINT ["dotnet", "Webhooks.API.dll"]
-
-

@@ -17,5 +17,3 @@ WORKDIR /src/src/Services/Ordering/Ordering.SignalrHub
 RUN dotnet build -c $BUILD_CONFIGURATION
 
 ENTRYPOINT ["dotnet", "run", "--no-build", "--no-launch-profile", "-c", "$BUILD_CONFIGURATION", "--"]
-
-

@@ -29,6 +29,3 @@
     <ProjectReference Include="..\Basket.API\Basket.API.csproj" />
   </ItemGroup>
 </Project>
-
-
-

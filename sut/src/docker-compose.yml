@@ -1,7 +1,7 @@
 services:
   seq:
     container_name: seq_${tjobname}
-    image: datalust/seq:latest
+    image: datalust/seq:2025.2
     environment:
       - ACCEPT_EULA=Y
       - SEQ_FIRSTRUN_NOAUTHENTICATION=true
@@ -27,7 +27,7 @@ services:
 
   nosqldata:
     container_name: nosqldata_${tjobname}
-    image: mongo
+    image: mongo:8.2.5-noble
     volumes:
       - eshop-nosqldata:/data/db
     networks:

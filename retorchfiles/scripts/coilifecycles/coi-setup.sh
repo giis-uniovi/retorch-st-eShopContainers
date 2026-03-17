@@ -41,12 +41,26 @@ mkdir -p "$WORKSPACE/artifacts"
 mkdir -p "$SUT_LOCATION/tmp"
 
 # Pull Docker images
-echo "Pulling images"
-if docker pull selenoid/vnc_chrome:116.0 && docker pull selenoid/video-recorder:latest-release; then
-    "$SCRIPTS_FOLDER/printLog.sh" "DEBUG" "COI-set-up" "Images pulled successfully."
-else
-    "$SCRIPTS_FOLDER/printLog.sh" "ERROR" "COI-set-up" "Failed to pull Docker images."
+
+"$SCRIPTS_FOLDER/printLog.sh" "DEBUG" "COI-set-up" "Checking that the browser and its recorder Docker image is present"
+IMAGES=("selenoid/vnc_chrome" "aerokube/video-recorder")
+ALL_FOUND=true
+
+for IMAGE in "${IMAGES[@]}"; do
+    if docker images --format "{{.Repository}}" | grep -q "^${IMAGE}$"; then
+        "$SCRIPTS_FOLDER/printLog.sh" "DEBUG" "COI-set-up" "Image '${IMAGE}' found locally."
+    else
+        "$SCRIPTS_FOLDER/printLog.sh" "ERROR" "COI-set-up" "Image '${IMAGE}' not found locally."
+        ALL_FOUND=false
+    fi
+done
+
+if [ "$ALL_FOUND" = false ]; then
+    "$SCRIPTS_FOLDER/printLog.sh" "ERROR" "COI-set-up" "One or more required Docker images are missing. Failing pipeline."
+    exit 1
 fi
+
+"$SCRIPTS_FOLDER/printLog.sh" "DEBUG" "COI-set-up" "All required images are present."
 
 echo "Building images of SUT"
 

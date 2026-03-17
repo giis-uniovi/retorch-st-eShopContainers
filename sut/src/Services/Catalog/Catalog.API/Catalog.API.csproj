@@ -49,6 +49,3 @@
     <ProjectReference Include="..\..\Services.Common\Services.Common.csproj" />
   </ItemGroup>
 </Project>
-
-
-

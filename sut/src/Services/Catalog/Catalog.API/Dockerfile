@@ -66,6 +66,3 @@ COPY --from=publish /app .
 COPY --from=build /src/Services/Catalog/Catalog.API/Proto /app/Proto
 COPY --from=build /src/Services/Catalog/Catalog.API/eshop.pfx .
 ENTRYPOINT ["dotnet", "Catalog.API.dll"]
-
-
-

@@ -24,6 +24,3 @@
     <InternalsVisibleTo Include="Basket.FunctionalTests" />
   </ItemGroup>
 </Project>
-
-
-
