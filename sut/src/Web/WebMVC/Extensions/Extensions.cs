@@ -79,6 +79,21 @@ internal static class Extensions
             options.Scope.Add("webshoppingagg");
             options.Scope.Add("orders.signalrhub");
             options.Scope.Add("webhooks");
+            // Fix SameSite/Secure cookie issue when running over HTTP (docker-compose locally)
+            // UseCookiePolicy middleware does not reliably intercept OIDC cookies in .NET 8+
+            // SameSite=None without Secure is rejected by Chrome 100+, so use Lax instead
+            options.CorrelationCookie.SameSite = SameSiteMode.Lax;
+            options.CorrelationCookie.SecurePolicy = CookieSecurePolicy.None;
+            options.NonceCookie.SameSite = SameSiteMode.Lax;
+            options.NonceCookie.SecurePolicy = CookieSecurePolicy.None;
+            // .NET 8+ removed preferred_username from the default ClaimActions, so the
+            // _LoginPartial.cshtml check for this claim fails and hides the whole
+            // authenticated section (username + basket icon)
+            options.ClaimActions.MapUniqueJsonKey("preferred_username", "preferred_username");
+            // In .NET 8+, the OIDC handler uses JsonWebTokenHandler which ignores
+            // JwtSecurityTokenHandler.DefaultInboundClaimTypeMap. Without this, "sub" gets
+            // remapped to ClaimTypes.NameIdentifier and IdentityParser.Parse() returns Id = ""
+            options.MapInboundClaims = false;
         });
     }
 
