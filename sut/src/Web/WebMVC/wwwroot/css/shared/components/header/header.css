@@ -1,14 +1,34 @@
 ﻿.esh-header {
   background-color: #00A69C;
-  height: 4rem;
+  height: auto;
+  min-height: 4rem;
+  display: flex;
+  align-items: center;
+  padding: 0.5rem 0;
+}
+
+.esh-header > .container,
+.esh-header > .container-fluid {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  width: 100%;
+  gap: 0;
+  padding: 0;
 }
 
 .esh-header-back {
   color: rgba(255, 255, 255, 0.5);
-  line-height: 4rem;
+  line-height: 1.5;
   text-decoration: none;
   text-transform: uppercase;
   transition: color 0.35s;
+  display: inline-flex;
+  align-items: center;
+  padding: 0.5rem 0.75rem;
+  margin: 0;
+  white-space: nowrap;
+  font-size: 0.875rem;
 }
 
 .esh-header-back:hover {

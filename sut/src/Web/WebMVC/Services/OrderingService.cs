@@ -58,7 +58,11 @@ public class OrderingService : IOrderingService
             throw new Exception("Error cancelling order, try later.");
         }
 
-        response.EnsureSuccessStatusCode();
+        if (!response.IsSuccessStatusCode)
+        {
+            var errorContent = await response.Content.ReadAsStringAsync();
+            throw new Exception($"Error cancelling order ({response.StatusCode}): {errorContent}");
+        }
     }
 
     async public Task ShipOrder(string orderId)
