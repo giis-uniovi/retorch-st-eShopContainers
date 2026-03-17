@@ -54,7 +54,7 @@ public class BasketController : ControllerBase
             return BadRequest();
         }
 
-        var userName = User.FindFirst(x => x.Type == ClaimTypes.Name).Value;
+        var userName = User.FindFirst(x => x.Type == "name")?.Value ?? userId;
 
         var eventMessage = new UserCheckoutAcceptedIntegrationEvent(userId, userName, basketCheckout.City, basketCheckout.Street,
             basketCheckout.State, basketCheckout.Country, basketCheckout.ZipCode, basketCheckout.CardNumber, basketCheckout.CardHolderName,

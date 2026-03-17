@@ -42,6 +42,7 @@ public static class Extensions
             var connectionString = configuration.GetRequiredConnectionString("CatalogDB");
 
             options.UseSqlServer(connectionString, ConfigureSqlOptions);
+            options.ConfigureWarnings(w => w.Log(RelationalEventId.PendingModelChangesWarning));
         });
 
         services.AddDbContext<IntegrationEventLogContext>(options =>
@@ -49,6 +50,7 @@ public static class Extensions
             var connectionString = configuration.GetRequiredConnectionString("CatalogDB");
 
             options.UseSqlServer(connectionString, ConfigureSqlOptions);
+            options.ConfigureWarnings(w => w.Log(RelationalEventId.PendingModelChangesWarning));
         });
 
         return services;
