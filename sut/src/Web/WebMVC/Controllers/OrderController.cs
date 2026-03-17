@@ -52,7 +52,14 @@ public class OrderController : Controller
 
     public async Task<IActionResult> Cancel(string orderId)
     {
-        await _orderSvc.CancelOrder(orderId);
+        try
+        {
+            await _orderSvc.CancelOrder(orderId);
+        }
+        catch (Exception ex)
+        {
+            ModelState.AddModelError("Error", $"It was not possible to cancel the order, please try later on ({ex.GetType().Name} - {ex.Message})");
+        }
 
         //Redirect to historic list.
         return RedirectToAction("Index");

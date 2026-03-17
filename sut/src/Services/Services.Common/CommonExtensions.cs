@@ -246,6 +246,10 @@ public static class CommonExtensions
             options.RequireHttpsMetadata = false;
             options.Audience = audience;
             options.TokenValidationParameters.ValidateAudience = false;
+            // In .NET 8+, AddJwtBearer uses JsonWebTokenHandler by default, which ignores
+            // JwtSecurityTokenHandler.DefaultInboundClaimTypeMap. Without this, "sub" gets
+            // mapped to ClaimTypes.NameIdentifier and FindFirst("sub") returns null.
+            options.MapInboundClaims = false;
         });
 
         return services;
