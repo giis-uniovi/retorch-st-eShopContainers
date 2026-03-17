@@ -1,9 +1,10 @@
 services:
   seq:
     container_name: seq_${tjobname}
-    image: datalust/seq:latest
+    image: datalust/seq:2025.2
     environment:
       - ACCEPT_EULA=Y
+      - SEQ_FIRSTRUN_NOAUTHENTICATION=true
     networks:
       - jenkins_network
 
@@ -26,7 +27,7 @@ services:
 
   nosqldata:
     container_name: nosqldata_${tjobname}
-    image: mongo
+    image: mongo:8.2.5-noble
     volumes:
       - eshop-nosqldata:/data/db
     networks:
@@ -294,6 +295,7 @@ services:
           service_started
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://0.0.0.0:80
       - urls__basket=http://basket_api_${tjobname}
       - urls__catalog=http://catalog_api_${tjobname}
       - urls__orders=http://ordering_api_${tjobname}
@@ -343,6 +345,7 @@ services:
           service_started
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://0.0.0.0:80
       - urls__basket=http://basket_api_${tjobname}
       - urls__catalog=http://catalog_api_${tjobname}
       - urls__orders=http://ordering_api_${tjobname}
