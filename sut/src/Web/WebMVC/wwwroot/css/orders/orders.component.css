@@ -22,18 +22,26 @@
 }
 
 .esh-orders-titles {
+  display: flex;
+  flex-wrap: wrap;
   padding-bottom: 1rem;
   padding-top: 2rem;
 }
 
 .esh-orders-title {
   text-transform: uppercase;
+  min-width: 0;
+  padding-left: 0.75rem;
+  padding-right: 0.75rem;
 }
 
 .esh-orders-items {
-  height: 2rem;
+  display: flex;
+  flex-wrap: wrap;
+  height: auto;
   line-height: 2rem;
   position: relative;
+  min-height: 2rem;
 }
 
 .esh-orders-items:nth-of-type(2n + 1):before {
@@ -72,4 +80,24 @@
   color: #75b918;
   transition: color 0.35s;
 }
+
+/* Column width definitions */
+.esh-orders-title.col-1,
+.esh-orders-item.col-1 {
+  flex: 0 0 8.33333%;
+  max-width: 8.33333%;
+}
+
+.esh-orders-title.col-2,
+.esh-orders-item.col-2 {
+  flex: 0 0 16.66667%;
+  max-width: 16.66667%;
+}
+
+.esh-orders-title.col-4,
+.esh-orders-item.col-4 {
+  flex: 0 0 33.33333%;
+  max-width: 33.33333%;
+}
+
 
