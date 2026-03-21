@@ -5,6 +5,7 @@ import giis.eshopcontainers.e2e.functional.common.ElementNotFoundException;
 import giis.eshopcontainers.e2e.functional.utils.Click;
 import giis.retorch.annotations.AccessMode;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.openqa.selenium.By;
@@ -23,6 +24,11 @@ import static giis.eshopcontainers.e2e.functional.utils.Shopping.addProductToBas
  * Test class for Order-related functionalities.
  */
 class OrderTests extends BaseLoggedClass {
+
+    @BeforeEach
+    void clearBasket() {
+        clearUserBasket();
+    }
 
     /**
      * Tests the creation of a new order and its correct state configuration.

@@ -33,6 +33,7 @@ public class BaseAPIClass {
     protected static Properties properties;
     protected static String tJobName;
     private static String desktopBFFURL;
+    protected static String desktopBFFBaseURL;
     private static String identityURL;
     private static String user;
 
@@ -40,6 +41,7 @@ public class BaseAPIClass {
     public String getIdentityURL() {return identityURL;}
     public String getDesktopBFFURLOrders() {return desktopBFFURL+"/Order/draft/";}
     public String getDesktopBFFURLBasket() {return desktopBFFURL+"/Basket";}
+    public String getDesktopBFFBasketProxyURL() {return desktopBFFBaseURL+"/basket-api/api/v1/basket/";}
 
     @BeforeAll
     static void setupAll() {
@@ -55,10 +57,12 @@ public class BaseAPIClass {
                 // If the envURL still being null, means that we are in local, so retrieve the identity URL and SUT url
                 identityURL = properties.getProperty("LOCALHOST_IDENTITY_URL");
                 desktopBFFURL = properties.getProperty("LOCALHOST_DESKTOP_BFF_URL");
+                desktopBFFBaseURL = desktopBFFURL.replace("/api/v1", "");
                 log.debug("Configuring to connect a local identity_api, whose URL is (SUT) at: {}", identityURL);
             } else {
                 identityURL = "http://identity_api_" + tJobName + ":80";
                 desktopBFFURL = "http://webshoppingagg_" + tJobName + ":80/api/v1";
+                desktopBFFBaseURL = "http://webshoppingagg_" + tJobName + ":80";
                 log.debug("Configuring the API test to use docker network connectivity, identity api at following URL: {}", identityURL);
             }
             tokenAPI = getTokenWithPasswd(identityURL);

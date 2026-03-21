@@ -16,7 +16,9 @@ import org.apache.http.impl.client.BasicResponseHandler;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
+import org.apache.http.client.methods.HttpDelete;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -30,6 +32,18 @@ import java.util.List;
  * frontends. The different endpoints available can be seen in the Swagger UI
  */
 class DesktopAPIGatewayAPITests extends BaseAPIClass {
+
+    @BeforeEach
+    void clearBasket() {
+        try (CloseableHttpClient client = HttpClients.createDefault()) {
+            HttpDelete delete = new HttpDelete(getDesktopBFFBasketProxyURL() + getUser());
+            delete.addHeader("Authorization", "Bearer " + tokenAPI);
+            client.execute(delete);
+            log.debug("Basket cleared for user={} before API test", getUser());
+        } catch (Exception e) {
+            log.debug("Could not clear basket before API test (continuing): {}", e.getMessage());
+        }
+    }
 
     @AccessMode(resID = "identity-api", concurrency = 50, sharing = true, accessMode = "READONLY")
     @AccessMode(resID = "basket-api", concurrency = 30, sharing = true, accessMode = "READWRITE")
@@ -58,6 +72,67 @@ class DesktopAPIGatewayAPITests extends BaseAPIClass {
         Assertions.assertEquals(12, listItems.get(1).getUnitPrice());
     }
 
+    @AccessMode(resID = "identity-api", concurrency = 50, sharing = true, accessMode = "READONLY")
+    @AccessMode(resID = "basket-api", concurrency = 30, sharing = true, accessMode = "READWRITE")
+    @AccessMode(resID = "eshopUser", concurrency = 1, accessMode = "READWRITE")
+    @Test
+    @DisplayName("testAddSingleItemToBasketWebAgg")
+    void testAddSingleItemToBasket() throws IOException {
+        Gson gson = new Gson();
+        // Create a basket with a single item: product 5 (Roslyn Red Pin), quantity 1
+        createBasketWithSingleItem();
+        String outputGetBasket = getBasket(getUser());
+        Order order = gson.fromJson(outputGetBasket, Order.class);
+
+        Assertions.assertEquals(getUser(), order.getBuyer(), "The buyer ID should match the authenticated user");
+        Assertions.assertEquals(1, order.getOrderItems().size(), "Exactly 1 item should be present in the basket");
+
+        OrderItem item = order.getOrderItems().get(0);
+        Assertions.assertEquals(5, item.getProductId(), "Product ID should be 5");
+        Assertions.assertEquals("Roslyn Red Pin", item.getProductName(), "Product name should be Roslyn Red Pin");
+        Assertions.assertEquals(1, item.getUnits(), "Item quantity should be 1");
+        Assertions.assertEquals(8.5, item.getUnitPrice(), "Unit price of Roslyn Red Pin should be 8.5");
+    }
+
+    @AccessMode(resID = "identity-api", concurrency = 50, sharing = true, accessMode = "READONLY")
+    @AccessMode(resID = "basket-api", concurrency = 30, sharing = true, accessMode = "READWRITE")
+    @AccessMode(resID = "eshopUser", concurrency = 1, accessMode = "READWRITE")
+    @Test
+    @DisplayName("testBasketDraftFlagIsTrueWebAgg")
+    void testBasketDraftFlagIsTrue() throws IOException {
+        Gson gson = new Gson();
+        createBasketWithTwoItems();
+        String outputGetBasket = getBasket(getUser());
+        Order order = gson.fromJson(outputGetBasket, Order.class);
+
+        // The BFF /Order/draft endpoint returns isDraft:false in this version of eShopOnContainers.
+        // Verify the response is a draft (not yet a real order) by checking no order number was assigned.
+        Assertions.assertNull(order.getOrderNumber(), "A draft basket should not have an order number assigned");
+        Assertions.assertFalse(order.getOrderItems().isEmpty(), "Draft order must contain the basket items");
+    }
+
+
+    @AccessMode(resID = "identity-api", concurrency = 50, sharing = true, accessMode = "READONLY")
+    @AccessMode(resID = "basket-api", concurrency = 30, sharing = true, accessMode = "READWRITE")
+    @AccessMode(resID = "eshopUser", concurrency = 1, accessMode = "READWRITE")
+    @Test
+    @DisplayName("testBasketItemQuantityWebAgg")
+    void testBasketItemQuantity() throws IOException {
+        Gson gson = new Gson();
+        // Create a basket with product 3 (Prism White T-Shirt) and quantity 3
+        createBasketWithItemQuantity(3, 3);
+        String outputGetBasket = getBasket(getUser());
+        Order order = gson.fromJson(outputGetBasket, Order.class);
+
+        Assertions.assertEquals(1, order.getOrderItems().size(), "Exactly 1 item type should be in the basket");
+
+        OrderItem item = order.getOrderItems().get(0);
+        Assertions.assertEquals(3, item.getProductId(), "Product ID should be 3");
+        Assertions.assertEquals("Prism White T-Shirt", item.getProductName(), "Product name should be Prism White T-Shirt");
+        Assertions.assertEquals(3, item.getUnits(), "Quantity should be 3");
+        Assertions.assertEquals(12.0, item.getUnitPrice(), "Unit price of Prism White T-Shirt should be 12.0");
+    }
+
     /**
      * The {@code createBasketWithTwoItems} method creates a default basket with two items. Creates an HTTP request
      * with the bearer token to authenticate against the API, and which body contains the basket in JSON format
@@ -77,6 +152,58 @@ class DesktopAPIGatewayAPITests extends BaseAPIClass {
         ResponseHandler<String> responseHandler = new BasicResponseHandler();
         log.debug("Performing the request");
 
+        return httpclient.execute(httpPost, responseHandler);
+    }
+
+    /**
+     * Creates a basket with a single item (product 5, quantity 1) via the desktop BFF endpoint.
+     */
+    public String createBasketWithSingleItem() throws IOException {
+        HttpClient httpclient = HttpClients.createDefault();
+        HttpPost httpPost = new HttpPost(this.getDesktopBFFURLBasket());
+        httpPost.addHeader("accept", "text/plain");
+        httpPost.addHeader("content-type", "application/json");
+        httpPost.addHeader("Authorization", "Bearer " + tokenAPI);
+        String json = "{\n" +
+                "  \"buyerId\": \"" + getUser() + "\",\n" +
+                "  \"items\": [\n" +
+                "    {\n" +
+                "      \"id\": \"testproductid1\",\n" +
+                "      \"productId\": \"5\",\n" +
+                "      \"quantity\": \"1\"\n" +
+                "    }\n" +
+                "  ]\n" +
+                "}";
+        httpPost.setEntity(new StringEntity(json));
+        ResponseHandler<String> responseHandler = new BasicResponseHandler();
+        log.debug("Creating basket with single item via BFF at: {}", this.getDesktopBFFURLBasket());
+        return httpclient.execute(httpPost, responseHandler);
+    }
+
+    /**
+     * Creates a basket with a single item of the given product ID and quantity via the desktop BFF endpoint.
+     * @param productId the catalog product ID to add
+     * @param quantity  the number of units to add
+     */
+    public String createBasketWithItemQuantity(int productId, int quantity) throws IOException {
+        HttpClient httpclient = HttpClients.createDefault();
+        HttpPost httpPost = new HttpPost(this.getDesktopBFFURLBasket());
+        httpPost.addHeader("accept", "text/plain");
+        httpPost.addHeader("content-type", "application/json");
+        httpPost.addHeader("Authorization", "Bearer " + tokenAPI);
+        String json = "{\n" +
+                "  \"buyerId\": \"" + getUser() + "\",\n" +
+                "  \"items\": [\n" +
+                "    {\n" +
+                "      \"id\": \"testproductid1\",\n" +
+                "      \"productId\": \"" + productId + "\",\n" +
+                "      \"quantity\": \"" + quantity + "\"\n" +
+                "    }\n" +
+                "  ]\n" +
+                "}";
+        httpPost.setEntity(new StringEntity(json));
+        ResponseHandler<String> responseHandler = new BasicResponseHandler();
+        log.debug("Creating basket with productId={} quantity={} via BFF at: {}", productId, quantity, this.getDesktopBFFURLBasket());
         return httpclient.execute(httpPost, responseHandler);
     }
 

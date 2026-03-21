@@ -32,7 +32,7 @@ pipeline {
           steps {
             catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
               sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-setup.sh tjoba 0 http://webmvc_tjoba:80'
-              sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-testexecution.sh tjoba 0 http://webmvc_tjoba:80 "CatalogTests#addProductsToBasket"'
+              sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-testexecution.sh tjoba 0 http://webmvc_tjoba:80 "CatalogTests#addProductsToBasket,BasketTests#testBasketContentsVisible,BasketTests#testRemoveItemFromBasket"'
             }// EndExecutionStageErrortjoba
             sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-teardown.sh tjoba 0'
           }// EndStepstjoba
@@ -50,7 +50,7 @@ pipeline {
           steps {
             catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
               sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-setup.sh tjobc 0 http://webmvc_tjobc:80'
-              sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-testexecution.sh tjobc 0 http://webmvc_tjobc:80 "DesktopAPIGatewayAPITests#testAddProductsBasket"'
+              sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-testexecution.sh tjobc 0 http://webmvc_tjobc:80 "DesktopAPIGatewayAPITests#testAddProductsBasket,DesktopAPIGatewayAPITests#testAddSingleItemToBasket,DesktopAPIGatewayAPITests#testBasketDraftFlagIsTrue,DesktopAPIGatewayAPITests#testBasketItemQuantity"'
             }// EndExecutionStageErrortjobc
             sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-teardown.sh tjobc 0'
           }// EndStepstjobc
@@ -64,8 +64,8 @@ pipeline {
             sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-teardown.sh tjobd 0'
           }// EndStepstjobd
         }// EndStagetjobd
-      } // EndParallel
-    } // EndStage
+      } // End Parallel
+    } // End Stage
     stage('Stage 1') {
       failFast false
       parallel {
@@ -73,13 +73,13 @@ pipeline {
           steps {
             catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
               sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-setup.sh tjobe 1 http://webmvc_tjobe:80'
-              sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-testexecution.sh tjobe 1 http://webmvc_tjobe:80 "CatalogTests#FilterProductsByBrandType"'
+              sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-testexecution.sh tjobe 1 http://webmvc_tjobe:80 "CatalogTests#FilterProductsByBrandType,CatalogTests#testCatalogPagination"'
             }// EndExecutionStageErrortjobe
             sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-teardown.sh tjobe 1'
           }// EndStepstjobe
         }// EndStagetjobe
-      } // EndParallel
-    } // EndStage
+      } // End Parallel
+    } // End Stage
 stage('TEARDOWN-Infrastructure') {
       failFast false
       steps {

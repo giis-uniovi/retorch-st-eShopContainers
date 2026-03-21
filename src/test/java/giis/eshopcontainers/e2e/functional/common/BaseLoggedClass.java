@@ -1,5 +1,6 @@
 package giis.eshopcontainers.e2e.functional.common;
 
+import com.google.gson.JsonParser;
 import giis.eshopcontainers.e2e.functional.utils.Click;
 import giis.eshopcontainers.e2e.functional.utils.Navigation;
 import giis.eshopcontainers.e2e.functional.utils.Waiter;
@@ -7,6 +8,14 @@ import giis.selema.framework.junit5.LifecycleJunit5;
 import giis.selema.manager.SeleManager;
 import giis.selema.manager.SelemaConfig;
 import giis.selema.services.browser.DynamicGridBrowserService;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.HttpDelete;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.impl.client.BasicResponseHandler;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.message.BasicNameValuePair;
+import java.util.Base64;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.openqa.selenium.By;
@@ -18,9 +27,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 
 import static org.junit.jupiter.api.Assertions.fail;
@@ -40,10 +52,12 @@ public class BaseLoggedClass {
     protected WebDriver driver;
     protected Waiter waiter;
     private static final SeleManager seleManager = new SeleManager(new SelemaConfig().setReportSubdir("target/containerlogs/" + (System.getProperty("TJOB_NAME") == null ? "" : System.getProperty("TJOB_NAME"))).setName(System.getProperty("TJOB_NAME") == null ? "locallogs" : System.getProperty("TJOB_NAME")));
-    private String userName;
-    private String password;
-    private boolean isLogged = false;
+    protected String userName;
+    protected String password;
+    protected boolean isLogged = false;
     private static String dbURL;
+    private static String identityApiUrl;
+    private static String bffProxyBasketUrl;
 
     public static String getDbURL() {return dbURL;}
 
@@ -60,10 +74,14 @@ public class BaseLoggedClass {
             // Outside CI
             sutUrl = properties.getProperty("LOCALHOST_URL");
             dbURL = properties.getProperty("LOCALHOST_DB_URL");
+            identityApiUrl = properties.getProperty("LOCALHOST_IDENTITY_URL");
+            bffProxyBasketUrl = properties.getProperty("LOCALHOST_DESKTOP_BFF_URL").replace("/api/v1", "") + "/basket-api/api/v1/basket/";
             log.debug("Configuring the local browser to connect to a local System Under Test (SUT) at: {} and the DB in {}" , sutUrl, dbURL);
         } else {
             sutUrl = envUrl;
-            dbURL="sqldata_" + tJobName;
+            dbURL="sqldata_" + tJobName + ":1433";
+            identityApiUrl = "http://identity_api_" + tJobName + ":80";
+            bffProxyBasketUrl = "http://webshoppingagg_" + tJobName + ":80/basket-api/api/v1/basket/";
             log.debug("Configuring the browser to connect to the remote System Under Test (SUT) at the following URL: {} and the DB in {}" , sutUrl, dbURL);
         }
         checkDBMigration();
@@ -71,6 +89,44 @@ public class BaseLoggedClass {
         setupBrowser();
         log.info("Ending global setup for all test cases.");
 
+    }
+
+    /**
+     * Clears the basket for the test user via the BFF YARP basket-api proxy before each test.
+     * Obtains a basket-scoped token, decodes the JWT sub claim (basket key in Redis),
+     * and issues a DELETE request. Errors are swallowed so a cleanup failure does not abort the test.
+     */
+    protected static void clearUserBasket() {
+        try {
+            HttpPost tokenPost = new HttpPost(identityApiUrl + "/connect/token");
+            tokenPost.addHeader("content-type", "application/x-www-form-urlencoded");
+            List<BasicNameValuePair> params = new ArrayList<>();
+            params.add(new BasicNameValuePair("grant_type", properties.getProperty("API_GRANT_TYPE")));
+            params.add(new BasicNameValuePair("client_id", properties.getProperty("API_CLIENT_ID")));
+            params.add(new BasicNameValuePair("username", properties.getProperty("USER_ESHOP")));
+            params.add(new BasicNameValuePair("password", properties.getProperty("USER_ESHOP_PASSWORD")));
+            params.add(new BasicNameValuePair("client_secret", properties.getProperty("API_SCOPE_SECRET")));
+            params.add(new BasicNameValuePair("scope", "basket"));
+            tokenPost.setEntity(new UrlEncodedFormEntity(params, StandardCharsets.UTF_8));
+            String tokenResponse;
+            try (CloseableHttpClient client = HttpClients.createDefault()) {
+                tokenResponse = client.execute(tokenPost, new BasicResponseHandler());
+            }
+            String token = JsonParser.parseString(tokenResponse).getAsJsonObject().get("access_token").getAsString();
+            String[] jwtParts = token.split("\\.");
+            String rawPayload = jwtParts[1];
+            int paddingNeeded = (4 - rawPayload.length() % 4) % 4;
+            String padded = paddingNeeded == 1 ? rawPayload + "=" : paddingNeeded == 2 ? rawPayload + "==" : rawPayload;
+            String sub = JsonParser.parseString(new String(Base64.getUrlDecoder().decode(padded))).getAsJsonObject().get("sub").getAsString();
+            try (CloseableHttpClient client = HttpClients.createDefault()) {
+                HttpDelete delete = new HttpDelete(bffProxyBasketUrl + sub);
+                delete.addHeader("Authorization", "Bearer " + token);
+                client.execute(delete);
+            }
+            log.debug("Basket cleared for sub={}", sub);
+        } catch (Exception e) {
+            log.debug("Could not clear basket before test (continuing): {}", e.getMessage());
+        }
     }
 
     @BeforeEach
@@ -131,7 +187,9 @@ public class BaseLoggedClass {
         waiter.waitUntil(ExpectedConditions.elementToBeClickable(loginButtonXPathAfterInput), "Login button is not clickable");
         Click.element(driver, waiter, driver.findElement(loginButtonXPathAfterInput));
         // Verify that the user is logged in as expected
-        WebElement loggedUser = driver.findElement(By.xpath("//*[@id=\"logoutForm\"]/section[1]/div"));
+        By loggedUserLocator = By.xpath("//*[@id=\"logoutForm\"]/section[1]/div");
+        waiter.waitUntil(ExpectedConditions.presenceOfElementLocated(loggedUserLocator), "User info element not present after login");
+        WebElement loggedUser = driver.findElement(loggedUserLocator);
         String actualUserName = loggedUser.getText();
         Assertions.assertEquals(userName, actualUserName,
                 String.format("The logged-in user is not the expected user. Expected: %s, Actual: %s", userName, actualUserName));
@@ -191,7 +249,7 @@ public class BaseLoggedClass {
         final int MAX_ITERATIONS = 10;
         final int WAIT_TIME_MS = 5000;
         String query = "SELECT name FROM master.sys.databases";
-        String url = "jdbc:sqlserver://" + getDbURL() + ":1433;Encrypt=True;TrustServerCertificate=True;user=" + user + ";password=" + password;
+        String url = "jdbc:sqlserver://" + getDbURL() + ";Encrypt=True;TrustServerCertificate=True;user=" + user + ";password=" + password;
         int iter = 0;
         boolean found = false;
         //Iterate until the migration is performed or the number of iterations reached
@@ -236,7 +294,7 @@ public class BaseLoggedClass {
         String user = properties.getProperty("SQLDB_USER");
         String password = properties.getProperty("SQLDB_PASSWORD");
         // Build JDBC URL
-        String url = "jdbc:sqlserver://" + getDbURL() + ":1433;databaseName=" + dbName + ";Encrypt=True;TrustServerCertificate=True;user=" + user + ";password=" + password;
+        String url = "jdbc:sqlserver://" + getDbURL() + ";databaseName=" + dbName + ";Encrypt=True;TrustServerCertificate=True;user=" + user + ";password=" + password;
         // Retry logic
         boolean found = false;
         int iter = 0;
