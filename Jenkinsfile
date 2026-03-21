@@ -32,7 +32,7 @@ pipeline {
           steps {
             catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
               sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-setup.sh tjoba 0 http://webmvc_tjoba:80'
-              sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-testexecution.sh tjoba 0 http://webmvc_tjoba:80 "BasketAPITests#addProductsBasketAPI,BasketAPITests#addSingleBasketItemAPI,BasketAPITests#updateBasketItemQuantitiesAPI"'
+              sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-testexecution.sh tjoba 0 http://webmvc_tjoba:80 "BasketAPITests#addProductsBasketAPI,BasketAPITests#addSingleBasketItemAPI,BasketAPITests#basketDraftHasNoOrderNumberAPI,BasketAPITests#replaceBasketWithSingleItemAPI,BasketAPITests#replaceBasketWithSpecificQuantityAPI,BasketAPITests#updateBasketItemQuantitiesAPI"'
             }// EndExecutionStageErrortjoba
             sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-teardown.sh tjoba 0'
           }// EndStepstjoba
@@ -41,7 +41,7 @@ pipeline {
           steps {
             catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
               sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-setup.sh tjobb 0 http://webmvc_tjobb:80'
-              sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-testexecution.sh tjobb 0 http://webmvc_tjobb:80 "WebMVCCatalogTests#addProductsToBasketMVC"'
+              sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-testexecution.sh tjobb 0 http://webmvc_tjobb:80 "WebMVCBasketTests#addProductsToBasketMVC,WebMVCBasketTests#testBasketContentsVisibleMVC,WebMVCBasketTests#testRemoveItemFromBasketMVC"'
             }// EndExecutionStageErrortjobb
             sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-teardown.sh tjobb 0'
           }// EndStepstjobb
@@ -91,7 +91,7 @@ pipeline {
           steps {
             catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
               sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-setup.sh tjobg 1 http://webmvc_tjobg:80'
-              sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-testexecution.sh tjobg 1 http://webmvc_tjobg:80 "WebSPACatalogTests#addProductsToBasketSPA"'
+              sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-testexecution.sh tjobg 1 http://webmvc_tjobg:80 "WebSPABasketTests#addProductsToBasketSPA,WebSPABasketTests#testBasketContentsVisible,WebSPABasketTests#testRemoveItemFromBasket"'
             }// EndExecutionStageErrortjobg
             sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-teardown.sh tjobg 1'
           }// EndStepstjobg
@@ -137,38 +137,38 @@ pipeline {
     stage('Stage 2') {
       failFast false
       parallel {
-        stage('tjobl IdResource: catalog-api chrome-browser webmvc ') {
+        stage('tjobl IdResource: catalog-api chrome-browser webspa ') {
           steps {
             catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
               sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-setup.sh tjobl 2 http://webmvc_tjobl:80'
-              sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-testexecution.sh tjobl 2 http://webmvc_tjobl:80 "WebMVCCatalogTests#FilterProductsByBrandTypeMVC"'
+              sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-testexecution.sh tjobl 2 http://webmvc_tjobl:80 "WebSPACatalogTests#filterProductsByBrandTypeSPA,WebSPACatalogTests#testCatalogPaginationSPA"'
             }// EndExecutionStageErrortjobl
             sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-teardown.sh tjobl 2'
           }// EndStepstjobl
         }// EndStagetjobl
-        stage('tjobm IdResource: catalog-api chrome-browser webspa ') {
+        stage('tjobm IdResource: catalog-api ') {
           steps {
             catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
               sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-setup.sh tjobm 2 http://webmvc_tjobm:80'
-              sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-testexecution.sh tjobm 2 http://webmvc_tjobm:80 "WebSPACatalogTests#filterProductsByBrandTypeSPA"'
+              sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-testexecution.sh tjobm 2 http://webmvc_tjobm:80 "CatalogAPITests#getCatalogBrandsAPI,CatalogAPITests#getCatalogItemByIdAPI,CatalogAPITests#getCatalogItemsAPI,CatalogAPITests#getCatalogItemsByNameAPI,CatalogAPITests#getCatalogItemsByTypeAndBrandAPI,CatalogAPITests#getCatalogTypesAPI"'
             }// EndExecutionStageErrortjobm
             sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-teardown.sh tjobm 2'
           }// EndStepstjobm
         }// EndStagetjobm
-        stage('tjobn IdResource: catalog-api ') {
+        stage('tjobn IdResource: eshopUser identity-api ordering-api ') {
           steps {
             catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
               sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-setup.sh tjobn 2 http://webmvc_tjobn:80'
-              sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-testexecution.sh tjobn 2 http://webmvc_tjobn:80 "CatalogAPITests#getCatalogBrandsAPI,CatalogAPITests#getCatalogItemByIdAPI,CatalogAPITests#getCatalogItemsAPI,CatalogAPITests#getCatalogItemsByNameAPI,CatalogAPITests#getCatalogItemsByTypeAndBrandAPI,CatalogAPITests#getCatalogTypesAPI"'
+              sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-testexecution.sh tjobn 2 http://webmvc_tjobn:80 "OrderingAPITests#getOrdersForUserAPI"'
             }// EndExecutionStageErrortjobn
             sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-teardown.sh tjobn 2'
           }// EndStepstjobn
         }// EndStagetjobn
-        stage('tjobo IdResource: eshopUser identity-api ordering-api ') {
+        stage('tjobo IdResource: catalog-api chrome-browser webmvc ') {
           steps {
             catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
               sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-setup.sh tjobo 2 http://webmvc_tjobo:80'
-              sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-testexecution.sh tjobo 2 http://webmvc_tjobo:80 "OrderingAPITests#getOrdersForUserAPI"'
+              sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-testexecution.sh tjobo 2 http://webmvc_tjobo:80 "WebMVCCatalogTests#testCatalogPagination,WebMVCCatalogTests#testFilterProductsByBrandTypeMVC"'
             }// EndExecutionStageErrortjobo
             sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-teardown.sh tjobo 2'
           }// EndStepstjobo

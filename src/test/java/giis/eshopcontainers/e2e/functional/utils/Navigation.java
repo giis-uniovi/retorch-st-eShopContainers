@@ -70,4 +70,14 @@ public class Navigation {
         WebElement buttonCheckout = driver.findElement(By.name("action"));
         Click.element(driver, waiter, buttonCheckout);
     }
+
+    /**
+     * Navigates to the basket page by clicking the basket icon in the header.
+     */
+    public void navigateToBasket(WebDriver driver,Waiter waiter) throws ElementNotFoundException {
+        log.debug("Navigating to basket page by clicking the basket icon...");
+        WebElement basketIcon = driver.findElement(
+                By.xpath("/html/body/header/div/article/section[3]/a/div[2]"));
+        Click.element(driver, waiter, basketIcon);
+    }
 }

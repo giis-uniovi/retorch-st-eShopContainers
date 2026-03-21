@@ -50,6 +50,18 @@ public class NavigationWebSPA extends Navigation {
     }
 
     /**
+     * Navigates to the basket page by clicking the basket icon in the header.
+     */
+    @Override
+    public void navigateToBasket(WebDriver driver, Waiter waiter) throws ElementNotFoundException {
+        log.debug("Navigating to basket page (WebSPA)...");
+        By basketLocator = By.className("esh-basketstatus");
+        waiter.waitUntil(ExpectedConditions.elementToBeClickable(basketLocator), "Basket icon is not clickable");
+        Click.element(driver, waiter, driver.findElement(basketLocator));
+        waiter.waitUntil(ExpectedConditions.urlContains("basket"), "Basket page did not load");
+    }
+
+    /**
      * Navigates to the Orders checkout through the basket button.
      */
     @Override
