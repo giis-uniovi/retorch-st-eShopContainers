@@ -42,8 +42,8 @@ mkdir -p "$SUT_LOCATION/tmp"
 
 # Pull Docker images
 
-"$SCRIPTS_FOLDER/printLog.sh" "DEBUG" "COI-set-up" "Checking that the browser and its recorder Docker image is present"
-IMAGES=("selenoid/vnc_chrome" "aerokube/video-recorder")
+"$SCRIPTS_FOLDER/printLog.sh" "DEBUG" "COI-set-up" "Checking that the Selenium hub and node are present"
+IMAGES=("selenium/hub" "selenium/node-chrome")
 ALL_FOUND=true
 
 for IMAGE in "${IMAGES[@]}"; do

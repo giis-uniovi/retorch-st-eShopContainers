@@ -6,7 +6,7 @@ import giis.eshopcontainers.e2e.functional.utils.Waiter;
 import giis.selema.framework.junit5.LifecycleJunit5;
 import giis.selema.manager.SeleManager;
 import giis.selema.manager.SelemaConfig;
-import giis.selema.services.impl.SelenoidService;
+import giis.selema.services.browser.DynamicGridBrowserService;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.openqa.selenium.By;
@@ -103,7 +103,7 @@ public class BaseLoggedClass {
         seleManager.setBrowser("chrome").setArguments(new String[]{"--start-maximized","--incognito"});
         // Set up Selenoid configuration if Selenoid is present
         if (System.getenv("SELENOID_PRESENT") != null) {
-            seleManager.setDriverUrl("http://selenoid:4444/wd/hub").add(new SelenoidService().setVideo().setVnc());
+            seleManager.setDriverUrl("http://selenium-hub:4444/wd/hub").add(new DynamicGridBrowserService().setVideo().setVnc());
         }
         log.debug("Finished setting up browser ({})", browserUser);
     }
