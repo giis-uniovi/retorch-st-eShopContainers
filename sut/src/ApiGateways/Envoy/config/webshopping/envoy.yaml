@@ -28,11 +28,11 @@ static_resources:
                   prefix: "/c/"
                 route:
                   auto_host_rewrite: true
-                  prefix_rewrite: "/catalog_api_${tjobname}/"
+                  prefix_rewrite: "/catalog_api_${TJOB_NAME}/"
                   cluster: catalog
               - name: "c-long"
                 match:
-                  prefix: "/catalog_api_${tjobname}/"
+                  prefix: "/catalog_api_${TJOB_NAME}/"
                 route:
                   auto_host_rewrite: true
                   cluster: catalog
@@ -41,11 +41,11 @@ static_resources:
                   prefix: "/o/"
                 route:
                   auto_host_rewrite: true
-                  prefix_rewrite: "/ordering_api_${tjobname}/"
+                  prefix_rewrite: "/ordering_api_${TJOB_NAME}/"
                   cluster: ordering
               - name: "o-long"
                 match:
-                  prefix: "/ordering_api_${tjobname}/"
+                  prefix: "/ordering_api_${TJOB_NAME}/"
                 route:
                   auto_host_rewrite: true
                   cluster: ordering
@@ -64,11 +64,11 @@ static_resources:
                   prefix: "/b/"
                 route:
                   auto_host_rewrite: true
-                  prefix_rewrite: "/basket_api_${tjobname}/"
+                  prefix_rewrite: "/basket_api_${TJOB_NAME}/"
                   cluster: basket
               - name: "b-long"
                 match:
-                  prefix: "/basket_api_${tjobname}/"
+                  prefix: "/basket_api_${TJOB_NAME}/"
                 route:
                   auto_host_rewrite: true
                   cluster: basket
@@ -106,7 +106,7 @@ static_resources:
     lb_policy: round_robin
     hosts:
     - socket_address:
-        address: webshoppingagg_${tjobname}
+        address: webshoppingagg_${TJOB_NAME}
         port_value: 80
   - name: catalog
     connect_timeout: 0.25s
@@ -114,7 +114,7 @@ static_resources:
     lb_policy: round_robin
     hosts:
     - socket_address:
-        address: catalog_api_${tjobname}
+        address: catalog_api_${TJOB_NAME}
         port_value: 80
   - name: basket
     connect_timeout: 0.25s
@@ -122,7 +122,7 @@ static_resources:
     lb_policy: round_robin
     hosts:
     - socket_address:
-        address: basket_api_${tjobname}
+        address: basket_api_${TJOB_NAME}
         port_value: 80
   - name: ordering
     connect_timeout: 0.25s
@@ -130,7 +130,7 @@ static_resources:
     lb_policy: round_robin
     hosts:
     - socket_address:
-        address: ordering_api_${tjobname}
+        address: ordering_api_${TJOB_NAME}
         port_value: 80
   - name: signalr-hub
     connect_timeout: 0.25s
@@ -138,5 +138,5 @@ static_resources:
     lb_policy: round_robin
     hosts:
     - socket_address:
-        address: ordering_signalrhub_${tjobname}
+        address: ordering_signalrhub_${TJOB_NAME}
         port_value: 80

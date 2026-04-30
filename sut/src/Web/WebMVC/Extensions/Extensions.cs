@@ -69,6 +69,7 @@ internal static class Extensions
             options.ClientId = "mvc";
             options.ClientSecret = "secret";
             options.ResponseType = "code";
+            options.ResponseMode = "query";
             options.SaveTokens = true;
             options.GetClaimsFromUserInfoEndpoint = true;
             options.RequireHttpsMetadata = false;

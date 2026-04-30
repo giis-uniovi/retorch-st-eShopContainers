@@ -21,7 +21,7 @@ public class Shopping {
         log.debug("Getting number of Shopping Cart items, looking for the basket icon.");
         By basketIconXPath = By.xpath("/html/body/header/div/article/section[3]/a");
         // Wait for the basket icon to be visible
-        waiter.waitUntil(ExpectedConditions.visibilityOf(driver.findElement(basketIconXPath)), "The basket icon is not visible");
+        waiter.waitUntil(ExpectedConditions.visibilityOfElementLocated(basketIconXPath), "The basket icon is not visible");
         // Get the basket elements and extract the number of items
         WebElement basketElements = driver.findElement(By.className("esh-basketstatus-badge"));
         String itemsText = basketElements.getText();
