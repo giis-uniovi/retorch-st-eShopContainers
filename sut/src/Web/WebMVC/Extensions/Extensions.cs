@@ -54,6 +54,12 @@ internal static class Extensions
         var callBackUrl = configuration.GetRequiredValue("CallBackUrl");
         var sessionCookieLifetime = configuration.GetValue("SessionCookieLifetimeMinutes", 60);
 
+        // ExternalIdentityUrl rewrites the browser-facing OAuth redirect to a URL the browser
+        // can actually reach. Needed for local Docker Desktop deployments where port mappings
+        // only bind to 127.0.0.1 and IdentityUrl uses Docker-internal DNS (e.g. identity_api_local).
+        // When not set it defaults to IdentityUrl so CI parallel deployments are unaffected.
+        var externalIdentityUrl = configuration.GetValue<string>("ExternalIdentityUrl") ?? identityUrl;
+
         // Add Authentication services
         services.AddAuthentication(options =>
         {
@@ -95,6 +101,25 @@ internal static class Extensions
             // JwtSecurityTokenHandler.DefaultInboundClaimTypeMap. Without this, "sub" gets
             // remapped to ClaimTypes.NameIdentifier and IdentityParser.Parse() returns Id = ""
             options.MapInboundClaims = false;
+
+            // When ExternalIdentityUrl differs from IdentityUrl, replace the internal Docker
+            // DNS hostname in the browser-facing redirect with the localhost-accessible URL.
+            // Token exchange and userinfo calls are server-side and keep using IdentityUrl.
+            if (!string.Equals(identityUrl, externalIdentityUrl, StringComparison.OrdinalIgnoreCase))
+            {
+                options.Events.OnRedirectToIdentityProvider = ctx =>
+                {
+                    ctx.ProtocolMessage.IssuerAddress = ctx.ProtocolMessage.IssuerAddress
+                        .Replace(identityUrl, externalIdentityUrl, StringComparison.OrdinalIgnoreCase);
+                    return Task.CompletedTask;
+                };
+                options.Events.OnRedirectToIdentityProviderForSignOut = ctx =>
+                {
+                    ctx.ProtocolMessage.IssuerAddress = ctx.ProtocolMessage.IssuerAddress
+                        .Replace(identityUrl, externalIdentityUrl, StringComparison.OrdinalIgnoreCase);
+                    return Task.CompletedTask;
+                };
+            }
         });
     }
 

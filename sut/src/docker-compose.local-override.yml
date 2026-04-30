@@ -1,0 +1,124 @@
+# Local deployment override for docker-compose.yml.
+#
+# Differences from CI deployment:
+#  - jenkins_network is created locally instead of expected as external
+#  - All services expose ports so the host browser and local tests can reach them
+#  - webmvc: IdentityUrl stays as Docker DNS (identity_api_local) for server-side OIDC calls;
+#    ExternalIdentityUrl=http://localhost:5105 rewrites the browser-facing OAuth redirect via
+#    the OnRedirectToIdentityProvider event added to WebMVC/Extensions/Extensions.cs.
+#    Docker Desktop on Windows only proxies mapped ports to 127.0.0.1 (not host.docker.internal
+#    or the LAN IP), so localhost:5105 is the only address the browser can reliably reach.
+#  - webspa: IdentityUrl set to localhost:5105 directly (Angular OIDC runs entirely in the
+#    browser, no server-side discovery calls from the container).
+#  - identity-api callback URIs updated to localhost ports for browser redirects
+#  - CallBackUrl corrected from the appsettings default (port 5331) to port 5100
+#
+# CI parallel deployments: ExternalIdentityUrl is NOT set in CI env files, so it defaults to
+# IdentityUrl and the event handler is never registered. No impact on CI behaviour.
+#
+# Usage (run from project root):
+#   Linux:   ./redeploy-local.sh
+#   Windows: .\redeploy-local.ps1
+
+services:
+  seq:
+    ports:
+      - "5340:80"
+
+  sqldata:
+    ports:
+      - "5433:1433"
+
+  rabbitmq:
+    ports:
+      - "15672:15672"
+      - "5672:5672"
+
+  identity-api:
+    ports:
+      - "5105:80"
+    environment:
+      - MvcClient=http://localhost:5100
+      - SpaClient=http://localhost:5104
+      - WebhooksWebClient=http://localhost:5114
+      - WebhooksApiClient=http://localhost:5113
+
+  basket-api:
+    ports:
+      - "5103:80"
+
+  catalog-api:
+    ports:
+      - "5101:80"
+
+  ordering-api:
+    ports:
+      - "5102:80"
+
+  ordering-backgroundtasks:
+    ports:
+      - "5111:80"
+
+  payment-api:
+    ports:
+      - "5108:80"
+
+  webhooks-api:
+    ports:
+      - "5113:80"
+
+  mobileshoppingagg:
+    ports:
+      - "5120:80"
+
+  webshoppingagg:
+    ports:
+      - "5121:80"
+
+  ordering-signalrhub:
+    ports:
+      - "5112:80"
+
+  webstatus:
+    ports:
+      - "5107:80"
+
+  webspa:
+    ports:
+      - "5104:80"
+    environment:
+      # Angular OIDC runs entirely in the browser, so localhost:PORT is correct here.
+      - IdentityUrl=http://localhost:5105
+      - PurchaseUrl=http://localhost:5121
+      - SignalrHubUrl=http://localhost:5121
+
+  webmvc:
+    ports:
+      - "5100:80"
+    environment:
+      # IdentityUrl stays as Docker DNS so the container can fetch the discovery document
+      # and call token/userinfo endpoints server-side. ExternalIdentityUrl rewrites the
+      # browser-facing authorization redirect (see WebMVC/Extensions/Extensions.cs).
+      - ExternalIdentityUrl=http://localhost:5105
+      # SignalrHubUrl is injected into Razor pages for browser-side JS; localhost works.
+      - SignalrHubUrl=http://localhost:5121
+      # CallBackUrl default in appsettings.json points to port 5331; fix to actual local port.
+      - CallBackUrl=http://localhost:5100/signout-callback-oidc
+
+  webhooks-client:
+    ports:
+      - "5114:80"
+
+  webshoppingapigw:
+    ports:
+      - "5202:80"
+
+  mobileshoppingapigw:
+    ports:
+      - "5200:80"
+
+networks:
+  jenkins_network:
+    external: false
+    driver: bridge
+    name: eshop_local_network
