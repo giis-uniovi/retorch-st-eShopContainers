@@ -13,9 +13,9 @@ import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 
-import static giis.eshopcontainers.e2e.functional.utils.Shopping.addProductToBasket;
+import static giis.eshopcontainers.e2e.functional.utils.Shopping.addProductToBasketMVC;
 
-class CatalogTests extends BaseLoggedClass {
+class WebMVCCatalogTests extends BaseLoggedClass {
 
     @AccessMode(resID = "webmvc", concurrency = 10, sharing = true, accessMode = "READONLY")
     @AccessMode(resID = "identity-api", concurrency = 50, sharing = true, accessMode = "READONLY")
@@ -24,17 +24,17 @@ class CatalogTests extends BaseLoggedClass {
     @AccessMode(resID = "chrome-browser", concurrency = 1, sharing = false, accessMode = "READWRITE")
     @AccessMode(resID = "eshopUser", concurrency = 1, accessMode = "READWRITE")
     @Test
-    @DisplayName("AddProductsToBasket")
-    void addProductsToBasket() throws ElementNotFoundException {
+    @DisplayName("AddProductsToBasketMVC")
+    void addProductsToBasketMVC() throws ElementNotFoundException {
         log.debug("Before login, checking that the product buttons are disabled");
         // Verify that the product cup button is disabled before login
         checkProductButtonDisabled();
         // Perform login
         this.login();
         // Add products to the basket
-        addProductToBasket(1, "NetCore Cup", driver, waiter);
-        addProductToBasket(3, "Hoodie", driver, waiter);
-        addProductToBasket(6, "Pin", driver, waiter);
+        addProductToBasketMVC(1, "NetCore Cup", driver, waiter);
+        addProductToBasketMVC(3, "Hoodie", driver, waiter);
+        addProductToBasketMVC(6, "Pin", driver, waiter);
         // Perform logout
         this.logout();
         // Verify that the product cup button is disabled after logout
@@ -42,7 +42,7 @@ class CatalogTests extends BaseLoggedClass {
     }
 
     /**
-     * Checks that the product buttons are disabled.
+     * Checks that the product buttons are disabled in MVC frontend.
      */
     private void checkProductButtonDisabled() throws ElementNotFoundException {
         //Navigate to main menu.
@@ -60,8 +60,8 @@ class CatalogTests extends BaseLoggedClass {
     @AccessMode(resID = "catalog-api", concurrency = 60, sharing = true, accessMode = "READONLY")
     @AccessMode(resID = "chrome-browser", concurrency = 1, accessMode = "READWRITE")
     @Test
-    @DisplayName("FilterProductsByBrand")
-    void FilterProductsByBrandType() throws ElementNotFoundException {
+    @DisplayName("FilterProductsByBrandMVC")
+    void FilterProductsByBrandTypeMVC() throws ElementNotFoundException {
         // Define test data
         int[] brands = {1, 2, 3};
         int[] types = {1, 2, 3, 4};
@@ -83,7 +83,7 @@ class CatalogTests extends BaseLoggedClass {
     }
 
     /**
-     * Selects a filter option for a given filter on the eShopOnContainers catalog.
+     * Selects a filter option for a given filter on the MVC frontend eShopOnContainers catalog.
      * @param filterId      The ID of the filter element.
      * @param filterOptions Array of display names for filter options.
      * @param option        The selected option for the filter.

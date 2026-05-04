@@ -17,15 +17,15 @@ import java.util.List;
 
 import static giis.eshopcontainers.e2e.functional.utils.Navigation.toMainMenu;
 import static giis.eshopcontainers.e2e.functional.utils.Navigation.toOrdersPage;
-import static giis.eshopcontainers.e2e.functional.utils.Shopping.addProductToBasket;
+import static giis.eshopcontainers.e2e.functional.utils.Shopping.addProductToBasketMVC;
 
 /**
  * Test class for Order-related functionalities.
  */
-class OrderTests extends BaseLoggedClass {
+class WebMVCOrderTests extends BaseLoggedClass {
 
     /**
-     * Tests the creation of a new order and its correct state configuration.
+     * Tests the creation of a new order in the MVC frontend and its correct state configuration.
      */
 
     @AccessMode(resID = "webmvc", concurrency = 10, sharing = true, accessMode = "READONLY")
@@ -37,8 +37,8 @@ class OrderTests extends BaseLoggedClass {
     @AccessMode(resID = "chrome-browser", concurrency = 1, accessMode = "READWRITE")
     @AccessMode(resID = "eshopUser", concurrency = 1, accessMode = "READWRITE")
     @Test
-    @DisplayName("testCreateNewOrder")
-    void testCreateNewOrder() throws ElementNotFoundException {
+    @DisplayName("testCreateNewOrderMVC")
+    void testCreateNewOrderMVC() throws ElementNotFoundException {
         LinkedList<String> expectedStatesPriorCancelling = new LinkedList<>();
         expectedStatesPriorCancelling.add("submitted");
         expectedStatesPriorCancelling.add("paid");
@@ -51,7 +51,7 @@ class OrderTests extends BaseLoggedClass {
     }
 
     /**
-     * Created an order with three different products, fullfil the order data (payment and address) and removes it
+     * Created an order in the WebMVC frontend with three different products, fulfil the order data (payment and address) and removes it
      * checking that the order state changes as expected.
      */
 
@@ -64,8 +64,8 @@ class OrderTests extends BaseLoggedClass {
     @AccessMode(resID = "chrome-browser", concurrency = 1, sharing = false, accessMode = "READWRITE")
     @AccessMode(resID = "eshopUser", concurrency = 1, accessMode = "READWRITE")
     @Test
-    @DisplayName("testCancelOrder")
-    void testCancelOrder() throws ElementNotFoundException {
+    @DisplayName("testCancelOrderMVC")
+    void testCancelOrderMVC() throws ElementNotFoundException {
         LinkedList<String> expectedStatesPriorCancelling = new LinkedList<>();
         expectedStatesPriorCancelling.add("submitted");
         expectedStatesPriorCancelling.add("stockconfirmed");
@@ -191,9 +191,9 @@ class OrderTests extends BaseLoggedClass {
      * Adds  some products to the basketproducts to the shopping basket.
      */
     private void addProductsToBasket() throws ElementNotFoundException {
-        addProductToBasket(2, ".NET Blue Hoodie", driver, waiter);
-        addProductToBasket(4, ".NET Foundation Pin", driver, waiter);
-        addProductToBasket(5, ".NET Foundation T-shirt", driver, waiter);
+        addProductToBasketMVC(2, ".NET Blue Hoodie", driver, waiter);
+        addProductToBasketMVC(4, ".NET Foundation Pin", driver, waiter);
+        addProductToBasketMVC(5, ".NET Foundation T-shirt", driver, waiter);
     }
 
     /**

@@ -28,119 +28,160 @@ pipeline {
     stage('Stage 0') {
       failFast false
       parallel {
-        stage('tjoba IdResource: catalog-api chrome-browser webmvc ') {
+        stage('tjoba IdResource: basket-api eshopUser identity-api ') {
           steps {
             catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
               sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-setup.sh tjoba 0 http://webmvc_tjoba:80'
-              sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-testexecution.sh tjoba 0 http://webmvc_tjoba:80 "CatalogTests#FilterProductsByBrandType"'
+              sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-testexecution.sh tjoba 0 http://webmvc_tjoba:80 "BasketAPITests#addProductsBasketAPI,BasketAPITests#addSingleBasketItemAPI,BasketAPITests#updateBasketItemQuantitiesAPI"'
             }// EndExecutionStageErrortjoba
             sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-teardown.sh tjoba 0'
           }// EndStepstjoba
         }// EndStagetjoba
-        stage('tjobb IdResource: basket-api eshopUser identity-api ') {
+        stage('tjobb IdResource: basket-api catalog-api chrome-browser eshopUser identity-api webmvc ') {
           steps {
             catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
               sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-setup.sh tjobb 0 http://webmvc_tjobb:80'
-              sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-testexecution.sh tjobb 0 http://webmvc_tjobb:80 "BasketAPITests#addProductsBasketAPI,BasketAPITests#addSingleBasketItemAPI,BasketAPITests#updateBasketItemQuantitiesAPI"'
+              sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-testexecution.sh tjobb 0 http://webmvc_tjobb:80 "WebMVCCatalogTests#addProductsToBasketMVC"'
             }// EndExecutionStageErrortjobb
             sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-teardown.sh tjobb 0'
           }// EndStepstjobb
         }// EndStagetjobb
-        stage('tjobc IdResource: basket-api catalog-api chrome-browser eshopUser identity-api webmvc ') {
+        stage('tjobc IdResource: identity-api ordering-api ') {
           steps {
             catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
               sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-setup.sh tjobc 0 http://webmvc_tjobc:80'
-              sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-testexecution.sh tjobc 0 http://webmvc_tjobc:80 "CatalogTests#addProductsToBasket"'
+              sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-testexecution.sh tjobc 0 http://webmvc_tjobc:80 "OrderingAPITests#getCardTypesAPI,OrderingAPITests#getOrderByNonExistentIdAPI"'
             }// EndExecutionStageErrortjobc
             sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-teardown.sh tjobc 0'
           }// EndStepstjobc
         }// EndStagetjobc
-        stage('tjobd IdResource: identity-api ordering-api ') {
+        stage('tjobd IdResource: payment-api ') {
           steps {
             catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
               sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-setup.sh tjobd 0 http://webmvc_tjobd:80'
-              sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-testexecution.sh tjobd 0 http://webmvc_tjobd:80 "OrderingAPITests#getCardTypesAPI,OrderingAPITests#getOrderByNonExistentIdAPI"'
+              sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-testexecution.sh tjobd 0 http://webmvc_tjobd:80 "PaymentAPITests#paymentHealthCheckAPI,PaymentAPITests#paymentLivenessAPI"'
             }// EndExecutionStageErrortjobd
             sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-teardown.sh tjobd 0'
           }// EndStepstjobd
         }// EndStagetjobd
-        stage('tjobe IdResource: basket-api eshopUser identity-api ') {
+        stage('tjobe IdResource: basket-api catalog-api chrome-browser eshopUser identity-api ordering-api payment-api webmvc ') {
           steps {
             catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
               sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-setup.sh tjobe 0 http://webmvc_tjobe:80'
-              sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-testexecution.sh tjobe 0 http://webmvc_tjobe:80 "OrderingAPITests#getOrderDraftFromNonExistentBasketAPI"'
+              sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-testexecution.sh tjobe 0 http://webmvc_tjobe:80 "WebMVCOrderTests#testCancelOrderMVC,WebMVCOrderTests#testCreateNewOrderMVC"'
             }// EndExecutionStageErrortjobe
             sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-teardown.sh tjobe 0'
           }// EndStepstjobe
         }// EndStagetjobe
-        stage('tjobf IdResource: payment-api ') {
+        stage('tjobf IdResource: basket-api catalog-api chrome-browser eshopUser identity-api ordering-api payment-api webspa ') {
           steps {
             catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
               sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-setup.sh tjobf 0 http://webmvc_tjobf:80'
-              sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-testexecution.sh tjobf 0 http://webmvc_tjobf:80 "PaymentAPITests#paymentHealthCheckAPI,PaymentAPITests#paymentLivenessAPI"'
+              sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-testexecution.sh tjobf 0 http://webmvc_tjobf:80 "WebSPAOrderTests#testCancelOrderSPA,WebSPAOrderTests#testCreateNewOrderSPA"'
             }// EndExecutionStageErrortjobf
             sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-teardown.sh tjobf 0'
           }// EndStepstjobf
         }// EndStagetjobf
-        stage('tjobg IdResource: basket-api catalog-api chrome-browser eshopUser identity-api ordering-api payment-api webmvc ') {
-          steps {
-            catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
-              sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-setup.sh tjobg 0 http://webmvc_tjobg:80'
-              sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-testexecution.sh tjobg 0 http://webmvc_tjobg:80 "OrderTests#testCancelOrder,OrderTests#testCreateNewOrder"'
-            }// EndExecutionStageErrortjobg
-            sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-teardown.sh tjobg 0'
-          }// EndStepstjobg
-        }// EndStagetjobg
       } // End Parallel
     } // End Stage
     stage('Stage 1') {
       failFast false
       parallel {
-        stage('tjobh IdResource: catalog-api ') {
+        stage('tjobg IdResource: basket-api catalog-api chrome-browser eshopUser identity-api webspa ') {
+          steps {
+            catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
+              sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-setup.sh tjobg 1 http://webmvc_tjobg:80'
+              sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-testexecution.sh tjobg 1 http://webmvc_tjobg:80 "WebSPACatalogTests#addProductsToBasketSPA"'
+            }// EndExecutionStageErrortjobg
+            sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-teardown.sh tjobg 1'
+          }// EndStepstjobg
+        }// EndStagetjobg
+        stage('tjobh IdResource: basket-api eshopUser identity-api ') {
           steps {
             catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
               sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-setup.sh tjobh 1 http://webmvc_tjobh:80'
-              sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-testexecution.sh tjobh 1 http://webmvc_tjobh:80 "CatalogAPITests#getCatalogBrandsAPI,CatalogAPITests#getCatalogItemByIdAPI,CatalogAPITests#getCatalogItemsAPI,CatalogAPITests#getCatalogItemsByNameAPI,CatalogAPITests#getCatalogItemsByTypeAndBrandAPI,CatalogAPITests#getCatalogTypesAPI"'
+              sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-testexecution.sh tjobh 1 http://webmvc_tjobh:80 "OrderingAPITests#getOrderDraftFromNonExistentBasketAPI"'
             }// EndExecutionStageErrortjobh
             sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-teardown.sh tjobh 1'
           }// EndStepstjobh
         }// EndStagetjobh
-        stage('tjobi IdResource: eshopUser identity-api ordering-api ') {
+        stage('tjobi IdResource: catalog-api chrome-browser eshopUser identity-api webmvc ') {
           steps {
             catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
               sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-setup.sh tjobi 1 http://webmvc_tjobi:80'
-              sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-testexecution.sh tjobi 1 http://webmvc_tjobi:80 "OrderingAPITests#getOrdersForUserAPI"'
+              sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-testexecution.sh tjobi 1 http://webmvc_tjobi:80 "WebMVCLoggedUserTest#loginTestMVC"'
             }// EndExecutionStageErrortjobi
             sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-teardown.sh tjobi 1'
           }// EndStepstjobi
         }// EndStagetjobi
-        stage('tjobj IdResource: catalog-api chrome-browser eshopUser identity-api webmvc ') {
+        stage('tjobj IdResource: catalog-api chrome-browser eshopUser identity-api webspa ') {
           steps {
             catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
               sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-setup.sh tjobj 1 http://webmvc_tjobj:80'
-              sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-testexecution.sh tjobj 1 http://webmvc_tjobj:80 "LoggedUserTest#loginTest"'
+              sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-testexecution.sh tjobj 1 http://webmvc_tjobj:80 "WebSPALoggedUserTest#loginTestSPA"'
             }// EndExecutionStageErrortjobj
             sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-teardown.sh tjobj 1'
           }// EndStepstjobj
         }// EndStagetjobj
-        stage('tjobk IdResource: eshopUser identity-api ') {
+        stage('tjobk IdResource: identity-api ') {
           steps {
             catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
               sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-setup.sh tjobk 1 http://webmvc_tjobk:80'
-              sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-testexecution.sh tjobk 1 http://webmvc_tjobk:80 "IdentityAPITests#testGetCurrentUserInfo,IdentityAPITests#testGetTokenWithValidCredentials"'
+              sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-testexecution.sh tjobk 1 http://webmvc_tjobk:80 "IdentityAPITests#testGetOpenIdConfiguration"'
             }// EndExecutionStageErrortjobk
             sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-teardown.sh tjobk 1'
           }// EndStepstjobk
         }// EndStagetjobk
-        stage('tjobl IdResource: identity-api ') {
+      } // End Parallel
+    } // End Stage
+    stage('Stage 2') {
+      failFast false
+      parallel {
+        stage('tjobl IdResource: catalog-api chrome-browser webmvc ') {
           steps {
             catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
-              sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-setup.sh tjobl 1 http://webmvc_tjobl:80'
-              sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-testexecution.sh tjobl 1 http://webmvc_tjobl:80 "IdentityAPITests#testGetOpenIdConfiguration"'
+              sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-setup.sh tjobl 2 http://webmvc_tjobl:80'
+              sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-testexecution.sh tjobl 2 http://webmvc_tjobl:80 "WebMVCCatalogTests#FilterProductsByBrandTypeMVC"'
             }// EndExecutionStageErrortjobl
-            sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-teardown.sh tjobl 1'
+            sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-teardown.sh tjobl 2'
           }// EndStepstjobl
         }// EndStagetjobl
+        stage('tjobm IdResource: catalog-api chrome-browser webspa ') {
+          steps {
+            catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
+              sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-setup.sh tjobm 2 http://webmvc_tjobm:80'
+              sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-testexecution.sh tjobm 2 http://webmvc_tjobm:80 "WebSPACatalogTests#filterProductsByBrandTypeSPA"'
+            }// EndExecutionStageErrortjobm
+            sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-teardown.sh tjobm 2'
+          }// EndStepstjobm
+        }// EndStagetjobm
+        stage('tjobn IdResource: catalog-api ') {
+          steps {
+            catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
+              sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-setup.sh tjobn 2 http://webmvc_tjobn:80'
+              sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-testexecution.sh tjobn 2 http://webmvc_tjobn:80 "CatalogAPITests#getCatalogBrandsAPI,CatalogAPITests#getCatalogItemByIdAPI,CatalogAPITests#getCatalogItemsAPI,CatalogAPITests#getCatalogItemsByNameAPI,CatalogAPITests#getCatalogItemsByTypeAndBrandAPI,CatalogAPITests#getCatalogTypesAPI"'
+            }// EndExecutionStageErrortjobn
+            sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-teardown.sh tjobn 2'
+          }// EndStepstjobn
+        }// EndStagetjobn
+        stage('tjobo IdResource: eshopUser identity-api ordering-api ') {
+          steps {
+            catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
+              sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-setup.sh tjobo 2 http://webmvc_tjobo:80'
+              sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-testexecution.sh tjobo 2 http://webmvc_tjobo:80 "OrderingAPITests#getOrdersForUserAPI"'
+            }// EndExecutionStageErrortjobo
+            sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-teardown.sh tjobo 2'
+          }// EndStepstjobo
+        }// EndStagetjobo
+        stage('tjobp IdResource: eshopUser identity-api ') {
+          steps {
+            catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
+              sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-setup.sh tjobp 2 http://webmvc_tjobp:80'
+              sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-testexecution.sh tjobp 2 http://webmvc_tjobp:80 "IdentityAPITests#testGetCurrentUserInfo,IdentityAPITests#testGetTokenWithValidCredentials"'
+            }// EndExecutionStageErrortjobp
+            sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-teardown.sh tjobp 2'
+          }// EndStepstjobp
+        }// EndStagetjobp
       } // End Parallel
     } // End Stage
 stage('TEARDOWN-Infrastructure') {

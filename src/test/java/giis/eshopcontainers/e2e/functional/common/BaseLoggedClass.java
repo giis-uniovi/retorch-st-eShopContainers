@@ -40,9 +40,9 @@ public class BaseLoggedClass {
     protected WebDriver driver;
     protected Waiter waiter;
     private static final SeleManager seleManager = new SeleManager(new SelemaConfig().setReportSubdir("target/containerlogs/" + (System.getProperty("TJOB_NAME") == null ? "" : System.getProperty("TJOB_NAME"))).setName(System.getProperty("TJOB_NAME") == null ? "locallogs" : System.getProperty("TJOB_NAME")));
-    private String userName;
-    private String password;
-    private boolean isLogged = false;
+    protected String userName;
+    protected String password;
+    protected boolean isLogged = false;
     private static String dbURL;
 
     public static String getDbURL() {return dbURL;}
