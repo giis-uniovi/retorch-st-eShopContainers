@@ -17,8 +17,8 @@ class WebMVCLoggedUserTest extends BaseLoggedClass {
     @AccessMode(resID = "chrome-browser", concurrency = 1, accessMode ="READWRITE")
     @AccessMode(resID = "eshopUser", concurrency = 1, sharing = false, accessMode ="READONLY")
     @Test
-    @DisplayName("BasicLoginTest")
-    void loginTest() throws ElementNotFoundException {
+    @DisplayName("BasicLoginTestMVC")
+    void loginTestMVC() throws ElementNotFoundException {
         this.login();
         WebElement loggedUser = driver.findElement(By.xpath("//*[@id=\"logoutForm\"]/section[1]/div"));
         Assertions.assertEquals("alice", loggedUser.getText(), "The user logged is not the expected, the expected was alice and the obtained is " + loggedUser.getText());

@@ -32,7 +32,7 @@ class WebSPACatalogTests extends BaseWebSPALoggedClass {
     @AccessMode(resID = "eshopUser", concurrency = 1, accessMode = "READWRITE")
     @Test
     @DisplayName("AddProductsToBasketSPA")
-    void addProductsToBasket() throws ElementNotFoundException {
+    void addProductsToBasketSPA() throws ElementNotFoundException {
         // Before login catalog items must be disabled
         checkProductButtonDisabled();
         this.login();
@@ -49,7 +49,7 @@ class WebSPACatalogTests extends BaseWebSPALoggedClass {
     @AccessMode(resID = "chrome-browser", concurrency = 1, accessMode = "READWRITE")
     @Test
     @DisplayName("FilterProductsByBrandSPA")
-    void filterProductsByBrandType() throws ElementNotFoundException {
+    void filterProductsByBrandTypeSPA() throws ElementNotFoundException {
         // Option indices are 1-based: 1=All, 2=second brand, 3=third brand
         int[] brands = {1, 2, 3};
         int[] types  = {1, 2, 3, 4};

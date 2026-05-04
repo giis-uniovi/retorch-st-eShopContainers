@@ -23,7 +23,7 @@ class WebSPALoggedUserTest extends BaseWebSPALoggedClass {
     @AccessMode(resID = "eshopUser", concurrency = 1, sharing = false, accessMode = "READONLY")
     @Test
     @DisplayName("BasicLoginTestSPA")
-    void loginTest() throws ElementNotFoundException {
+    void loginTestSPA() throws ElementNotFoundException {
         // Before login: catalog items must carry the "is-disabled" modifier class
         waiter.waitUntil(ExpectedConditions.numberOfElementsToBeMoreThan(By.className("esh-catalog-item"), 0),
                 "No catalog items rendered before login");

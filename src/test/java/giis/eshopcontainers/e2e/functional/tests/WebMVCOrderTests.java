@@ -37,8 +37,8 @@ class WebMVCOrderTests extends BaseLoggedClass {
     @AccessMode(resID = "chrome-browser", concurrency = 1, accessMode = "READWRITE")
     @AccessMode(resID = "eshopUser", concurrency = 1, accessMode = "READWRITE")
     @Test
-    @DisplayName("testCreateNewOrder")
-    void testCreateNewOrder() throws ElementNotFoundException {
+    @DisplayName("testCreateNewOrderMVC")
+    void testCreateNewOrderMVC() throws ElementNotFoundException {
         LinkedList<String> expectedStatesPriorCancelling = new LinkedList<>();
         expectedStatesPriorCancelling.add("submitted");
         expectedStatesPriorCancelling.add("paid");
@@ -64,8 +64,8 @@ class WebMVCOrderTests extends BaseLoggedClass {
     @AccessMode(resID = "chrome-browser", concurrency = 1, sharing = false, accessMode = "READWRITE")
     @AccessMode(resID = "eshopUser", concurrency = 1, accessMode = "READWRITE")
     @Test
-    @DisplayName("testCancelOrder")
-    void testCancelOrder() throws ElementNotFoundException {
+    @DisplayName("testCancelOrderMVC")
+    void testCancelOrderMVC() throws ElementNotFoundException {
         LinkedList<String> expectedStatesPriorCancelling = new LinkedList<>();
         expectedStatesPriorCancelling.add("submitted");
         expectedStatesPriorCancelling.add("stockconfirmed");

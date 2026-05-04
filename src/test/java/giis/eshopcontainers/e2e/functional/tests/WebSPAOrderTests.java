@@ -36,7 +36,7 @@ class WebSPAOrderTests extends BaseWebSPALoggedClass {
     @AccessMode(resID = "eshopUser", concurrency = 1, accessMode = "READWRITE")
     @Test
     @DisplayName("testCreateNewOrderSPA")
-    void testCreateNewOrder() throws ElementNotFoundException {
+    void testCreateNewOrderSPA() throws ElementNotFoundException {
         LinkedList<String> expectedStates = new LinkedList<>();
         expectedStates.add("submitted");
         expectedStates.add("paid");
@@ -58,7 +58,7 @@ class WebSPAOrderTests extends BaseWebSPALoggedClass {
     @AccessMode(resID = "eshopUser", concurrency = 1, accessMode = "READWRITE")
     @Test
     @DisplayName("testCancelOrderSPA")
-    void testCancelOrder() throws ElementNotFoundException {
+    void testCancelOrderSPA() throws ElementNotFoundException {
         LinkedList<String> expectedStatesPriorCancelling = new LinkedList<>();
         expectedStatesPriorCancelling.add("submitted");
         expectedStatesPriorCancelling.add("stockconfirmed");

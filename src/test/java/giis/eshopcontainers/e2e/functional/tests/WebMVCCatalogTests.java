@@ -24,8 +24,8 @@ class WebMVCCatalogTests extends BaseLoggedClass {
     @AccessMode(resID = "chrome-browser", concurrency = 1, sharing = false, accessMode = "READWRITE")
     @AccessMode(resID = "eshopUser", concurrency = 1, accessMode = "READWRITE")
     @Test
-    @DisplayName("AddProductsToBasket")
-    void addProductsToBasket() throws ElementNotFoundException {
+    @DisplayName("AddProductsToBasketMVC")
+    void addProductsToBasketMVC() throws ElementNotFoundException {
         log.debug("Before login, checking that the product buttons are disabled");
         // Verify that the product cup button is disabled before login
         checkProductButtonDisabled();
@@ -60,8 +60,8 @@ class WebMVCCatalogTests extends BaseLoggedClass {
     @AccessMode(resID = "catalog-api", concurrency = 60, sharing = true, accessMode = "READONLY")
     @AccessMode(resID = "chrome-browser", concurrency = 1, accessMode = "READWRITE")
     @Test
-    @DisplayName("FilterProductsByBrand")
-    void FilterProductsByBrandType() throws ElementNotFoundException {
+    @DisplayName("FilterProductsByBrandMVC")
+    void FilterProductsByBrandTypeMVC() throws ElementNotFoundException {
         // Define test data
         int[] brands = {1, 2, 3};
         int[] types = {1, 2, 3, 4};
