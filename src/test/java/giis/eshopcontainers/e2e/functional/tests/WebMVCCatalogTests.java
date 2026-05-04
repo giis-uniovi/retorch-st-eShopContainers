@@ -15,7 +15,7 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 
 import static giis.eshopcontainers.e2e.functional.utils.Shopping.addProductToBasket;
 
-class CatalogTests extends BaseLoggedClass {
+class WebMVCCatalogTests extends BaseLoggedClass {
 
     @AccessMode(resID = "webmvc", concurrency = 10, sharing = true, accessMode = "READONLY")
     @AccessMode(resID = "identity-api", concurrency = 50, sharing = true, accessMode = "READONLY")

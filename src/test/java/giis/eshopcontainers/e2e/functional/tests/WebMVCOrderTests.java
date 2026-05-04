@@ -22,7 +22,7 @@ import static giis.eshopcontainers.e2e.functional.utils.Shopping.addProductToBas
 /**
  * Test class for Order-related functionalities.
  */
-class OrderTests extends BaseLoggedClass {
+class WebMVCOrderTests extends BaseLoggedClass {
 
     /**
      * Tests the creation of a new order and its correct state configuration.

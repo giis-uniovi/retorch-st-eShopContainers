@@ -26,6 +26,33 @@
     "dockerImage": "mediaserver;eexit/mirror-http-server"
 
   },
+  "webspa": {
+    "hierarchyParent": [],
+    "replaceable": [],
+    "elasticityModel": {
+      "elasticityID": "elasModelWebSpa",
+      "elasticity": 5,
+      "elasticityCost": 10.0
+    },
+    "resourceType": "LOGICAL",
+    "resourceID": "webspa",
+    "minimalCapacities": [
+      {
+        "name": "memory",
+        "quantity": 0.048
+      },
+      {
+        "name": "processor",
+        "quantity": 0.25
+      },
+      {
+        "name": "storage",
+        "quantity": 0.31
+      }
+    ],
+    "dockerImage": "mediaserver;eexit/mirror-http-server"
+
+  },
   "identity-api": {
     "hierarchyParent": [],
     "replaceable": [],

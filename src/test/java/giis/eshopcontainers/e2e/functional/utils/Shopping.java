@@ -9,48 +9,86 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
+
+/**
+ * Shopping helpers for both the WebMVC and WebSPA frontends.
+ * Methods with the {@code SPA} suffix use Angular-specific selectors; the
+ * plain variants target the server-rendered WebMVC markup.
+ */
 public class Shopping {
     public static final Logger log = LoggerFactory.getLogger(Shopping.class);
 
+    // -----------------------------------------------------------------------
+    // Shared
+    // -----------------------------------------------------------------------
+
     /**
-     * Retrieves the number of items in the shopping basket.
-     * @param driver Web driver of the application
-     * @param waiter Waiter of the provided web driver
+     * Returns the number of items currently shown in the basket badge.
+     * Both WebMVC and WebSPA use the same {@code .esh-basketstatus-badge} class.
      */
     private static Integer getNumShoppingItems(WebDriver driver, Waiter waiter) {
-        log.debug("Getting number of Shopping Cart items, looking for the basket icon.");
-        By basketIconXPath = By.xpath("/html/body/header/div/article/section[3]/a");
-        // Wait for the basket icon to be visible
-        waiter.waitUntil(ExpectedConditions.visibilityOfElementLocated(basketIconXPath), "The basket icon is not visible");
-        // Get the basket elements and extract the number of items
-        WebElement basketElements = driver.findElement(By.className("esh-basketstatus-badge"));
-        String itemsText = basketElements.getText();
-        // Log the number of items
+        log.debug("Getting number of Shopping Cart items via badge.");
+        By badgeLocator = By.className("esh-basketstatus-badge");
+        waiter.waitUntil(ExpectedConditions.visibilityOfElementLocated(badgeLocator), "The basket badge is not visible");
+        String itemsText = driver.findElement(badgeLocator).getText().trim();
         log.debug("The number of items is: {}", itemsText);
-        // Return the number of items as an Integer
         return Integer.valueOf(itemsText);
     }
 
+    // -----------------------------------------------------------------------
+    // WebMVC
+    // -----------------------------------------------------------------------
+
     /**
-     * Adds a product to the shopping basket.
-     * @param numProduct  The index of the product on the page.
-     * @param productName The name of the product to add
-     * @param driver      Web driver of the application
-     * @param waiter      Waiter of the provided web driver
+     * Adds the Nth catalog product to the basket using the WebMVC form-submit button.
+     * Verifies the basket badge increments by one after the click.
+     *
+     * @param numProduct 1-based position of the product on the catalog page
+     * @param productName product name (used only for log / assertion messages)
      */
     public static void addProductToBasket(Integer numProduct, String productName, WebDriver driver, Waiter waiter) throws ElementNotFoundException {
-        WebElement productButton;
         int numItemsPriorAdd = getNumShoppingItems(driver, waiter);
         log.debug("Adding the product: {}", productName);
-
-        // Verify that the product button is enabled after login
-        productButton = driver.findElement(By.xpath("/html/body/div/div[3]/div[" + numProduct + "]/form/input[1]"));
+        WebElement productButton = driver.findElement(
+                By.xpath("/html/body/div/div[3]/div[" + numProduct + "]/form/input[1]"));
         Assertions.assertEquals("esh-catalog-button ", productButton.getAttribute("class"),
                 "The eShop product button was expected to be enabled but was disabled");
-
-        // Add the product to the basket
         Click.element(driver, waiter, productButton);
-        Assertions.assertEquals(numItemsPriorAdd + 1, getNumShoppingItems(driver, waiter), "The number of items in the basket doesn't match");
+        Assertions.assertEquals(numItemsPriorAdd + 1, getNumShoppingItems(driver, waiter),
+                "The number of items in the basket doesn't match");
         log.debug("Product: {} correctly added!", productName);
+    }
+
+    // -----------------------------------------------------------------------
+    // WebSPA
+    // -----------------------------------------------------------------------
+
+    /**
+     * Adds the Nth catalog product to the basket using the WebSPA Angular click handler.
+     * In the SPA each {@code .esh-catalog-item} div triggers {@code addToCart(item)} on click.
+     * Verifies the basket badge increments by one after the click.
+     *
+     * @param numProduct 1-based position of the product in the catalog grid
+     * @param productName product name (used only for log / assertion messages)
+     */
+    public static void addProductToBasketSPA(Integer numProduct, String productName, WebDriver driver, Waiter waiter) throws ElementNotFoundException {
+        int numItemsPriorAdd = getNumShoppingItems(driver, waiter);
+        log.debug("Adding product (SPA): {}", productName);
+        // Wait until at least numProduct items are rendered so get(numProduct-1) is always safe
+        waiter.waitUntil(ExpectedConditions.numberOfElementsToBeMoreThan(
+                By.className("esh-catalog-item"), numProduct - 1),
+                "Not enough catalog items loaded for position " + numProduct);
+        List<WebElement> catalogItems = driver.findElements(By.className("esh-catalog-item"));
+        WebElement item = catalogItems.get(numProduct - 1);
+        Assertions.assertFalse(item.getAttribute("class").contains("is-disabled"),
+                "Product '" + productName + "' is disabled — is the user logged in?");
+        Click.element(driver, waiter, item);
+        // The badge updates asynchronously after an API call; wait for the expected value.
+        int expected = numItemsPriorAdd + 1;
+        waiter.waitUntil(
+                ExpectedConditions.textToBe(By.className("esh-basketstatus-badge"), String.valueOf(expected)),
+                "Basket count did not increase to " + expected + " after adding '" + productName + "'");
+        log.debug("Product '{}' correctly added (SPA)!", productName);
     }
 }

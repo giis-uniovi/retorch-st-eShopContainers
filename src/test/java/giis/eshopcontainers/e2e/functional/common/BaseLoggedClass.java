@@ -40,9 +40,9 @@ public class BaseLoggedClass {
     protected WebDriver driver;
     protected Waiter waiter;
     private static final SeleManager seleManager = new SeleManager(new SelemaConfig().setReportSubdir("target/containerlogs/" + (System.getProperty("TJOB_NAME") == null ? "" : System.getProperty("TJOB_NAME"))).setName(System.getProperty("TJOB_NAME") == null ? "locallogs" : System.getProperty("TJOB_NAME")));
-    private String userName;
-    private String password;
-    private boolean isLogged = false;
+    protected String userName;
+    protected String password;
+    protected boolean isLogged = false;
     private static String dbURL;
 
     public static String getDbURL() {return dbURL;}
@@ -63,7 +63,7 @@ public class BaseLoggedClass {
             log.debug("Configuring the local browser to connect to a local System Under Test (SUT) at: {} and the DB in {}" , sutUrl, dbURL);
         } else {
             sutUrl = envUrl;
-            dbURL="sqldata_" + tJobName;
+            dbURL="sqldata_" + tJobName+":1433";
             log.debug("Configuring the browser to connect to the remote System Under Test (SUT) at the following URL: {} and the DB in {}" , sutUrl, dbURL);
         }
         checkDBMigration();
@@ -191,7 +191,7 @@ public class BaseLoggedClass {
         final int MAX_ITERATIONS = 10;
         final int WAIT_TIME_MS = 5000;
         String query = "SELECT name FROM master.sys.databases";
-        String url = "jdbc:sqlserver://" + getDbURL() + ":1433;Encrypt=True;TrustServerCertificate=True;user=" + user + ";password=" + password;
+        String url = "jdbc:sqlserver://" + getDbURL() + ";Encrypt=True;TrustServerCertificate=True;user=" + user + ";password=" + password;
         int iter = 0;
         boolean found = false;
         //Iterate until the migration is performed or the number of iterations reached
@@ -236,7 +236,7 @@ public class BaseLoggedClass {
         String user = properties.getProperty("SQLDB_USER");
         String password = properties.getProperty("SQLDB_PASSWORD");
         // Build JDBC URL
-        String url = "jdbc:sqlserver://" + getDbURL() + ":1433;databaseName=" + dbName + ";Encrypt=True;TrustServerCertificate=True;user=" + user + ";password=" + password;
+        String url = "jdbc:sqlserver://" + getDbURL() + ";databaseName=" + dbName + ";Encrypt=True;TrustServerCertificate=True;user=" + user + ";password=" + password;
         // Retry logic
         boolean found = false;
         int iter = 0;
