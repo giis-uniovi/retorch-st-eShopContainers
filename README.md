@@ -9,12 +9,38 @@ architecture
 using Docker containers. See more details in the [forked version](https://github.com/erjain/eShopOnContainers)
 or [official repository](https://github.com/dotnet-architecture/eShopOnContainers)
 
-## Deployment instructions
+## SUT Deployment
 
-The net core containers would get in trouble due to the number of threads and inotify instances of most of the common
-Linux SO.
-To avoid this problem, it's highly recommended to increase the number of users and instances, e.g. modifying the
-`/etc/sysctl.conf` including:
+### Local deployment
+
+The SUT provided in the `📁 /sut` directory is prepared to be deployed using Docker (`>~v26.0.0`) and docker-compose(
+`v2.26.1>~`). To deploy the SUT we dispose of two scripts in the root of the repository: `📜 redeploy-local.ps1` for
+Windows users and `📜 redeploy-local.sh` for Linux users.
+
+These scripts made the necessary configurations and calls the docker compose command with the environment files and
+variables to succeed in the deployment. The script can be configured to rebuild (or not) the Docker images, in order to 
+do that specify the argument `-NoBuild`:
+
+```bash
+.\redeploy-local.ps1 -NoBuild
+```
+
+To tear-down the SUT, the following command is required (and also prompt in the terminal):
+
+```bash
+docker compose -f sut\src\docker-compose.yml `
+    -f sut\src\docker-compose.local-override.yml `
+    --env-file .retorch\envfiles\local.env `
+    -p local down --volumes
+```
+
+### Jenkins CI deployment
+
+The repository contains a `🚀Jenkinsfile` and the necessary scripts in the  `📁 /.retorch` folder to execute the test suite in
+CI. In addition, to the requirements of the [RETORCH tool](https://github.com/giis-uniovi/retorch) for this concrete demonstrator the user can get in trouble
+due to the number of instances required.
+To avoid this problem,  Linux users are highly  encouraged to increase the number of users and instances in their system,
+e.g. modifying the `/etc/sysctl.conf` including:
 
 ```bash
 fs.inotify.max_user_instances=2048
