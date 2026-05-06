@@ -3,12 +3,10 @@ package giis.eshopcontainers.e2e.functional.tests;
 import com.google.gson.JsonParser;
 import giis.eshopcontainers.e2e.functional.common.BaseAPIClass;
 import giis.retorch.annotations.AccessMode;
-import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
-import org.apache.http.util.EntityUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -16,24 +14,23 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 
 /**
- * The {@code OrderingAPIGatewayAPITests} validates the Ordering API endpoints reached through
- * the Desktop BFF (webshoppingagg) YARP reverse proxy at {@code /ordering-api/...}.
+ * The {@code OrderingAPITests} validates the Ordering API endpoints reached through
+ * the Desktop BFF (webshoppingagg).
  *
  * <p>Endpoints under test:
  * <ul>
  *   <li>GET /ordering-api/api/v1/orders/cardtypes — static list of accepted card types</li>
  *   <li>GET /ordering-api/api/v1/orders          — authenticated user's order list</li>
- *   <li>GET /ordering-api/api/v1/orders/{id}     — single order by ID (negative path)</li>
+ *   <li>GET /ordering-api/api/v1/orders/{id}     — single order by ID</li>
  * </ul>
  */
-class OrderingAPIGatewayAPITests extends BaseAPIClass {
+class OrderingAPITests extends BaseAPIClass {
 
     @AccessMode(resID = "identity-api", concurrency = 50, sharing = true, accessMode = "READONLY")
     @AccessMode(resID = "ordering-api", concurrency = 50, sharing = true, accessMode = "READONLY")
     @Test
-    @DisplayName("testGetCardTypesWebAgg")
-    void testGetCardTypes() throws IOException {
-        // The ordering service seeds exactly three card types: Amex (1), Visa (2), MasterCard (3).
+    @DisplayName("GetCardTypesAPI")
+    void getCardTypesAPI() throws IOException {
         String result = getCardTypes();
         Assertions.assertFalse(result.isEmpty(), "Card types response must not be empty");
         com.google.gson.JsonArray cardTypes = JsonParser.parseString(result).getAsJsonArray();
@@ -43,13 +40,13 @@ class OrderingAPIGatewayAPITests extends BaseAPIClass {
         Assertions.assertTrue(result.contains("MasterCard"), "Expected card type 'MasterCard' in response");
     }
 
+    /** Check that the list of orders for a user, differentiating between code 200 + orders JSON,empty in a clean env*/
     @AccessMode(resID = "identity-api", concurrency = 50, sharing = true, accessMode = "READONLY")
     @AccessMode(resID = "ordering-api", concurrency = 50, sharing = true, accessMode = "READONLY")
     @AccessMode(resID = "eshopUser", concurrency = 1, accessMode = "READONLY")
     @Test
-    @DisplayName("testGetOrdersForUserWebAgg")
-    void testGetOrdersForUser() throws IOException {
-        // The list may be empty in a fresh environment; the key assertion is HTTP 200 + valid JSON array.
+    @DisplayName("GetOrdersForUserAPI")
+    void getOrdersForUserAPI() throws IOException {
         int statusCode = getOrdersStatusCode();
         Assertions.assertEquals(200, statusCode, "Expected HTTP 200 from orders list endpoint");
         String result = getOrders();
@@ -58,52 +55,36 @@ class OrderingAPIGatewayAPITests extends BaseAPIClass {
         Assertions.assertNotNull(orders, "Orders response must be a valid JSON array");
     }
 
+    /** Test that checks that against and non-existent order id the API raises a 404 HTTP status code*/
     @AccessMode(resID = "identity-api", concurrency = 50, sharing = true, accessMode = "READONLY")
     @AccessMode(resID = "ordering-api", concurrency = 50, sharing = true, accessMode = "READONLY")
     @Test
-    @DisplayName("testGetOrderByNonExistentIdWebAgg")
-    void testGetOrderByNonExistentId() throws IOException {
-        // Order ID 0 can never exist (IDs start at 1) — must return HTTP 404.
+    @DisplayName("GetOrderByNonExistentIdAPI")
+    void getOrderByNonExistentIdAPI() throws IOException {
         int statusCode = getOrderByIdStatusCode(0);
         Assertions.assertEquals(404, statusCode, "Expected HTTP 404 for a non-existent order ID");
     }
 
-    // -----------------------------------------------------------------------
-    // Helpers
-    // -----------------------------------------------------------------------
-
-    public String getCardTypes() throws IOException {
-        return getOrderingProxyBody("/cardtypes");
+    @AccessMode(resID = "identity-api", concurrency = 50, sharing = true, accessMode = "READONLY")
+    @AccessMode(resID = "basket-api", concurrency = 30, sharing = true, accessMode = "READONLY")
+    @AccessMode(resID = "eshopUser", concurrency = 1, accessMode = "READONLY")
+    @Test
+    @DisplayName("GetOrderDraftFromNonExistentBasketAPI")
+    void getOrderDraftFromNonExistentBasketAPI() throws IOException {
+        int statusCode = getOrderDraftStatusCode("nonexistent-basket-" + System.currentTimeMillis());
+        Assertions.assertEquals(400, statusCode, "Expected HTTP 400 for a non-existent basket");
     }
 
-    public String getOrders() throws IOException {
-        return getOrderingProxyBody("");
-    }
-
-    public int getOrdersStatusCode() throws IOException {
-        return getOrderingProxyStatusCode("");
-    }
-
-    public int getOrderByIdStatusCode(int orderId) throws IOException {
-        return getOrderingProxyStatusCode("/" + orderId);
-    }
-
-    private String getOrderingProxyBody(String path) throws IOException {
+    // Support methods employed to get the different bodies and status codes
+    public String getCardTypes() throws IOException {return getOrderingProxyBody("/cardtypes");}
+    public String getOrders() throws IOException {return getOrderingProxyBody("");}
+    public int getOrdersStatusCode() throws IOException {return getOrderingProxyStatusCode("");}
+    public int getOrderByIdStatusCode(int orderId) throws IOException {return getOrderingProxyStatusCode("/" + orderId);}
+    public int getOrderDraftStatusCode(String basketId) throws IOException {
         try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
-            HttpGet request = new HttpGet(this.getDesktopBFFOrderingURL() + path);
+            HttpGet request = new HttpGet(this.getDesktopBFFURLOrders() + basketId);
             request.addHeader("content-type", "application/json");
-            request.addHeader("Authorization", "Bearer " + tokenOrdering);
-            HttpResponse response = httpClient.execute(request);
-            HttpEntity entity = response.getEntity();
-            return entity != null ? EntityUtils.toString(entity) : "";
-        }
-    }
-
-    private int getOrderingProxyStatusCode(String path) throws IOException {
-        try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
-            HttpGet request = new HttpGet(this.getDesktopBFFOrderingURL() + path);
-            request.addHeader("content-type", "application/json");
-            request.addHeader("Authorization", "Bearer " + tokenOrdering);
+            request.addHeader("Authorization", "Bearer " + tokenAPI);
             HttpResponse response = httpClient.execute(request);
             return response.getStatusLine().getStatusCode();
         }

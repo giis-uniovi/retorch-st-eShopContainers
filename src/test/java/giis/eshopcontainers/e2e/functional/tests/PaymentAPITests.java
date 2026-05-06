@@ -1,6 +1,7 @@
 package giis.eshopcontainers.e2e.functional.tests;
 
 import giis.eshopcontainers.e2e.functional.common.BaseAPIClass;
+import giis.eshopcontainers.e2e.functional.model.PaymentResponse;
 import giis.retorch.annotations.AccessMode;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -34,34 +35,31 @@ import java.io.IOException;
  */
 class PaymentAPITests extends BaseAPIClass {
 
+    private static String readBody(HttpResponse response) throws IOException {
+        HttpEntity entity = response.getEntity();
+        return entity != null ? EntityUtils.toString(entity) : "";
+    }
+
     @AccessMode(resID = "payment-api", concurrency = 50, sharing = true, accessMode = "READONLY")
     @Test
-    @DisplayName("testPaymentHealthCheckGateway")
-    void testPaymentHealthCheck() throws IOException {
+    @DisplayName("PaymentHealthCheckGateway")
+    void paymentHealthCheckAPI() throws IOException {
         PaymentResponse response = getPaymentResponse("/hc");
-        Assertions.assertEquals(200, response.statusCode,
-                "Expected HTTP 200 from Payment /hc, got " + response.statusCode);
-        Assertions.assertFalse(response.body.isEmpty(), "Health check response body must not be empty");
+        Assertions.assertEquals(200, response.getStatusCode(), "Expected HTTP 200 from Payment /hc, got " + response.getStatusCode());
+        Assertions.assertFalse(response.getBody().isEmpty(), "Health check response body must not be empty");
         // The full /hc endpoint returns a JSON document or "Healthy"/"Unhealthy" text — both
         // contain the literal status. We accept either shape.
-        Assertions.assertTrue(
-                response.body.contains("Healthy") || response.body.contains("\"status\":\"Healthy\""),
-                "Health check must report Healthy status; body was: " + response.body);
+        Assertions.assertTrue(response.getBody().contains("Healthy") || response.getBody().contains("\"status\":\"Healthy\""), "Health check must report Healthy status; body was: " + response.getBody());
     }
 
     @AccessMode(resID = "payment-api", concurrency = 50, sharing = true, accessMode = "READONLY")
     @Test
-    @DisplayName("testPaymentLivenessGateway")
-    void testPaymentLiveness() throws IOException {
+    @DisplayName("PaymentLivenessAPI")
+    void paymentLivenessAPI() throws IOException {
         PaymentResponse response = getPaymentResponse("/liveness");
-        Assertions.assertEquals(200, response.statusCode,
-                "Expected HTTP 200 from Payment /liveness, got " + response.statusCode);
-        Assertions.assertFalse(response.body.isEmpty(), "Liveness response body must not be empty");
+        Assertions.assertEquals(200, response.getStatusCode(), "Expected HTTP 200 from Payment /liveness, got " + response.getStatusCode());
+        Assertions.assertFalse(response.getBody().isEmpty(), "Liveness response body must not be empty");
     }
-
-    // -----------------------------------------------------------------------
-    // Helpers — gateway first, fall back to direct payment URL
-    // -----------------------------------------------------------------------
 
     /**
      * Issues a GET against the given Payment-relative path. Tries the BFF gateway with the
@@ -71,7 +69,7 @@ class PaymentAPITests extends BaseAPIClass {
      * @param subPath payment-relative path including leading slash (e.g. {@code "/hc"})
      */
     private PaymentResponse getPaymentResponse(String subPath) throws IOException {
-        // 1) Gateway path
+        // First the trial to the gateway
         try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
             HttpGet request = new HttpGet(this.getDesktopBFFPaymentURL() + subPath);
             HttpResponse response = httpClient.execute(request);
@@ -81,7 +79,7 @@ class PaymentAPITests extends BaseAPIClass {
             }
             log.debug("Payment path {} not exposed by the gateway (404), falling back to direct URL", subPath);
         }
-        // 2) Direct Payment URL
+        // Then use the http client to reach the service.
         try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
             HttpGet request = new HttpGet(getPaymentURL() + subPath);
             HttpResponse response = httpClient.execute(request);
@@ -89,19 +87,4 @@ class PaymentAPITests extends BaseAPIClass {
         }
     }
 
-    private static String readBody(HttpResponse response) throws IOException {
-        HttpEntity entity = response.getEntity();
-        return entity != null ? EntityUtils.toString(entity) : "";
-    }
-
-    /** Tuple of HTTP status code and response body, returned by {@link #getPaymentResponse}. */
-    private static final class PaymentResponse {
-        final int statusCode;
-        final String body;
-
-        PaymentResponse(int statusCode, String body) {
-            this.statusCode = statusCode;
-            this.body = body;
-        }
-    }
 }

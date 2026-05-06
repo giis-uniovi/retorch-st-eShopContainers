@@ -7,12 +7,6 @@ import com.google.gson.JsonParser;
 import giis.eshopcontainers.e2e.functional.common.BaseAPIClass;
 import giis.eshopcontainers.e2e.functional.model.CatalogItem;
 import giis.retorch.annotations.AccessMode;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.util.EntityUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -21,8 +15,8 @@ import java.io.IOException;
 
 /**
  * The {@code CatalogAPITests} validates the Catalog API endpoints reached through the Desktop BFF
- * (webshoppingagg) YARP reverse proxy at {@code /catalog-api/...}. Each request lands on the BFF
- * gateway which strips the {@code /catalog-api} prefix and forwards to the catalog service.
+ * (webshoppingagg). Each request lands on the BFF gateway which strips the {@code /catalog-api}
+ *  prefix and forwards to the catalog service.
  *
  * <p>Endpoints under test:
  * <ul>
@@ -38,8 +32,8 @@ class CatalogAPITests extends BaseAPIClass {
 
     @AccessMode(resID = "catalog-api", concurrency = 50, sharing = true, accessMode = "READONLY")
     @Test
-    @DisplayName("testGetCatalogItemsCatalogAPI")
-    void testGetCatalogItems() throws IOException {
+    @DisplayName("GetCatalogItemsCatalogAPI")
+    void getCatalogItemsAPI() throws IOException {
         String result = getCatalogProxyBody("items");
         Assertions.assertFalse(result.isEmpty(), "Response from catalog items API must not be empty");
         JsonObject json = JsonParser.parseString(result).getAsJsonObject();
@@ -49,8 +43,8 @@ class CatalogAPITests extends BaseAPIClass {
 
     @AccessMode(resID = "catalog-api", concurrency = 50, sharing = true, accessMode = "READONLY")
     @Test
-    @DisplayName("testGetCatalogItemByIdCatalogAPI")
-    void testGetCatalogItemById() throws IOException {
+    @DisplayName("GetCatalogItemByIdCatalogAPI")
+    void getCatalogItemByIdAPI() throws IOException {
         Gson gson = new Gson();
         String result = getCatalogProxyBody("items/5");
         Assertions.assertFalse(result.isEmpty(), "Response from catalog API must not be empty");
@@ -60,12 +54,11 @@ class CatalogAPITests extends BaseAPIClass {
         Assertions.assertEquals(8.5, item.getPrice(), 0.001, "Catalog item price mismatch");
     }
 
+    /** Test the paginated list endpoint, retrieving the elements that start with a given prefix*/
     @AccessMode(resID = "catalog-api", concurrency = 50, sharing = true, accessMode = "READONLY")
     @Test
-    @DisplayName("testGetCatalogItemsByNameCatalogAPI")
-    void testGetCatalogItemsByName() throws IOException {
-        // GET /catalog-api/api/v1/catalog/items/withname/{name} — paginated list of items
-        // whose names start with the given prefix. "Roslyn" matches "Roslyn Red Pin".
+    @DisplayName("GetCatalogItemsByNameCatalogAPI")
+    void getCatalogItemsByNameAPI() throws IOException {
         String result = getCatalogProxyBody("items/withname/Roslyn");
         Assertions.assertFalse(result.isEmpty(), "Response from items-by-name endpoint must not be empty");
         JsonObject json = JsonParser.parseString(result).getAsJsonObject();
@@ -74,13 +67,11 @@ class CatalogAPITests extends BaseAPIClass {
         Assertions.assertFalse(data.isEmpty(), "Data array must contain at least one item");
         Assertions.assertTrue(result.contains("Roslyn Red Pin"), "Expected 'Roslyn Red Pin' in matching items");
     }
-
+    /** Test the paginated list endpoint, retrieving the elements filtered by brand and type*/
     @AccessMode(resID = "catalog-api", concurrency = 50, sharing = true, accessMode = "READONLY")
     @Test
-    @DisplayName("testGetCatalogItemsByTypeAndBrandCatalogAPI")
-    void testGetCatalogItemsByTypeAndBrand() throws IOException {
-        // GET /catalog-api/api/v1/catalog/items/type/{typeId}/brand/{brandId} — paginated list
-        // filtered by catalog type and brand. Type 1 + brand 1 always exists in the seed data.
+    @DisplayName("getCatalogItemsByTypeAndBrandCatalogAPI")
+    void getCatalogItemsByTypeAndBrandAPI() throws IOException {
         String result = getCatalogProxyBody("items/type/1/brand/1");
         Assertions.assertFalse(result.isEmpty(), "Response from type/brand filter must not be empty");
         JsonObject json = JsonParser.parseString(result).getAsJsonObject();
@@ -90,8 +81,8 @@ class CatalogAPITests extends BaseAPIClass {
 
     @AccessMode(resID = "catalog-api", concurrency = 50, sharing = true, accessMode = "READONLY")
     @Test
-    @DisplayName("testGetCatalogTypesCatalogAPI")
-    void testGetCatalogTypes() throws IOException {
+    @DisplayName("getCatalogTypesCatalogAPI")
+    void getCatalogTypesAPI() throws IOException {
         String result = getCatalogProxyBody("catalogtypes");
         Assertions.assertFalse(result.isEmpty(), "Catalog types response must not be empty");
         JsonArray types = JsonParser.parseString(result).getAsJsonArray();
@@ -101,24 +92,10 @@ class CatalogAPITests extends BaseAPIClass {
     @AccessMode(resID = "catalog-api", concurrency = 50, sharing = true, accessMode = "READONLY")
     @Test
     @DisplayName("testGetCatalogBrandsCatalogAPI")
-    void testGetCatalogBrands() throws IOException {
+    void getCatalogBrandsAPI() throws IOException {
         String result = getCatalogProxyBody("catalogbrands");
         Assertions.assertFalse(result.isEmpty(), "Catalog brands response must not be empty");
         JsonArray brands = JsonParser.parseString(result).getAsJsonArray();
         Assertions.assertFalse(brands.isEmpty(), "Catalog brands list must not be empty");
-    }
-
-    // -----------------------------------------------------------------------
-    // Helpers (all requests go through the BFF gateway YARP proxy)
-    // -----------------------------------------------------------------------
-
-    private String getCatalogProxyBody(String segment) throws IOException {
-        try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
-            HttpGet request = new HttpGet(this.getDesktopBFFCatalogURL() + segment);
-            request.addHeader("content-type", "application/json");
-            HttpResponse response = httpClient.execute(request);
-            HttpEntity entity = response.getEntity();
-            return entity != null ? EntityUtils.toString(entity) : "";
-        }
     }
 }

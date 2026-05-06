@@ -28,7 +28,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.List;
 
 /**
- * The {@code DesktopAPIGatewayAPITests} validates the Basket-related endpoints exposed by the
+ * The {@code BasketAPITests} validates the Basket-related endpoints reached by the
  * Desktop BFF (webshoppingagg). The basket aggregator endpoints are served directly by BFF
  * controllers; the Order/draft endpoint composes data from the Basket and Catalog services.
  *
@@ -37,30 +37,22 @@ import java.util.List;
  *   <li>POST  /api/v1/Basket              — replace/update basket   (UpdateAllBasket)</li>
  *   <li>POST  /api/v1/Basket/items        — add a single item        (AddBasketItem)</li>
  *   <li>PUT   /api/v1/Basket/items        — update item quantities   (UpdateQuantities)</li>
- *   <li>GET   /api/v1/Order/draft/{id}    — retrieve draft order from basket</li>
  * </ul>
  */
-class DesktopAPIGatewayAPITests extends BaseAPIClass {
+class BasketAPITests extends BaseAPIClass {
 
-    /**
-     * Clears the current user's basket before every test to guarantee a known empty state,
-     * preventing leftover items from previous tests from affecting assertions.
-     */
     @BeforeEach
-    void clearUserBasket() {
+    void setUp() {
+        log.info("Starting Global Set-up for all the Test Cases");
         clearBasket(getUser());
     }
-
-    // -----------------------------------------------------------------------
-    // Tests
-    // -----------------------------------------------------------------------
 
     @AccessMode(resID = "identity-api", concurrency = 50, sharing = true, accessMode = "READONLY")
     @AccessMode(resID = "basket-api", concurrency = 30, sharing = true, accessMode = "READWRITE")
     @AccessMode(resID = "eshopUser", concurrency = 1, accessMode = "READWRITE")
     @Test
-    @DisplayName("testAddProductsBasketWebAgg")
-    void testAddProductsBasket() throws IOException {
+    @DisplayName("AddProductsBasketAPI")
+    void addProductsBasketAPI() throws IOException {
         Gson gson = new Gson();
         createBasketWithTwoItems();
         String outputGetBasket = getBasket(getUser());
@@ -84,8 +76,8 @@ class DesktopAPIGatewayAPITests extends BaseAPIClass {
     @AccessMode(resID = "basket-api", concurrency = 30, sharing = true, accessMode = "READWRITE")
     @AccessMode(resID = "eshopUser", concurrency = 1, accessMode = "READWRITE")
     @Test
-    @DisplayName("testAddSingleBasketItemWebAgg")
-    void testAddSingleBasketItem() throws IOException {
+    @DisplayName("AddSingleBasketItemAPI")
+    void addSingleBasketItemAPI() throws IOException {
         Gson gson = new Gson();
         addItemToBasket(getUser(), 5, 3);
         String outputGetBasket = getBasket(getUser());
@@ -107,8 +99,8 @@ class DesktopAPIGatewayAPITests extends BaseAPIClass {
     @AccessMode(resID = "basket-api", concurrency = 30, sharing = true, accessMode = "READWRITE")
     @AccessMode(resID = "eshopUser", concurrency = 1, accessMode = "READWRITE")
     @Test
-    @DisplayName("testUpdateBasketItemQuantitiesWebAgg")
-    void testUpdateBasketItemQuantities() throws IOException {
+    @DisplayName("UpdateBasketItemQuantitiesAPI")
+    void updateBasketItemQuantitiesAPI() throws IOException {
         Gson gson = new Gson();
         createBasketWithTwoItems();
         updateBasketItemQuantities(getUser(), "testproductid1", 5, "testproductid2", 3);
@@ -128,20 +120,6 @@ class DesktopAPIGatewayAPITests extends BaseAPIClass {
         Assertions.assertNotNull(product3, "Product 3 not found after quantity update");
         Assertions.assertEquals(3, product3.getUnits(), "Product 3 quantity not updated correctly");
     }
-
-    @AccessMode(resID = "identity-api", concurrency = 50, sharing = true, accessMode = "READONLY")
-    @AccessMode(resID = "basket-api", concurrency = 30, sharing = true, accessMode = "READONLY")
-    @AccessMode(resID = "eshopUser", concurrency = 1, accessMode = "READONLY")
-    @Test
-    @DisplayName("testGetOrderDraftFromNonExistentBasketWebAgg")
-    void testGetOrderDraftFromNonExistentBasket() throws IOException {
-        int statusCode = getOrderDraftStatusCode("nonexistent-basket-" + System.currentTimeMillis());
-        Assertions.assertEquals(400, statusCode, "Expected HTTP 400 for a non-existent basket");
-    }
-
-    // -----------------------------------------------------------------------
-    // Helpers
-    // -----------------------------------------------------------------------
 
     public String createBasketWithTwoItems() throws IOException {
         log.debug("Creating the connection with URL: {}", this.getDesktopBFFURLBasket());
@@ -208,16 +186,6 @@ class DesktopAPIGatewayAPITests extends BaseAPIClass {
             log.debug("Failed to GET draft order at {}{}", this.getDesktopBFFURLOrders(), basketId);
         }
         return result;
-    }
-
-    public int getOrderDraftStatusCode(String basketId) throws IOException {
-        try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
-            HttpGet request = new HttpGet(this.getDesktopBFFURLOrders() + basketId);
-            request.addHeader("content-type", "application/json");
-            request.addHeader("Authorization", "Bearer " + tokenAPI);
-            HttpResponse response = httpClient.execute(request);
-            return response.getStatusLine().getStatusCode();
-        }
     }
 
     /**

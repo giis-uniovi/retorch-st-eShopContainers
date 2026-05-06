@@ -2,13 +2,18 @@ package giis.eshopcontainers.e2e.functional.common;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.BasicResponseHandler;
+import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.util.EntityUtils;
 import org.junit.jupiter.api.BeforeAll;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -120,5 +125,108 @@ public class BaseAPIClass {
         JsonObject jsonObject = JsonParser.parseString(httpResponseString).getAsJsonObject();
         log.debug("Token response JSON: {}", jsonObject);
         return jsonObject.get("access_token").getAsString();
+    }
+
+    /**
+     * Support method to execute a GET request and return the response, adding the standard
+     * headers (content-type: application/json, optional Authorization)
+     *
+     * @param url       the full URL to request
+     * @param authToken optional Bearer token; pass {@code null} for unauthenticated requests
+     * @return HttpResponse from the server
+     */
+    protected HttpResponse executeProxyGet(String url, String authToken) throws IOException {
+        CloseableHttpClient httpClient = HttpClients.createDefault();
+        HttpGet request = new HttpGet(url);
+        request.addHeader("content-type", "application/json");
+        if (authToken != null) {
+            request.addHeader("Authorization", "Bearer " + authToken);
+        }
+        return httpClient.execute(request);
+    }
+
+    /**
+     * Support method to extract the response body as a String and close the HTTP client.
+     *
+     * @param response HttpResponse to extract body from
+     * @param httpClient CloseableHttpClient to close
+     * @return response body as String, or empty string if no entity
+     */
+    protected String getResponseBody(HttpResponse response, CloseableHttpClient httpClient) throws IOException {
+        try {
+            HttpEntity entity = response.getEntity();
+            return entity != null ? EntityUtils.toString(entity) : "";
+        } finally {
+            httpClient.close();
+        }
+    }
+
+    /*Support methods to extract bodies in the different API tests*/
+    protected String getOrderingProxyBody(String path) throws IOException {
+        CloseableHttpClient httpClient = HttpClients.createDefault();
+        HttpResponse response = executeProxyGet(this.getDesktopBFFOrderingURL() + path, tokenOrdering);
+        return getResponseBody(response, httpClient);
+    }
+
+    protected String getCatalogProxyBody(String segment) throws IOException {
+        CloseableHttpClient httpClient = HttpClients.createDefault();
+        HttpResponse response = executeProxyGet(this.getDesktopBFFCatalogURL() + segment, null);
+        return getResponseBody(response, httpClient);
+    }
+
+    /**
+     * Support method that extracts the HTTP status code and closes the HTTP client.
+     *
+     * @param response HttpResponse to extract status code from
+     * @param httpClient CloseableHttpClient to close
+     * @return HTTP status code
+     */
+    protected int getResponseStatusCode(HttpResponse response, CloseableHttpClient httpClient) throws IOException {
+        try {
+            return response.getStatusLine().getStatusCode();
+        } finally {
+            httpClient.close();
+        }
+    }
+
+    /*Support methods to extract status codes in the different API tests*/
+    protected int getOrderingProxyStatusCode(String path) throws IOException {
+        CloseableHttpClient httpClient = HttpClients.createDefault();
+        HttpResponse response = executeProxyGet(this.getDesktopBFFOrderingURL() + path, tokenOrdering);
+        return getResponseStatusCode(response, httpClient);
+    }
+
+    /**
+     * Issues a GET against the given identity-relative path. First tries the BFF gateway with the
+     * {@code /identity-api} prefix, if returns a 404 code tries directly to the identity service URL.
+     *
+     * @param path  identity-relative path including leading slash (e.g. {@code "/connect/userinfo"})
+     * @param authToken optional Bearer token; pass {@code null} for unauthenticated calls
+     * @return response body, or empty string if both attempts fail
+     */
+    protected String getIdentityBody(String path, String authToken) throws IOException {
+        String primaryUrl = this.getDesktopBFFIdentityURL() + path;
+        String fallbackUrl = getIdentityURL() + path;
+        try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
+            HttpGet request = new HttpGet(primaryUrl);
+            request.addHeader("content-type", "application/json");
+            if (authToken != null) request.addHeader("Authorization", "Bearer " + authToken);
+            HttpResponse response = httpClient.execute(request);
+            int status = response.getStatusLine().getStatusCode();
+            if (status == 200) {
+                HttpEntity entity = response.getEntity();
+                return entity != null ? EntityUtils.toString(entity) : "";
+            }
+            log.debug("Primary URL {} returned status {}, falling back to {}", primaryUrl, status, fallbackUrl);
+        }
+        // Fall back to the identity url
+        try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
+            HttpGet request = new HttpGet(fallbackUrl);
+            request.addHeader("content-type", "application/json");
+            if (authToken != null) request.addHeader("Authorization", "Bearer " + authToken);
+            HttpResponse response = httpClient.execute(request);
+            HttpEntity entity = response.getEntity();
+            return entity != null ? EntityUtils.toString(entity) : "";
+        }
     }
 }
