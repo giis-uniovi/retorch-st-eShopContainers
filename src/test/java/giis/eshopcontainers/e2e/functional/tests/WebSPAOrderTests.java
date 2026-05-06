@@ -180,7 +180,11 @@ class WebSPAOrderTests extends BaseWebSPALoggedClass {
             log.debug("Iteration {} checking order state", iter);
             toOrdersPageSPA(driver, waiter);
             List<WebElement> listOrders = driver.findElements(By.className("esh-orders-item"));
-            Assertions.assertFalse(listOrders.isEmpty(), "There must be at least one order in the list");
+            if (listOrders.isEmpty()) {
+                // Order may not yet be persisted by the messaging pipeline — retry
+                log.debug("Iteration {} — orders list is empty, retrying...", iter);
+                continue;
+            }
             WebElement lastOrder = listOrders.get(listOrders.size() - 1);
             // Columns: 0=number, 1=date, 2=total, 3=status, 4=cancel, 5=details
             WebElement statusElement = lastOrder.findElements(By.tagName("section")).get(3);
@@ -197,6 +201,8 @@ class WebSPAOrderTests extends BaseWebSPALoggedClass {
                 log.debug("Status unchanged after wait, retrying...");
             }
         }
+        Assertions.assertFalse(actualState.isEmpty(),
+                "No orders appeared in the list after " + maxIterations + " iterations");
         Assertions.assertTrue(expectedStates.contains(actualState),
                 "Last order status is not as expected. Expected: " + expectedStates
                         + ", Actual: " + actualState);
