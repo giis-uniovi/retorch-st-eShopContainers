@@ -4,8 +4,6 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
@@ -81,10 +79,10 @@ public class BaseAPIClass {
             }
             tokenAPI = getTokenWithPasswd(identityURL);
             tokenOrdering = getTokenForScope(identityURL, "orders");
-            log.info("Basket token: {}", tokenAPI);
-            log.info("Ordering token: {}", tokenOrdering);
+            log.debug("Basket token acquired (length={})", tokenAPI.length());
+            log.debug("Ordering token acquired (length={})", tokenOrdering.length());
         } catch (IOException e) {
-            log.error("Failed to setup tests.", e);
+            throw new IllegalStateException("Test suite setup failed: " + e.getMessage(), e);
         }
         log.info("Ending global setup for all test cases.");
     }
@@ -109,7 +107,6 @@ public class BaseAPIClass {
      */
     public static String getTokenForScope(String identityURI, String scope) throws IOException {
         log.debug("Requesting token with scope='{}' from {}/connect/token", scope, identityURI);
-        HttpClient httpclient = HttpClients.createDefault();
         HttpPost httppost = new HttpPost(identityURI + "/connect/token");
         httppost.addHeader("content-type", "application/x-www-form-urlencoded");
         List<BasicNameValuePair> params = new ArrayList<>();
@@ -120,80 +117,64 @@ public class BaseAPIClass {
         params.add(new BasicNameValuePair("client_secret", properties.getProperty("API_SCOPE_SECRET")));
         params.add(new BasicNameValuePair("scope", scope));
         httppost.setEntity(new UrlEncodedFormEntity(params, StandardCharsets.UTF_8));
-        ResponseHandler<String> responseHandler = new BasicResponseHandler();
-        String httpResponseString = httpclient.execute(httppost, responseHandler);
-        JsonObject jsonObject = JsonParser.parseString(httpResponseString).getAsJsonObject();
-        log.debug("Token response JSON: {}", jsonObject);
-        return jsonObject.get("access_token").getAsString();
+        try (CloseableHttpClient httpclient = HttpClients.createDefault()) {
+            String httpResponseString = httpclient.execute(httppost, new BasicResponseHandler());
+            JsonObject jsonObject = JsonParser.parseString(httpResponseString).getAsJsonObject();
+            log.debug("Token response JSON: {}", jsonObject);
+            return jsonObject.get("access_token").getAsString();
+        }
     }
 
     /**
-     * Support method to execute a GET request and return the response, adding the standard
-     * headers (content-type: application/json, optional Authorization)
+     * Executes a GET request against the given URL and returns the response body as a String.
+     * The HTTP client is managed with try-with-resources so the connection is always released.
      *
      * @param url       the full URL to request
      * @param authToken optional Bearer token; pass {@code null} for unauthenticated requests
-     * @return HttpResponse from the server
+     * @return response body, or empty string if the response has no entity
      */
-    protected HttpResponse executeProxyGet(String url, String authToken) throws IOException {
-        CloseableHttpClient httpClient = HttpClients.createDefault();
-        HttpGet request = new HttpGet(url);
-        request.addHeader("content-type", "application/json");
-        if (authToken != null) {
-            request.addHeader("Authorization", "Bearer " + authToken);
+    private String executeGet(String url, String authToken) throws IOException {
+        try (CloseableHttpClient client = HttpClients.createDefault()) {
+            HttpGet req = new HttpGet(url);
+            req.addHeader("content-type", "application/json");
+            if (authToken != null) {
+                req.addHeader("Authorization", "Bearer " + authToken);
+            }
+            HttpEntity entity = client.execute(req).getEntity();
+            return entity != null ? EntityUtils.toString(entity) : "";
         }
-        return httpClient.execute(request);
     }
 
     /**
-     * Support method to extract the response body as a String and close the HTTP client.
+     * Executes a GET request against the given URL and returns the HTTP status code.
+     * The HTTP client is managed with try-with-resources so the connection is always released.
      *
-     * @param response HttpResponse to extract body from
-     * @param httpClient CloseableHttpClient to close
-     * @return response body as String, or empty string if no entity
+     * @param url       the full URL to request
+     * @param authToken optional Bearer token; pass {@code null} for unauthenticated requests
+     * @return HTTP status code
      */
-    protected String getResponseBody(HttpResponse response, CloseableHttpClient httpClient) throws IOException {
-        try {
-            HttpEntity entity = response.getEntity();
-            return entity != null ? EntityUtils.toString(entity) : "";
-        } finally {
-            httpClient.close();
+    private int executeGetStatusCode(String url, String authToken) throws IOException {
+        try (CloseableHttpClient client = HttpClients.createDefault()) {
+            HttpGet req = new HttpGet(url);
+            req.addHeader("content-type", "application/json");
+            if (authToken != null) {
+                req.addHeader("Authorization", "Bearer " + authToken);
+            }
+            return client.execute(req).getStatusLine().getStatusCode();
         }
     }
 
-    /*Support methods to extract bodies in the different API tests*/
+    /*Support methods to extract bodies and status codes in the different API tests*/
     protected String getOrderingProxyBody(String path) throws IOException {
-        CloseableHttpClient httpClient = HttpClients.createDefault();
-        HttpResponse response = executeProxyGet(this.getDesktopBFFOrderingURL() + path, tokenOrdering);
-        return getResponseBody(response, httpClient);
+        return executeGet(getDesktopBFFOrderingURL() + path, tokenOrdering);
     }
 
     protected String getCatalogProxyBody(String segment) throws IOException {
-        CloseableHttpClient httpClient = HttpClients.createDefault();
-        HttpResponse response = executeProxyGet(this.getDesktopBFFCatalogURL() + segment, null);
-        return getResponseBody(response, httpClient);
+        return executeGet(getDesktopBFFCatalogURL() + segment, null);
     }
 
-    /**
-     * Support method that extracts the HTTP status code and closes the HTTP client.
-     *
-     * @param response HttpResponse to extract status code from
-     * @param httpClient CloseableHttpClient to close
-     * @return HTTP status code
-     */
-    protected int getResponseStatusCode(HttpResponse response, CloseableHttpClient httpClient) throws IOException {
-        try {
-            return response.getStatusLine().getStatusCode();
-        } finally {
-            httpClient.close();
-        }
-    }
-
-    /*Support methods to extract status codes in the different API tests*/
     protected int getOrderingProxyStatusCode(String path) throws IOException {
-        CloseableHttpClient httpClient = HttpClients.createDefault();
-        HttpResponse response = executeProxyGet(this.getDesktopBFFOrderingURL() + path, tokenOrdering);
-        return getResponseStatusCode(response, httpClient);
+        return executeGetStatusCode(getDesktopBFFOrderingURL() + path, tokenOrdering);
     }
 
     /**
@@ -216,6 +197,10 @@ public class BaseAPIClass {
             if (status == 200) {
                 HttpEntity entity = response.getEntity();
                 return entity != null ? EntityUtils.toString(entity) : "";
+            }
+            if (status != 404) {
+                log.warn("Unexpected {} from gateway {}, not falling back", status, primaryUrl);
+                return "";
             }
             log.debug("Primary URL {} returned status {}, falling back to {}", primaryUrl, status, fallbackUrl);
         }

@@ -1,5 +1,6 @@
 package giis.eshopcontainers.e2e.functional.tests;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonParser;
 import giis.eshopcontainers.e2e.functional.common.BaseAPIClass;
 import giis.retorch.annotations.AccessMode;
@@ -33,7 +34,7 @@ class OrderingAPITests extends BaseAPIClass {
     void getCardTypesAPI() throws IOException {
         String result = getCardTypes();
         Assertions.assertFalse(result.isEmpty(), "Card types response must not be empty");
-        com.google.gson.JsonArray cardTypes = JsonParser.parseString(result).getAsJsonArray();
+        JsonArray cardTypes = JsonParser.parseString(result).getAsJsonArray();
         Assertions.assertEquals(3, cardTypes.size(), "Expected exactly 3 card types (Amex, Visa, MasterCard)");
         Assertions.assertTrue(result.contains("Amex"), "Expected card type 'Amex' in response");
         Assertions.assertTrue(result.contains("Visa"), "Expected card type 'Visa' in response");
@@ -50,9 +51,8 @@ class OrderingAPITests extends BaseAPIClass {
         int statusCode = getOrdersStatusCode();
         Assertions.assertEquals(200, statusCode, "Expected HTTP 200 from orders list endpoint");
         String result = getOrders();
-        Assertions.assertFalse(result.isEmpty(), "Orders response body must not be empty");
-        com.google.gson.JsonArray orders = JsonParser.parseString(result).getAsJsonArray();
-        Assertions.assertNotNull(orders, "Orders response must be a valid JSON array");
+        JsonArray orders = JsonParser.parseString(result).getAsJsonArray();
+        Assertions.assertNotNull(orders, "Orders response cannot be null");
     }
 
     /** Test that checks that against and non-existent order id the API raises a 404 HTTP status code*/
@@ -76,11 +76,18 @@ class OrderingAPITests extends BaseAPIClass {
     }
 
     // Support methods employed to get the different bodies and status codes
-    public String getCardTypes() throws IOException {return getOrderingProxyBody("/cardtypes");}
-    public String getOrders() throws IOException {return getOrderingProxyBody("");}
-    public int getOrdersStatusCode() throws IOException {return getOrderingProxyStatusCode("");}
-    public int getOrderByIdStatusCode(int orderId) throws IOException {return getOrderingProxyStatusCode("/" + orderId);}
-    public int getOrderDraftStatusCode(String basketId) throws IOException {
+    private String getCardTypes() throws IOException {return getOrderingProxyBody("/cardtypes");}
+    private String getOrders() throws IOException {return getOrderingProxyBody("");}
+    private int getOrdersStatusCode() throws IOException {return getOrderingProxyStatusCode("");}
+    private int getOrderByIdStatusCode(int orderId) throws IOException {return getOrderingProxyStatusCode("/" + orderId);}
+    /**
+     * Returns the HTTP status code for a GET to the BFF's basket-to-draft aggregation endpoint
+     * ({@code /api/v1/Order/draft/{basketId}}). This is intentionally different from the YARP
+     * ordering proxy used by {@link #getOrdersStatusCode()} and {@link #getOrderByIdStatusCode}:
+     * the draft endpoint is a BFF controller that reads the basket service and converts it to an
+     * order draft, while the YARP route forwards directly to the ordering microservice.
+     */
+    private int getOrderDraftStatusCode(String basketId) throws IOException {
         try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
             HttpGet request = new HttpGet(this.getDesktopBFFURLOrders() + basketId);
             request.addHeader("content-type", "application/json");

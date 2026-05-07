@@ -5,8 +5,8 @@ package giis.eshopcontainers.e2e.functional.model;
  */
 public class PaymentResponse {
 
-    private  int statusCode;
-    private  String body;
+    private final int statusCode;
+    private final String body;
 
     public PaymentResponse(int statusCode, String body) {
         this.statusCode = statusCode;
@@ -16,6 +16,4 @@ public class PaymentResponse {
     public int getStatusCode() {return statusCode;}
     public String getBody() {return body;}
 
-    public void setStatusCode(int statusCode) {this.statusCode = statusCode;}
-    public void setBody(String body) {this.body = body;}
 }

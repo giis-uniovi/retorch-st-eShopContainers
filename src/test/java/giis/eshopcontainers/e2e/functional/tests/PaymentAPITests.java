@@ -3,7 +3,6 @@ package giis.eshopcontainers.e2e.functional.tests;
 import giis.eshopcontainers.e2e.functional.common.BaseAPIClass;
 import giis.eshopcontainers.e2e.functional.model.PaymentResponse;
 import giis.retorch.annotations.AccessMode;
-import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -34,11 +33,6 @@ import java.io.IOException;
  * </ul>
  */
 class PaymentAPITests extends BaseAPIClass {
-
-    private static String readBody(HttpResponse response) throws IOException {
-        HttpEntity entity = response.getEntity();
-        return entity != null ? EntityUtils.toString(entity) : "";
-    }
 
     @AccessMode(resID = "payment-api", concurrency = 50, sharing = true, accessMode = "READONLY")
     @Test
@@ -75,7 +69,7 @@ class PaymentAPITests extends BaseAPIClass {
             HttpResponse response = httpClient.execute(request);
             int status = response.getStatusLine().getStatusCode();
             if (status != 404) {
-                return new PaymentResponse(status, readBody(response));
+                return new PaymentResponse(status, EntityUtils.toString(response.getEntity()));
             }
             log.debug("Payment path {} not exposed by the gateway (404), falling back to direct URL", subPath);
         }
@@ -83,7 +77,7 @@ class PaymentAPITests extends BaseAPIClass {
         try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
             HttpGet request = new HttpGet(getPaymentURL() + subPath);
             HttpResponse response = httpClient.execute(request);
-            return new PaymentResponse(response.getStatusLine().getStatusCode(), readBody(response));
+            return new PaymentResponse(response.getStatusLine().getStatusCode(), EntityUtils.toString(response.getEntity()));
         }
     }
 

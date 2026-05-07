@@ -14,7 +14,7 @@ public class Waiter {
     public Waiter(WebDriver driver){
        waiter= new WebDriverWait(driver, Duration.ofSeconds(10));
     }
-    public void waitUntil(ExpectedCondition condition, String errorMessage){
+    public void waitUntil(ExpectedCondition <?> condition, String errorMessage){
         try {
             this.waiter.until(condition);
         } catch (org.openqa.selenium.TimeoutException timeout) {

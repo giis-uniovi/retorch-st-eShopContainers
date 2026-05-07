@@ -1,14 +1,13 @@
 package giis.eshopcontainers.e2e.functional.tests;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import giis.eshopcontainers.e2e.functional.common.BaseAPIClass;
 import giis.eshopcontainers.e2e.functional.model.Order;
 import giis.eshopcontainers.e2e.functional.model.OrderItem;
 import giis.retorch.annotations.AccessMode;
 import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
@@ -24,7 +23,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 /**
@@ -43,7 +42,7 @@ class BasketAPITests extends BaseAPIClass {
 
     @BeforeEach
     void setUp() {
-        log.info("Starting Global Set-up for all the Test Cases");
+        log.info("Starting Test case set-up, cleaning the basket");
         clearBasket(getUser());
     }
 
@@ -123,38 +122,36 @@ class BasketAPITests extends BaseAPIClass {
 
     public String createBasketWithTwoItems() throws IOException {
         log.debug("Creating the connection with URL: {}", this.getDesktopBFFURLBasket());
-        HttpClient httpclient = HttpClients.createDefault();
         HttpPost httpPost = new HttpPost(this.getDesktopBFFURLBasket());
         httpPost.addHeader("accept", "text/plain");
         httpPost.addHeader("content-type", "application/json");
         httpPost.addHeader("Authorization", "Bearer " + tokenAPI);
         httpPost.setEntity(getJSONofBasketWithTwoProducts());
-        ResponseHandler<String> responseHandler = new BasicResponseHandler();
-        return httpclient.execute(httpPost, responseHandler);
+        try (CloseableHttpClient httpclient = HttpClients.createDefault()) {
+            return httpclient.execute(httpPost, new BasicResponseHandler());
+        }
     }
 
     public String addItemToBasket(String basketId, int catalogItemId, int quantity) throws IOException {
         log.debug("Adding item {} (qty={}) to basket {}", catalogItemId, quantity, basketId);
-        HttpClient httpclient = HttpClients.createDefault();
         HttpPost httpPost = new HttpPost(this.getDesktopBFFURLBasketItems());
         httpPost.addHeader("accept", "text/plain");
         httpPost.addHeader("content-type", "application/json");
         httpPost.addHeader("Authorization", "Bearer " + tokenAPI);
-        String json = "{\n" +
-                "  \"basketId\": \"" + basketId + "\",\n" +
-                "  \"catalogItemId\": " + catalogItemId + ",\n" +
-                "  \"quantity\": " + quantity + "\n" +
-                "}";
-        httpPost.setEntity(new StringEntity(json));
-        ResponseHandler<String> responseHandler = new BasicResponseHandler();
-        return httpclient.execute(httpPost, responseHandler);
+        JsonObject body = new JsonObject();
+        body.addProperty("basketId", basketId);
+        body.addProperty("catalogItemId", catalogItemId);
+        body.addProperty("quantity", quantity);
+        httpPost.setEntity(new StringEntity(body.toString(), StandardCharsets.UTF_8));
+        try (CloseableHttpClient httpclient = HttpClients.createDefault()) {
+            return httpclient.execute(httpPost, new BasicResponseHandler());
+        }
     }
 
     public String updateBasketItemQuantities(String basketId,
                                              String item1Id, int newQty1,
                                              String item2Id, int newQty2) throws IOException {
         log.debug("Updating quantities in basket {}", basketId);
-        HttpClient httpclient = HttpClients.createDefault();
         HttpPut httpPut = new HttpPut(this.getDesktopBFFURLBasketItems());
         httpPut.addHeader("accept", "text/plain");
         httpPut.addHeader("content-type", "application/json");
@@ -167,25 +164,19 @@ class BasketAPITests extends BaseAPIClass {
                 "  ]\n" +
                 "}";
         httpPut.setEntity(new StringEntity(json));
-        ResponseHandler<String> responseHandler = new BasicResponseHandler();
-        return httpclient.execute(httpPut, responseHandler);
+        try (CloseableHttpClient httpclient = HttpClients.createDefault()) {
+            return httpclient.execute(httpPut, new BasicResponseHandler());
+        }
     }
 
-    public String getBasket(String basketId) {
-        String result = "";
+    public String getBasket(String basketId) throws IOException {
         try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
             HttpGet request = new HttpGet(this.getDesktopBFFURLOrders() + basketId);
             request.addHeader("content-type", "application/json");
             request.addHeader("Authorization", "Bearer " + tokenAPI);
-            HttpResponse response = httpClient.execute(request);
-            HttpEntity entity = response.getEntity();
-            if (entity != null) {
-                result = EntityUtils.toString(entity);
-            }
-        } catch (IOException e) {
-            log.debug("Failed to GET draft order at {}{}", this.getDesktopBFFURLOrders(), basketId);
+            HttpEntity entity = httpClient.execute(request).getEntity();
+            return entity != null ? EntityUtils.toString(entity) : "";
         }
-        return result;
     }
 
     /**
@@ -203,23 +194,25 @@ class BasketAPITests extends BaseAPIClass {
         }
     }
 
-    private static StringEntity getJSONofBasketWithTwoProducts() throws UnsupportedEncodingException {
-        String json = "{\n" +
-                "  \"buyerId\": \"" + getUser() + "\",\n" +
-                "  \"items\": [\n" +
-                "    {\n" +
-                "      \"id\": \"testproductid1\",\n" +
-                "      \"productId\": \"5\",\n" +
-                "      \"quantity\": \"2\"\n" +
-                "    },\n" +
-                "    {\n" +
-                "      \"id\": \"testproductid2\",\n" +
-                "      \"productId\": \"3\",\n" +
-                "      \"quantity\": \"1\"\n" +
-                "    }\n" +
-                "\n" +
-                "  ]\n" +
-                "}";
-        return new StringEntity(json);
+    private static StringEntity getJSONofBasketWithTwoProducts() {
+        JsonObject item1 = new JsonObject();
+        item1.addProperty("id", "testproductid1");
+        item1.addProperty("productId", "5");
+        item1.addProperty("quantity", "2");
+
+        JsonObject item2 = new JsonObject();
+        item2.addProperty("id", "testproductid2");
+        item2.addProperty("productId", "3");
+        item2.addProperty("quantity", "1");
+
+        JsonArray items = new JsonArray();
+        items.add(item1);
+        items.add(item2);
+
+        JsonObject basket = new JsonObject();
+        basket.addProperty("buyerId", getUser());
+        basket.add("items", items);
+
+        return new StringEntity(basket.toString(), StandardCharsets.UTF_8);
     }
 }
