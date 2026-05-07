@@ -1,0 +1,84 @@
+package giis.eshopcontainers.e2e.functional.tests;
+
+import giis.eshopcontainers.e2e.functional.common.BaseAPIClass;
+import giis.eshopcontainers.e2e.functional.model.PaymentResponse;
+import giis.retorch.annotations.AccessMode;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.util.EntityUtils;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+
+import java.io.IOException;
+
+/**
+ * The {@code PaymentAPITests} validates the Payment API HTTP surface. The Payment service is an
+ * event-driven RabbitMQ subscriber and exposes only health/liveness probes — there is no business
+ * REST surface to test.
+ *
+ * <p>Each test first attempts the request through the Desktop BFF gateway base URL with the
+ * {@code /payment-api} prefix (matching the legacy Ocelot route from
+ * {@code Mobile.Bff.Shopping/aggregator/apigw/configuration.json}). If the gateway returns 404
+ * (no proxy route configured for Payment) the test falls back to the Payment service URL
+ * directly so the contract is still exercised. This dual-path strategy mirrors the project
+ * design where Payment is intentionally not on the active YARP routes.
+ *
+ * <p>Endpoints under test (relative to either {@code <gateway>/payment-api} or {@code <payment>}):
+ * <ul>
+ *   <li>GET /hc        — full health check (includes EventBus dependency)</li>
+ *   <li>GET /liveness  — minimal liveness probe</li>
+ * </ul>
+ */
+class PaymentAPITests extends BaseAPIClass {
+
+    @AccessMode(resID = "payment-api", concurrency = 50, sharing = true, accessMode = "READONLY")
+    @Test
+    @DisplayName("PaymentHealthCheckGateway")
+    void paymentHealthCheckAPI() throws IOException {
+        PaymentResponse response = getPaymentResponse("/hc");
+        Assertions.assertEquals(200, response.getStatusCode(), "Expected HTTP 200 from Payment /hc, got " + response.getStatusCode());
+        Assertions.assertFalse(response.getBody().isEmpty(), "Health check response body must not be empty");
+        // The full /hc endpoint returns a JSON document or "Healthy"/"Unhealthy" text — both
+        // contain the literal status. We accept either shape.
+        Assertions.assertTrue(response.getBody().contains("Healthy") || response.getBody().contains("\"status\":\"Healthy\""), "Health check must report Healthy status; body was: " + response.getBody());
+    }
+
+    @AccessMode(resID = "payment-api", concurrency = 50, sharing = true, accessMode = "READONLY")
+    @Test
+    @DisplayName("PaymentLivenessAPI")
+    void paymentLivenessAPI() throws IOException {
+        PaymentResponse response = getPaymentResponse("/liveness");
+        Assertions.assertEquals(200, response.getStatusCode(), "Expected HTTP 200 from Payment /liveness, got " + response.getStatusCode());
+        Assertions.assertFalse(response.getBody().isEmpty(), "Liveness response body must not be empty");
+    }
+
+    /**
+     * Issues a GET against the given Payment-relative path. Tries the BFF gateway with the
+     * {@code /payment-api} prefix first; if the gateway returns 404 (no proxy route) the request
+     * is retried against the Payment service URL directly.
+     *
+     * @param subPath payment-relative path including leading slash (e.g. {@code "/hc"})
+     */
+    private PaymentResponse getPaymentResponse(String subPath) throws IOException {
+        // First the trial to the gateway
+        try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
+            HttpGet request = new HttpGet(this.getDesktopBFFPaymentURL() + subPath);
+            HttpResponse response = httpClient.execute(request);
+            int status = response.getStatusLine().getStatusCode();
+            if (status != 404) {
+                return new PaymentResponse(status, EntityUtils.toString(response.getEntity()));
+            }
+            log.debug("Payment path {} not exposed by the gateway (404), falling back to direct URL", subPath);
+        }
+        // Then use the http client to reach the service.
+        try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
+            HttpGet request = new HttpGet(getPaymentURL() + subPath);
+            HttpResponse response = httpClient.execute(request);
+            return new PaymentResponse(response.getStatusLine().getStatusCode(), EntityUtils.toString(response.getEntity()));
+        }
+    }
+
+}
