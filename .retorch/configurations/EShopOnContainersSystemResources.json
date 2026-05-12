@@ -23,7 +23,7 @@
         "quantity": 0.31
       }
     ],
-    "dockerImage": "mediaserver;eexit/mirror-http-server"
+    "dockerImage": "webmvc;eexit/mirror-http-server"
 
   },
   "identity-api": {
@@ -50,7 +50,7 @@
         "quantity": 0.31
       }
     ],
-    "dockerImage": "mediaserver;eexit/mirror-http-server"
+    "dockerImage": "identity-api;eexit/mirror-http-server"
 
   },
   "catalog-api": {
@@ -77,7 +77,7 @@
         "quantity": 0.31
       }
     ],
-    "dockerImage": "mediaserver;eexit/mirror-http-server"
+    "dockerImage": "catalog-api;eexit/mirror-http-server"
 
   },
   "basket-api": {
@@ -104,7 +104,7 @@
         "quantity": 0.31
       }
     ],
-    "dockerImage": "mediaserver;eexit/mirror-http-server"
+    "dockerImage": "basket-api;eexit/mirror-http-server"
 
   },
   "chrome-browser": {
@@ -131,7 +131,7 @@
         "quantity": 0.31
       }
     ],
-    "dockerImage": "mediaserver;eexit/mirror-http-server"
+    "dockerImage": "chrome-browser;eexit/mirror-http-server"
 
   },
   "eshopUser": {
@@ -158,7 +158,7 @@
         "quantity": 0.31
       }
     ],
-    "dockerImage": "mediaserver;eexit/mirror-http-server"
+    "dockerImage": "eshopUser;eexit/mirror-http-server"
 
   },
   "ordering-api": {
@@ -185,7 +185,7 @@
         "quantity": 0.31
       }
     ],
-    "dockerImage": "mediaserver;eexit/mirror-http-server"
+    "dockerImage": "ordering-api;eexit/mirror-http-server"
 
   },
   "payment-api": {
@@ -212,7 +212,7 @@
         "quantity": 0.31
       }
     ],
-    "dockerImage": "mediaserver;eexit/mirror-http-server"
+    "dockerImage": "payment-api;eexit/mirror-http-server"
 
   }
 }
