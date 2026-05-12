@@ -12,6 +12,7 @@ import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
+import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.BasicResponseHandler;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -57,18 +58,19 @@ class BasketAPITests extends BaseAPIClass {
         String outputGetBasket = getBasket(getUser());
         Order order = gson.fromJson(outputGetBasket, Order.class);
 
-        Assertions.assertEquals(getUser(), order.getBuyer(), "The user id doesn't match");
-        Assertions.assertEquals(2, order.getOrderItems().size(), "More than 2 items were found in the order");
-
         List<OrderItem> listItems = order.getOrderItems();
-        Assertions.assertEquals(5, listItems.get(0).getProductId());
-        Assertions.assertEquals("Roslyn Red Pin", listItems.get(0).getProductName());
-        Assertions.assertEquals(2, listItems.get(0).getUnits());
-        Assertions.assertEquals(8.5, listItems.get(0).getUnitPrice());
-        Assertions.assertEquals(3, listItems.get(1).getProductId());
-        Assertions.assertEquals("Prism White T-Shirt", listItems.get(1).getProductName());
-        Assertions.assertEquals(1, listItems.get(1).getUnits());
-        Assertions.assertEquals(12, listItems.get(1).getUnitPrice());
+        Assertions.assertAll(
+                () -> Assertions.assertEquals(getUser(), order.getBuyer(), "The user id doesn't match"),
+                () -> Assertions.assertEquals(2, listItems.size(), "Expected exactly 2 items in the order"),
+                () -> Assertions.assertEquals(5, listItems.get(0).getProductId(), "First item product ID mismatch"),
+                () -> Assertions.assertEquals("Roslyn Red Pin", listItems.get(0).getProductName(), "First item name mismatch"),
+                () -> Assertions.assertEquals(2, listItems.get(0).getUnits(), "First item quantity mismatch"),
+                () -> Assertions.assertEquals(8.5, listItems.get(0).getUnitPrice(), 0.001, "First item price mismatch"),
+                () -> Assertions.assertEquals(3, listItems.get(1).getProductId(), "Second item product ID mismatch"),
+                () -> Assertions.assertEquals("Prism White T-Shirt", listItems.get(1).getProductName(), "Second item name mismatch"),
+                () -> Assertions.assertEquals(1, listItems.get(1).getUnits(), "Second item quantity mismatch"),
+                () -> Assertions.assertEquals(12, listItems.get(1).getUnitPrice(), 0.001, "Second item price mismatch")
+        );
     }
 
     @AccessMode(resID = "identity-api", concurrency = 50, sharing = true, accessMode = "READONLY")
@@ -88,10 +90,12 @@ class BasketAPITests extends BaseAPIClass {
                 .filter(i -> i.getProductId() == 5)
                 .findFirst()
                 .orElse(null);
-        Assertions.assertNotNull(item, "Product 5 (Roslyn Red Pin) not found in the basket");
-        Assertions.assertEquals("Roslyn Red Pin", item.getProductName());
-        Assertions.assertEquals(3, item.getUnits());
-        Assertions.assertEquals(8.5, item.getUnitPrice());
+        Assertions.assertAll(
+                () -> Assertions.assertNotNull(item, "Product 5 (Roslyn Red Pin) not found in the basket"),
+                () -> Assertions.assertEquals("Roslyn Red Pin", item.getProductName(), "Product name mismatch"),
+                () -> Assertions.assertEquals(3, item.getUnits(), "Product quantity mismatch"),
+                () -> Assertions.assertEquals(8.5, item.getUnitPrice(), 0.001, "Product price mismatch")
+        );
     }
 
     @AccessMode(resID = "identity-api", concurrency = 50, sharing = true, accessMode = "READONLY")
@@ -114,18 +118,18 @@ class BasketAPITests extends BaseAPIClass {
         OrderItem product3 = order.getOrderItems().stream()
                 .filter(i -> i.getProductId() == 3).findFirst().orElse(null);
 
-        Assertions.assertNotNull(product5, "Product 5 not found after quantity update");
-        Assertions.assertEquals(5, product5.getUnits(), "Product 5 quantity not updated correctly");
-        Assertions.assertNotNull(product3, "Product 3 not found after quantity update");
-        Assertions.assertEquals(3, product3.getUnits(), "Product 3 quantity not updated correctly");
+        Assertions.assertAll(
+                () -> Assertions.assertNotNull(product5, "Product 5 not found after quantity update"),
+                () -> Assertions.assertEquals(5, product5.getUnits(), "Product 5 quantity not updated correctly"),
+                () -> Assertions.assertNotNull(product3, "Product 3 not found after quantity update"),
+                () -> Assertions.assertEquals(3, product3.getUnits(), "Product 3 quantity not updated correctly")
+        );
     }
 
     public String createBasketWithTwoItems() throws IOException {
         log.debug("Creating the connection with URL: {}", this.getDesktopBFFURLBasket());
         HttpPost httpPost = new HttpPost(this.getDesktopBFFURLBasket());
-        httpPost.addHeader("accept", "text/plain");
-        httpPost.addHeader("content-type", "application/json");
-        httpPost.addHeader("Authorization", "Bearer " + tokenAPI);
+        addBasketHeaders(httpPost);
         httpPost.setEntity(getJSONofBasketWithTwoProducts());
         try (CloseableHttpClient httpclient = HttpClients.createDefault()) {
             return httpclient.execute(httpPost, new BasicResponseHandler());
@@ -135,9 +139,7 @@ class BasketAPITests extends BaseAPIClass {
     public String addItemToBasket(String basketId, int catalogItemId, int quantity) throws IOException {
         log.debug("Adding item {} (qty={}) to basket {}", catalogItemId, quantity, basketId);
         HttpPost httpPost = new HttpPost(this.getDesktopBFFURLBasketItems());
-        httpPost.addHeader("accept", "text/plain");
-        httpPost.addHeader("content-type", "application/json");
-        httpPost.addHeader("Authorization", "Bearer " + tokenAPI);
+        addBasketHeaders(httpPost);
         JsonObject body = new JsonObject();
         body.addProperty("basketId", basketId);
         body.addProperty("catalogItemId", catalogItemId);
@@ -153,17 +155,23 @@ class BasketAPITests extends BaseAPIClass {
                                              String item2Id, int newQty2) throws IOException {
         log.debug("Updating quantities in basket {}", basketId);
         HttpPut httpPut = new HttpPut(this.getDesktopBFFURLBasketItems());
-        httpPut.addHeader("accept", "text/plain");
-        httpPut.addHeader("content-type", "application/json");
-        httpPut.addHeader("Authorization", "Bearer " + tokenAPI);
-        String json = "{\n" +
-                "  \"basketId\": \"" + basketId + "\",\n" +
-                "  \"updates\": [\n" +
-                "    {\"basketItemId\": \"" + item1Id + "\", \"newQty\": " + newQty1 + "},\n" +
-                "    {\"basketItemId\": \"" + item2Id + "\", \"newQty\": " + newQty2 + "}\n" +
-                "  ]\n" +
-                "}";
-        httpPut.setEntity(new StringEntity(json));
+        addBasketHeaders(httpPut);
+
+        JsonObject basket = new JsonObject();
+        basket.addProperty("basketId", basketId);
+
+        JsonArray updates = new JsonArray();
+        JsonObject update1 = new JsonObject();
+        update1.addProperty("basketItemId", item1Id);
+        update1.addProperty("newQty", newQty1);
+        JsonObject update2 = new JsonObject();
+        update2.addProperty("basketItemId", item2Id);
+        update2.addProperty("newQty", newQty2);
+        updates.add(update1);
+        updates.add(update2);
+
+        basket.add("updates", updates);
+        httpPut.setEntity(new StringEntity(basket.toString(), StandardCharsets.UTF_8));
         try (CloseableHttpClient httpclient = HttpClients.createDefault()) {
             return httpclient.execute(httpPut, new BasicResponseHandler());
         }
@@ -172,8 +180,7 @@ class BasketAPITests extends BaseAPIClass {
     public String getBasket(String basketId) throws IOException {
         try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
             HttpGet request = new HttpGet(this.getDesktopBFFURLOrders() + basketId);
-            request.addHeader("content-type", "application/json");
-            request.addHeader("Authorization", "Bearer " + tokenAPI);
+            addBasketHeaders(request);
             HttpEntity entity = httpClient.execute(request).getEntity();
             return entity != null ? EntityUtils.toString(entity) : "";
         }
@@ -194,6 +201,19 @@ class BasketAPITests extends BaseAPIClass {
         }
     }
 
+    /**
+     * Support method to provide to the Basket request the neccesary heathers: the type of content accepted and submited
+     * as well as the token-Bearer
+     */
+    private void addBasketHeaders(HttpRequestBase request) {
+        request.addHeader("accept", "text/plain");
+        request.addHeader("content-type", "application/json");
+        request.addHeader("Authorization", "Bearer " + tokenAPI);
+    }
+
+    /**
+     * Support method that gets the JSON object of a basket with two products
+     */
     private static StringEntity getJSONofBasketWithTwoProducts() {
         JsonObject item1 = new JsonObject();
         item1.addProperty("id", "testproductid1");

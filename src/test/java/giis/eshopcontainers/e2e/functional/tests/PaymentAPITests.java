@@ -39,11 +39,13 @@ class PaymentAPITests extends BaseAPIClass {
     @DisplayName("PaymentHealthCheckGateway")
     void paymentHealthCheckAPI() throws IOException {
         PaymentResponse response = getPaymentResponse("/hc");
-        Assertions.assertEquals(200, response.getStatusCode(), "Expected HTTP 200 from Payment /hc, got " + response.getStatusCode());
-        Assertions.assertFalse(response.getBody().isEmpty(), "Health check response body must not be empty");
-        // The full /hc endpoint returns a JSON document or "Healthy"/"Unhealthy" text — both
-        // contain the literal status. We accept either shape.
-        Assertions.assertTrue(response.getBody().contains("Healthy") || response.getBody().contains("\"status\":\"Healthy\""), "Health check must report Healthy status; body was: " + response.getBody());
+        Assertions.assertAll(
+                () -> Assertions.assertEquals(200, response.getStatusCode(), "Expected HTTP 200 from Payment /hc, got " + response.getStatusCode()),
+                () -> Assertions.assertFalse(response.getBody().isEmpty(), "Health check response body must not be empty"),
+                // The full /hc endpoint returns a JSON document or "Healthy"/"Unhealthy" text — both
+                // contain the literal status. We accept either shape.
+                () -> Assertions.assertTrue(response.getBody().contains("Healthy") || response.getBody().contains("\"status\":\"Healthy\""), "Health check must report Healthy status; body was: " + response.getBody())
+        );
     }
 
     @AccessMode(resID = "payment-api", concurrency = 50, sharing = true, accessMode = "READONLY")
@@ -51,8 +53,10 @@ class PaymentAPITests extends BaseAPIClass {
     @DisplayName("PaymentLivenessAPI")
     void paymentLivenessAPI() throws IOException {
         PaymentResponse response = getPaymentResponse("/liveness");
-        Assertions.assertEquals(200, response.getStatusCode(), "Expected HTTP 200 from Payment /liveness, got " + response.getStatusCode());
-        Assertions.assertFalse(response.getBody().isEmpty(), "Liveness response body must not be empty");
+        Assertions.assertAll(
+                () -> Assertions.assertEquals(200, response.getStatusCode(), "Expected HTTP 200 from Payment /liveness, got " + response.getStatusCode()),
+                () -> Assertions.assertFalse(response.getBody().isEmpty(), "Liveness response body must not be empty")
+        );
     }
 
     /**

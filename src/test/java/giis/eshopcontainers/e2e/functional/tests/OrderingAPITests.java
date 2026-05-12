@@ -33,12 +33,14 @@ class OrderingAPITests extends BaseAPIClass {
     @DisplayName("GetCardTypesAPI")
     void getCardTypesAPI() throws IOException {
         String result = getCardTypes();
-        Assertions.assertFalse(result.isEmpty(), "Card types response must not be empty");
         JsonArray cardTypes = JsonParser.parseString(result).getAsJsonArray();
-        Assertions.assertEquals(3, cardTypes.size(), "Expected exactly 3 card types (Amex, Visa, MasterCard)");
-        Assertions.assertTrue(result.contains("Amex"), "Expected card type 'Amex' in response");
-        Assertions.assertTrue(result.contains("Visa"), "Expected card type 'Visa' in response");
-        Assertions.assertTrue(result.contains("MasterCard"), "Expected card type 'MasterCard' in response");
+        Assertions.assertAll(
+                () -> Assertions.assertFalse(result.isEmpty(), "Card types response must not be empty"),
+                () -> Assertions.assertEquals(3, cardTypes.size(), "Expected exactly 3 card types (Amex, Visa, MasterCard)"),
+                () -> Assertions.assertTrue(result.contains("Amex"), "Expected card type 'Amex' in response"),
+                () -> Assertions.assertTrue(result.contains("Visa"), "Expected card type 'Visa' in response"),
+                () -> Assertions.assertTrue(result.contains("MasterCard"), "Expected card type 'MasterCard' in response")
+        );
     }
 
     /** Check that the list of orders for a user, differentiating between code 200 + orders JSON,empty in a clean env*/
@@ -80,6 +82,7 @@ class OrderingAPITests extends BaseAPIClass {
     private String getOrders() throws IOException {return getOrderingProxyBody("");}
     private int getOrdersStatusCode() throws IOException {return getOrderingProxyStatusCode("");}
     private int getOrderByIdStatusCode(int orderId) throws IOException {return getOrderingProxyStatusCode("/" + orderId);}
+
     /**
      * Returns the HTTP status code for a GET to the BFF's basket-to-draft aggregation endpoint
      * ({@code /api/v1/Order/draft/{basketId}}). This is intentionally different from the YARP

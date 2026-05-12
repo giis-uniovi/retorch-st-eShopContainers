@@ -35,10 +35,12 @@ class CatalogAPITests extends BaseAPIClass {
     @DisplayName("GetCatalogItemsCatalogAPI")
     void getCatalogItemsAPI() throws IOException {
         String result = getCatalogProxyBody("items");
-        Assertions.assertFalse(result.isEmpty(), "Response from catalog items API must not be empty");
         JsonObject json = JsonParser.parseString(result).getAsJsonObject();
-        Assertions.assertTrue(json.get("count").getAsInt() > 0, "Expected at least one catalog item in the count");
-        Assertions.assertFalse(json.get("data").getAsJsonArray().isEmpty(), "Catalog items data array must not be empty");
+        Assertions.assertAll(
+                () -> Assertions.assertFalse(result.isEmpty(), "Response from catalog items API must not be empty"),
+                () -> Assertions.assertTrue(json.get("count").getAsInt() > 0, "Expected at least one catalog item in the count"),
+                () -> Assertions.assertFalse(json.get("data").getAsJsonArray().isEmpty(), "Catalog items data array must not be empty")
+        );
     }
 
     @AccessMode(resID = "catalog-api", concurrency = 50, sharing = true, accessMode = "READONLY")
@@ -47,11 +49,13 @@ class CatalogAPITests extends BaseAPIClass {
     void getCatalogItemByIdAPI() throws IOException {
         Gson gson = new Gson();
         String result = getCatalogProxyBody("items/5");
-        Assertions.assertFalse(result.isEmpty(), "Response from catalog API must not be empty");
         CatalogItem item = gson.fromJson(result, CatalogItem.class);
-        Assertions.assertEquals(5, item.getId(), "Catalog item id mismatch");
-        Assertions.assertEquals("Roslyn Red Pin", item.getName(), "Catalog item name mismatch");
-        Assertions.assertEquals(8.5, item.getPrice(), 0.001, "Catalog item price mismatch");
+        Assertions.assertAll(
+                () -> Assertions.assertFalse(result.isEmpty(), "Response from catalog API must not be empty"),
+                () -> Assertions.assertEquals(5, item.getId(), "Catalog item id mismatch"),
+                () -> Assertions.assertEquals("Roslyn Red Pin", item.getName(), "Catalog item name mismatch"),
+                () -> Assertions.assertEquals(8.5, item.getPrice(), 0.001, "Catalog item price mismatch")
+        );
     }
 
     /** Test the paginated list endpoint, retrieving the elements that start with a given prefix*/
@@ -60,12 +64,14 @@ class CatalogAPITests extends BaseAPIClass {
     @DisplayName("GetCatalogItemsByNameCatalogAPI")
     void getCatalogItemsByNameAPI() throws IOException {
         String result = getCatalogProxyBody("items/withname/Roslyn");
-        Assertions.assertFalse(result.isEmpty(), "Response from items-by-name endpoint must not be empty");
         JsonObject json = JsonParser.parseString(result).getAsJsonObject();
-        Assertions.assertTrue(json.get("count").getAsInt() >= 1, "Expected at least one matching item for 'Roslyn'");
         JsonArray data = json.get("data").getAsJsonArray();
-        Assertions.assertFalse(data.isEmpty(), "Data array must contain at least one item");
-        Assertions.assertTrue(result.contains("Roslyn Red Pin"), "Expected 'Roslyn Red Pin' in matching items");
+        Assertions.assertAll(
+                () -> Assertions.assertFalse(result.isEmpty(), "Response from items-by-name endpoint must not be empty"),
+                () -> Assertions.assertTrue(json.get("count").getAsInt() >= 1, "Expected at least one matching item for 'Roslyn'"),
+                () -> Assertions.assertFalse(data.isEmpty(), "Data array must contain at least one item"),
+                () -> Assertions.assertTrue(result.contains("Roslyn Red Pin"), "Expected 'Roslyn Red Pin' in matching items")
+        );
     }
     /** Test the paginated list endpoint, retrieving the elements filtered by brand and type*/
     @AccessMode(resID = "catalog-api", concurrency = 50, sharing = true, accessMode = "READONLY")
@@ -73,10 +79,12 @@ class CatalogAPITests extends BaseAPIClass {
     @DisplayName("getCatalogItemsByTypeAndBrandCatalogAPI")
     void getCatalogItemsByTypeAndBrandAPI() throws IOException {
         String result = getCatalogProxyBody("items/type/1/brand/1");
-        Assertions.assertFalse(result.isEmpty(), "Response from type/brand filter must not be empty");
         JsonObject json = JsonParser.parseString(result).getAsJsonObject();
-        Assertions.assertTrue(json.get("count").getAsInt() > 0, "Expected items for type=1/brand=1");
-        Assertions.assertFalse(json.get("data").getAsJsonArray().isEmpty(), "Data array must not be empty");
+        Assertions.assertAll(
+                () -> Assertions.assertFalse(result.isEmpty(), "Response from type/brand filter must not be empty"),
+                () -> Assertions.assertTrue(json.get("count").getAsInt() > 0, "Expected items for type=1/brand=1"),
+                () -> Assertions.assertFalse(json.get("data").getAsJsonArray().isEmpty(), "Data array must not be empty")
+        );
     }
 
     @AccessMode(resID = "catalog-api", concurrency = 50, sharing = true, accessMode = "READONLY")
