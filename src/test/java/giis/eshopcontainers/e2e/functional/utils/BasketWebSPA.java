@@ -16,8 +16,8 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * WebSPA shopping helpers for basket and catalog operations.
- * Overrides WebMVC basket methods with SPA-specific selectors and interactions.
+ * This class extends {@code Basket} with the necessary overrides SPA-specific selectors and interactions
+ * to interact with the frontend.
  */
 public class BasketWebSPA extends Basket {
     public static final Logger log = LoggerFactory.getLogger(BasketWebSPA.class);
@@ -31,6 +31,8 @@ public class BasketWebSPA extends Basket {
      * In the SPA each {@code .esh-catalog-item} div triggers {@code addToCart(item)} on click.
      * Verifies the basket badge increments by one after the click.
      *
+     * @param driver      {@code WebDriver} on which the operations are performed.
+     * @param waiter      {@code Waiter} to perform the necessary async waits.
      * @param numProduct  1-based position of the product in the catalog grid
      * @param productName product name (used only for log / assertion messages)
      */
@@ -50,6 +52,9 @@ public class BasketWebSPA extends Basket {
 
     /**
      * Support method that enables the catalog navigation the checking that all visible products items are disabled
+     *
+     * @param driver {@code WebDriver} on which the operations are performed.
+     * @param waiter {@code Waiter} to perform the necessary async waits.
      */
     @Override
     public void checkProductButtonDisabled(WebDriver driver, Waiter waiter) throws ElementNotFoundException {
@@ -63,6 +68,8 @@ public class BasketWebSPA extends Basket {
      * Selects an option from the brand or type dropdown by passing 1-based, for then apply the filter and
      * wait for the catalog reloading.
      *
+     * @param driver        {@code WebDriver} on which the operations are performed.
+     * @param waiter        {@code Waiter} to perform the necessary async waits.
      * @param filterId      the HTML {@code id} attribute of the selector.
      * @param filterOptions display names for log messages (1-based)
      * @param option        1-based option index
@@ -103,6 +110,9 @@ public class BasketWebSPA extends Basket {
     /**
      * Returns the total number of catalog items for the current filter by reading the
      * pager info text ("Showing N of <b>M</b> products …"), avoiding the multipage navigation.
+     *
+     * @param driver {@code WebDriver} on which the operations are performed.
+     * @param waiter {@code Waiter} to perform the necessary async waits.
      */
     @Override
     public Integer numberCatalogDisplayedItems(WebDriver driver, Waiter waiter) {

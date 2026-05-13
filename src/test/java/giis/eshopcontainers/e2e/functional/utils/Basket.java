@@ -11,8 +11,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * WebMVC shopping helpers for basket and catalog operations.
- * Methods target the server-rendered WebMVC markup.
+ *  Shopping helpers for basket and catalog operations. The methods target the
+ *  WebMVC frontend, and are overridden if necessary.
  */
 public class Basket extends Shopping {
     public static final Logger log = LoggerFactory.getLogger(Basket.class);
@@ -25,6 +25,8 @@ public class Basket extends Shopping {
      * Adds the Nth catalog product to the basket using the WebMVC form-submit button.
      * Verifies the basket badge increments by one after the click.
      *
+     * @param driver {@code WebDriver} on which the operations are performed.
+     * @param waiter {@code Waiter} to perform the necessary async waits.
      * @param numProduct  1-based position of the product on the catalog page
      * @param productName product name (used only for log / assertion messages)
      */
@@ -39,9 +41,13 @@ public class Basket extends Shopping {
     }
 
     /**
-     * Adds some products to the shopping basket.
+     * Support methods that add three test product to the eshop basket.
+     *
+     * @param driver {@code WebDriver} on which the operations are performed.
+     * @param waiter {@code Waiter} to perform the necessary async waits.
+     *
      */
-    public void addProductsToBasket(WebDriver driver, Waiter waiter) throws ElementNotFoundException {
+    public void addThreeProductsToBasket(WebDriver driver, Waiter waiter) throws ElementNotFoundException {
         addProductToBasket(driver, waiter, 2, ".NET Blue Hoodie");
         addProductToBasket(driver, waiter, 4, ".NET Foundation Pin");
         addProductToBasket(driver, waiter, 5, ".NET Foundation T-shirt");
@@ -49,6 +55,9 @@ public class Basket extends Shopping {
 
     /**
      * Selects a filter option for a given filter on the MVC frontend eShopOnContainers catalog.
+     *
+     * @param driver        {@code WebDriver} on which the operations are performed.
+     * @param waiter        {@code Waiter} to perform the necessary async waits
      * @param filterId      The ID of the filter element.
      * @param filterOptions Array of display names for filter options.
      * @param option        The selected option for the filter.
@@ -84,6 +93,9 @@ public class Basket extends Shopping {
 
     /**
      * Selects a brand filter option for the eShopOnContainers catalog.
+     *
+     * @param driver {@code WebDriver} on which the operations are performed.
+     * @param waiter {@code Waiter} to perform the necessary async waits
      * @param option The selected brand filter option: 1) All brands, 2)NETCore and 3) Others
      */
     public void selectBrandFilter(WebDriver driver, Waiter waiter, Integer option) throws ElementNotFoundException {
@@ -92,7 +104,10 @@ public class Basket extends Shopping {
     }
 
     /**
-     * Selects a type filter option for the eShopOnContainers catalog.
+     * Selects a type filter option for the eShopOnContainers catalog
+     *
+     * @param driver {@code WebDriver} on which the operations are performed.
+     * @param waiter {@code Waiter} to perform the necessary async waits
      * @param option The selected type filter option: 1) All Types, 2) Mug, 3) TShirt and 4)Pin
      */
     public void selectTypeFilter(WebDriver driver, Waiter waiter, Integer option) throws ElementNotFoundException {
@@ -102,6 +117,9 @@ public class Basket extends Shopping {
 
     /**
      * Get the number of displayed items in the catalog, counting also the items in the second page (if exist).
+     *
+     * @param driver {@code WebDriver} on which the operations are performed.
+     * @param waiter {@code Waiter} to perform the necessary async waits
      */
     public Integer numberCatalogDisplayedItems(WebDriver driver, Waiter waiter) throws ElementNotFoundException {
         int totalItems = 0;
@@ -122,6 +140,12 @@ public class Basket extends Shopping {
         return totalItems;
     }
 
+    /**
+     * Support method used to ensure that the product button is disabled before the user of the eshop is logged
+     * in.
+     *
+     * @param driver {@code WebDriver} on which the operations are performed.
+     * @param waiter {@code Waiter} to perform the necessary async waits.*/
     public void checkProductButtonDisabled(WebDriver driver, Waiter waiter) throws ElementNotFoundException {
         navUtils.toMainMenu(driver, waiter);
         waiter.waitUntil(ExpectedConditions.numberOfElementsToBeMoreThan(By.className("esh-catalog-item"), 4),

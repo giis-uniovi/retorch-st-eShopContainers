@@ -2,7 +2,6 @@ package giis.eshopcontainers.e2e.functional.utils;
 
 import giis.eshopcontainers.e2e.functional.common.ElementNotFoundException;
 import org.openqa.selenium.JavascriptExecutor;
-import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebDriverException;
 import org.openqa.selenium.WebElement;
@@ -18,7 +17,10 @@ public class Click {
 
     /**
      * Clicks on the specified WebElement using the default method provided by the browser. If that method fails, it attempts to perform the click operation using JavaScript.
-     * @param ele  WebElement that is intended to be clicked.
+     *
+     * @param driver {@code WebDriver} on which the operations are performed.
+     * @param waiter {@code Waiter} to perform the necessary async waits.
+     * @param ele    WebElement that is intended to be clicked.
      */
     public static WebDriver element(WebDriver driver,Waiter waiter, WebElement ele) throws ElementNotFoundException {
         String tagName = ele.getTagName();
@@ -41,7 +43,7 @@ public class Click {
         }
         throw new ElementNotFoundException("Click.element ERROR");
     }
-
+    /**Support method used to */
     public static void byJS(WebDriver driver, WebElement we) {
         JavascriptExecutor js = (JavascriptExecutor) driver;
         js.executeScript("var evt = document.createEvent('MouseEvents');"

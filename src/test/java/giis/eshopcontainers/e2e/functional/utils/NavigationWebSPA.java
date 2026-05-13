@@ -15,18 +15,8 @@ import org.slf4j.LoggerFactory;
 public class NavigationWebSPA extends Navigation {
     public static final Logger log = LoggerFactory.getLogger(NavigationWebSPA.class);
 
-    /**
-     * Returns to the catalog home page by clicking the Angular app header logo.
-     */
     @Override
-    public void toMainMenu(WebDriver driver, Waiter waiter) throws ElementNotFoundException {
-        log.debug("Navigating to main menu (WebSPA), clicking header logo...");
-        By logoLocator = By.className("esh-app-header-brand");
-        waiter.waitUntil(ExpectedConditions.visibilityOfElementLocated(logoLocator), "Header logo is not visible");
-        Click.element(driver, waiter, driver.findElement(logoLocator));
-        waiter.waitUntil(ExpectedConditions.numberOfElementsToBeMoreThan(By.className("esh-catalog-item"), 0),
-                "Catalog items did not appear after navigating to main menu");
-    }
+    protected By getMainMenuBy(){return By.className("esh-app-header-brand");}
 
     /**
      * Navigates to the Orders page.

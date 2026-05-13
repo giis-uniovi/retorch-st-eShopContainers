@@ -25,13 +25,34 @@ public class OrdersWebSPA extends Orders {
         utils = new BasketWebSPA();
     }
 
+    @Override
+    public By getCardHolderNameBy() {return By.cssSelector("[placeholder='Card holder']");}
+    @Override
+    public By getCardExpirationDateBy() {return By.cssSelector("[placeholder='MM/YY']");}
+    @Override
+    public By getCardSecNumberBy() {return By.cssSelector("[placeholder='000']");}
+    @Override
+    public By getCardNumberBy() {return By.cssSelector("[placeholder='000000000000000']");}
+
+    @Override
+    public By getCityBy() {return By.cssSelector("[placeholder='City']");}
+    @Override
+    public By getStreetBy() {return By.cssSelector("[placeholder='Street']");}
+    @Override
+    public By getStateBy() {return By.cssSelector("[placeholder='state']");}
+    @Override
+    public By getCountryBy() {return By.cssSelector("[placeholder='country']");}
+
     /**
      * Creates an order in the WebSPA frontend, adds three products to the baskets
+     *
+     * @param driver {@code WebDriver} on which the operations are performed.
+     * @param waiter {@code Waiter} to perform the necessary async waits.
      */
     @Override
     public void createOrder(WebDriver driver, Waiter waiter) throws ElementNotFoundException {
         navUtils.toMainMenu(driver, waiter);
-        utils.addProductsToBasket(driver, waiter);
+        utils.addThreeProductsToBasket(driver, waiter);
         navUtils.navigateToCheckout(driver, waiter);
         fillAddressDetails(driver, waiter, "Campus de Viesques, Edif. Polivalente – D.2.6.06", "Gijon", "Asturias", "Spain");
         fillPaymentDetails(driver, waiter, "6271 7012 2597 9642", "Jose Ramon", "03/38", "456");
@@ -44,6 +65,9 @@ public class OrdersWebSPA extends Orders {
 
     /**
      * Method to verify if an order is correctly placed by ensuring that the basket is empty (SPA version).
+     *
+     * @param driver {@code WebDriver} on which the operations are performed.
+     * @param waiter {@code Waiter} to perform the necessary async waits.
      * @return true if the basket is empty (no elements), otherwise returns false.
      */
     @Override
@@ -64,8 +88,11 @@ public class OrdersWebSPA extends Orders {
     }
 
     /**
-     * Checks the last order state in the WebSPA frontend (SPA version).
-     * Uses different selectors than WebMVC version.
+     * Checks the last order state in the WebSPA frontend (SPA version), iterates several times to get
+     * the state, as the order has a state change according its lifetime.
+     *
+     * @param driver         {@code WebDriver} on which the operations are performed.
+     * @param waiter         {@code Waiter} to perform the necessary async waits.
      * @param expectedStates List with the expected state of the last order
      */
     @Override
@@ -99,6 +126,9 @@ public class OrdersWebSPA extends Orders {
 
     /**
      * Cancels the last order in the WebSPA frontend (SPA version).
+     *
+     * @param driver {@code WebDriver} on which the operations are performed.
+     * @param waiter {@code Waiter} to perform the necessary async waits.
      */
     @Override
     public void cancelLastOrder(WebDriver driver, Waiter waiter) throws ElementNotFoundException {
@@ -110,36 +140,17 @@ public class OrdersWebSPA extends Orders {
     }
 
     /**
-     * Fills in address details during checkout using CSS selectors (SPA version).
+     * Checks the expected number of order items and total expectedAamount in the checkout summary.
+     *
+     * @param driver           {@code WebDriver} on which the operations are performed.
+     * @param expectedAamount  Total amount of $ that the order is expected to cost.
+     * @param expectedNumItems Expected number of items of the order.
      */
-    @Override
-    protected void fillAddressDetails(WebDriver driver, Waiter waiter, String street, String city, String state, String country) {
-        fillField(driver, waiter, By.cssSelector("[placeholder='Street']"), street);
-        fillField(driver, waiter, By.cssSelector("[placeholder='City']"), city);
-        fillField(driver, waiter, By.cssSelector("[placeholder='state']"), state);
-        fillField(driver, waiter, By.cssSelector("[placeholder='country']"), country);
-    }
-
-    /**
-     * Fills in payment details during checkout using CSS selectors (SPA version).
-     */
-    @Override
-    protected void fillPaymentDetails(WebDriver driver, Waiter waiter, String cardNumber, String cardHolderName, String expirationDate, String secCode) {
-        log.debug("Filling payment: card={}, holder={}, exp={}", cardNumber, cardHolderName, expirationDate);
-        fillField(driver, waiter, By.cssSelector("[placeholder='000000000000000']"), cardNumber);
-        fillField(driver, waiter, By.cssSelector("[placeholder='Card holder']"), cardHolderName);
-        fillField(driver, waiter, By.cssSelector("[placeholder='MM/YY']"), expirationDate);
-        fillField(driver, waiter, By.cssSelector("[placeholder='000']"), secCode);
-    }
-
-    /**
-     * Checks the expected number of order items and total amount in the checkout summary.
-     */
-    private void checkOrderAmountAndNumItems(WebDriver driver, String amount, int expectedNumItems) {
+    private void checkOrderAmountAndNumItems(WebDriver driver, String expectedAamount, int expectedNumItems) {
         List<WebElement> items = driver.findElements(By.cssSelector("article.divider--bottom"));
         Assertions.assertEquals(expectedNumItems, items.size(), "Expected " + expectedNumItems + " order items in checkout summary");
-        String numericValue = amount.replaceAll("[^0-9.,]", "");
+        String numericValue = expectedAamount.replaceAll("[^0-9.,]", "");
         Assertions.assertTrue(Objects.requireNonNull(driver.getPageSource()).contains(numericValue),
-                "Checkout page should display the total amount: " + amount);
+                "Checkout page should display the total expectedAamount: " + expectedAamount);
     }
 }

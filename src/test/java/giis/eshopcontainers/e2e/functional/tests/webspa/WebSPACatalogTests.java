@@ -59,5 +59,4 @@ class WebSPACatalogTests extends BaseWebSPALoggedClass {
         }
     }
 
-
 }

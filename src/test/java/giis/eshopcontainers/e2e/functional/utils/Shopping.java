@@ -15,9 +15,13 @@ public class Shopping {
     public static final Logger log = LoggerFactory.getLogger(Shopping.class);
     protected Navigation navUtils;
     protected Basket utils;
+
     /**
      * Returns the number of items currently shown in the basket badge.
      * Both WebMVC and WebSPA use the same {@code .esh-basketstatus-badge} class.
+     *
+     * @param driver {@code WebDriver} on which the operations are performed.
+     * @param waiter {@code Waiter} to perform the necessary async waits.
      */
     protected Integer getNumShoppingItems(WebDriver driver, Waiter waiter) {
         log.debug("Getting number of Shopping Cart items via badge.");
@@ -32,6 +36,8 @@ public class Shopping {
      * Generic form field fill utility that works with any By locator.
      * Waits for field presence, then clears and fills it.
      *
+     * @param driver  {@code WebDriver} on which the operations are performed.
+     * @param waiter  {@code Waiter} to perform the necessary async waits.
      * @param locator the By locator for the field (e.g., By.id("fieldId") or By.cssSelector("[placeholder='Field']"))
      * @param value   the value to fill in the field
      */

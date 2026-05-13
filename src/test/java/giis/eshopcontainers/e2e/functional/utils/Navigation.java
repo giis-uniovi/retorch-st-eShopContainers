@@ -17,17 +17,27 @@ import org.slf4j.LoggerFactory;
 public class Navigation {
     public static final Logger log = LoggerFactory.getLogger(Navigation.class);
 
+    protected By getMainMenuBy(){return By.xpath("//img");}
+    protected By getCatalogItemBy(){return By.className("esh-catalog-item");}
+
+
     /**
-     * Returns to the catalog home page by clicking the top logo image.
+     * Returns to the catalog home page by clicking the top logo image, whereas also counts
+     * that more than one item in the catalog is displayed.
      */
     public void toMainMenu(WebDriver driver, Waiter waiter) throws ElementNotFoundException {
-        log.debug("Navigating to main menu (WebMVC), clicking logo...");
-        waiter.waitUntil(ExpectedConditions.visibilityOfElementLocated(By.xpath("//img")), "The menu image is not visible");
-        Click.element(driver, waiter, driver.findElement(By.xpath("//img")));
+        log.debug("Navigating to main menu, clicking logo...");
+        waiter.waitUntil(ExpectedConditions.visibilityOfElementLocated(getMainMenuBy()), "The menu image is not visible");
+        Click.element(driver, waiter, driver.findElement(getMainMenuBy()));
+        waiter.waitUntil(ExpectedConditions.numberOfElementsToBeMoreThan(getCatalogItemBy(), 0),
+                "Catalog items did not appear after navigating to main menu");
     }
 
     /**
      * Navigates to the Orders page via the WebMVC identity drop-down menu.
+     *
+     * @param driver {@code WebDriver} on which the operations are performed.
+     * @param waiter {@code Waiter} to perform the necessary async waits.
      */
     public void toOrdersPage(WebDriver driver, Waiter waiter) throws ElementNotFoundException {
         log.debug("Navigating to orders page (WebMVC)...");
@@ -50,15 +60,12 @@ public class Navigation {
 
     /**
      * Navigates to the checkout page and checks that the total amount of money for being paid is the expected one
-     * @param priceOrder Price of the selected order products
+     * @param driver         {@code WebDriver} on which the operations are performed.
+     * @param waiter         {@code Waiter} to perform the necessary async waits.
      */
     public void navigateToCheckout(WebDriver driver, Waiter waiter) throws ElementNotFoundException {
         WebElement menuOrder = driver.findElement(By.xpath("/html/body/header/div/article/section[3]/a/div[2]"));
         Click.element(driver, waiter, menuOrder);
-        // Get the order price and check if it's correct
-        //WebElement totalAmountBasket = driver.findElement(By.xpath("//*[@id=\"cartForm\"]/div/div[2]/div[4]/article[2" +
-        //        "]/section[2]"));
-        //Assertions.assertEquals(priceOrder, totalAmountBasket.getText());
         //Click into the Checkout button
         WebElement buttonCheckout = driver.findElement(By.name("action"));
         Click.element(driver, waiter, buttonCheckout);
