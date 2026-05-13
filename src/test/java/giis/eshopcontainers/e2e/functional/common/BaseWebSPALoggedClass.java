@@ -1,5 +1,7 @@
 package giis.eshopcontainers.e2e.functional.common;
 
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
 import com.google.gson.JsonParser;
 import giis.eshopcontainers.e2e.functional.utils.*;
 import org.apache.http.client.ResponseHandler;
@@ -37,18 +39,25 @@ import java.util.List;
 public class BaseWebSPALoggedClass extends BaseLoggedClass {
 
 
+    private static String resolveUrl(String envKey, String localPropKey, String containerPattern) {
+        String envUrl = System.getProperty(envKey) != null
+                ? System.getProperty(envKey) : System.getenv(envKey);
+        return envUrl == null
+                ? properties.getProperty(localPropKey)
+                : "http://" + containerPattern + "_" + tJobName + ":80";
+    }
+
+    private static String addBase64Padding(String base64Url) {
+        int mod = base64Url.length() % 4;
+        return mod == 0 ? base64Url : base64Url + "=".repeat(4 - mod);
+    }
+
     /**
      * Overrides the setup of the base class, to the correct URL for the WebSPA frontend
      */
     @BeforeAll
     static void setupSPAUrl() {
-        String envUrl = System.getProperty("SUT_URL") != null
-                ? System.getProperty("SUT_URL") : System.getenv("SUT_URL");
-        if (envUrl == null) {
-            sutUrl = properties.getProperty("LOCALHOST_SPA_URL");
-        } else {
-            sutUrl = "http://webspa_" + tJobName + ":80";
-        }
+        sutUrl = resolveUrl("SUT_URL", "LOCALHOST_SPA_URL", "webspa");
         log.info("WebSPA tests will connect to: {}", sutUrl);
     }
 
@@ -74,10 +83,10 @@ public class BaseWebSPALoggedClass extends BaseLoggedClass {
             // Decode the JWT payload (middle segment) to extract the sub claim.
             String[] jwtParts = token.split("\\.");
             String rawPayload = jwtParts[1];
-            int paddingNeeded = (4 - rawPayload.length() % 4) % 4;
-            String padded = paddingNeeded == 1 ? rawPayload + "=" : paddingNeeded == 2 ? rawPayload + "==" : rawPayload;
-            String payloadJson = new String(Base64.getUrlDecoder().decode(padded));
-            String sub = JsonParser.parseString(payloadJson).getAsJsonObject().get("sub").getAsString();
+            String payloadJson = new String(Base64.getUrlDecoder().decode(addBase64Padding(rawPayload)));
+            JsonObject payloadObj = JsonParser.parseString(payloadJson).getAsJsonObject();
+            Assertions.assertTrue(payloadObj.has("sub"), "JWT payload must contain 'sub' claim");
+            String sub = payloadObj.get("sub").getAsString();
             String deleteUrl = resolveBffBaseUrl() + "/basket-api/api/v1/basket/" + sub;
             try (CloseableHttpClient client = HttpClients.createDefault()) {
                 HttpDelete req = new HttpDelete(deleteUrl);
@@ -85,25 +94,17 @@ public class BaseWebSPALoggedClass extends BaseLoggedClass {
                 client.execute(req);
                 log.debug("Basket cleared for sub={} before WebSPA test", sub);
             }
-        } catch (Exception e) {
-            log.debug("Could not clear basket before WebSPA test (continuing): {}", e.getMessage());
+        } catch (IOException | JsonParseException e) {
+            log.warn("Could not clear basket before WebSPA test (continuing): {}", e.getMessage());
         }
     }
 
     protected String resolveBffBaseUrl() {
-        String envUrl = System.getProperty("SUT_URL") != null
-                ? System.getProperty("SUT_URL") : System.getenv("SUT_URL");
-        return envUrl == null
-                ? properties.getProperty("LOCALHOST_DESKTOP_BFF_URL").replace("/api/v1", "")
-                : "http://webshoppingagg_" + tJobName + ":80";
+        return resolveUrl("SUT_URL", "LOCALHOST_BFF_URL", "webshoppingagg");
     }
 
     private String resolveIdentityUrl() {
-        String envUrl = System.getProperty("SUT_URL") != null
-                ? System.getProperty("SUT_URL") : System.getenv("SUT_URL");
-        return envUrl == null
-                ? properties.getProperty("LOCALHOST_IDENTITY_URL")
-                : "http://identity_api_" + tJobName + ":80";
+        return resolveUrl("SUT_URL", "LOCALHOST_IDENTITY_URL", "identity_api");
     }
 
     private String getBasketTokenForCleanup() throws IOException {
@@ -135,7 +136,7 @@ public class BaseWebSPALoggedClass extends BaseLoggedClass {
      */
     @Override
     protected void login() throws ElementNotFoundException {
-        log.debug("WebSPA login for user: {}", userName);
+        log.debug("WebSPA login for user: {}", getUserName());
         By loginSelector = By.cssSelector(".esh-identity-section .esh-identity-name");
         waiter.waitUntil(ExpectedConditions.elementToBeClickable(loginSelector),
                 "WebSPA LOGIN button is not clickable");
@@ -144,8 +145,8 @@ public class BaseWebSPALoggedClass extends BaseLoggedClass {
         // Fill the user/psswd form
         waiter.waitUntil(ExpectedConditions.presenceOfElementLocated(By.id("Username")),
                 "Username field not present");
-        driver.findElement(By.id("Username")).sendKeys(userName);
-        driver.findElement(By.id("Password")).sendKeys(password);
+        driver.findElement(By.id("Username")).sendKeys(getUserName());
+        driver.findElement(By.id("Password")).sendKeys(getPassword());
         By loginButtonLocator = By.xpath("//button[contains(.,'Login')]");
         waiter.waitUntil(ExpectedConditions.elementToBeClickable(loginButtonLocator),
                 "Login button is not clickable");

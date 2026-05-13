@@ -30,7 +30,6 @@ public class Navigation {
      * Navigates to the Orders page via the WebMVC identity drop-down menu.
      */
     public void toOrdersPage(WebDriver driver, Waiter waiter) throws ElementNotFoundException {
-        toMainMenu(driver, waiter);
         log.debug("Navigating to orders page (WebMVC)...");
         toMainMenu(driver, waiter);
         WebElement ordersButton;

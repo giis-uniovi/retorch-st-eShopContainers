@@ -6,9 +6,6 @@ import giis.retorch.annotations.AccessMode;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.openqa.selenium.By;
-import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.ui.ExpectedConditions;
 
 
 class WebMVCCatalogTests extends BaseLoggedClass {
@@ -23,33 +20,13 @@ class WebMVCCatalogTests extends BaseLoggedClass {
     @DisplayName("AddProductsToBasketMVC")
     void addProductsToBasketMVC() throws ElementNotFoundException {
         log.debug("Before login, checking that the product buttons are disabled");
-        // Verify that the product cup button is disabled before login
-        checkProductButtonDisabled();
-        // Perform login
+        basketHelper.checkProductButtonDisabled(driver, waiter);
         this.login();
-        // Add products to the basket
         basketHelper.addProductToBasket(driver, waiter,1, "NetCore Cup");
         basketHelper.addProductToBasket(driver, waiter,3, "Hoodie");
         basketHelper.addProductToBasket(driver, waiter,6, "Pin");
-        // Perform logout
         this.logout();
-        // Verify that the product cup button is disabled after logout
-        checkProductButtonDisabled();
-    }
-
-    /**
-     * Checks that the product buttons are disabled in MVC frontend.
-     */
-    private void checkProductButtonDisabled() throws ElementNotFoundException {
-        //Navigate to main menu.
-        navHelper.toMainMenu(driver, waiter);
-        waiter.waitUntil(ExpectedConditions.numberOfElementsToBeMoreThan(By.className("esh-catalog-item"),4),"The number of elements was less than 4 (items)");
-        WebElement productCupButton;
-        log.debug("Checking that the product buttons are disabled");
-        // Verify that the product cup button is disabled
-        productCupButton = driver.findElement(By.xpath("/html/body/div/div[3]/div[1]/form/input[1]"));
-        Assertions.assertEquals("esh-catalog-button is-disabled", productCupButton.getAttribute("class"),
-                "The eShop product button was expected to be disabled but was enabled");
+        basketHelper.checkProductButtonDisabled(driver, waiter);
     }
 
     @AccessMode(resID = "webmvc", concurrency = 10, sharing = true, accessMode = "READONLY")

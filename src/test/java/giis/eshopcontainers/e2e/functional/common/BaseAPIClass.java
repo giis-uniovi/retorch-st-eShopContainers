@@ -67,7 +67,7 @@ public class BaseAPIClass {
             if (envUrl == null) {
                 identityURL = properties.getProperty("LOCALHOST_IDENTITY_URL");
                 desktopBFFURL = properties.getProperty("LOCALHOST_DESKTOP_BFF_URL");
-                desktopBFFBaseURL = desktopBFFURL.replace("/api/v1", "");
+                desktopBFFBaseURL = properties.getProperty("LOCALHOST_BFF_URL");
                 paymentURL = properties.getProperty("LOCALHOST_PAYMENT_URL");
                 log.debug("Configuring to connect a local identity_api, whose URL is (SUT) at: {}", identityURL);
             } else {

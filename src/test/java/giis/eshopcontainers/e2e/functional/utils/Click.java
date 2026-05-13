@@ -2,7 +2,9 @@ package giis.eshopcontainers.e2e.functional.utils;
 
 import giis.eshopcontainers.e2e.functional.common.ElementNotFoundException;
 import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebDriverException;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.slf4j.Logger;
@@ -27,14 +29,14 @@ public class Click {
             ele.click();
             log.debug("Click.element (click): ele:{}:{} ==>OK", tagName, text);
             return driver;
-        } catch (Exception e) {
+        } catch (WebDriverException e) {
             log.error("Click.element (click): ele:{}:{} ==>KO {}:{}", tagName, text, e.getClass().getName(), e.getLocalizedMessage());
         }
         try {
             byJS(driver, ele);
             log.debug("Click.element by JS (click): ele:{}:{} ==>OK", tagName, text);
             return driver;
-        } catch (Exception e) {
+        } catch (WebDriverException e) {
             log.error("Click.element by JS (click): ele:{}:{} ==>KO {}:{}", tagName, text, e.getClass().getName(), e.getLocalizedMessage());
         }
         throw new ElementNotFoundException("Click.element ERROR");

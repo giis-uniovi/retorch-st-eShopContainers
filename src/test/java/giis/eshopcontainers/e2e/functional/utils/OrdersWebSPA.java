@@ -34,7 +34,7 @@ public class OrdersWebSPA extends Orders {
         navUtils.navigateToCheckout(driver, waiter);
         fillAddressDetails(driver, waiter, "Campus de Viesques, Edif. Polivalente – D.2.6.06", "Gijon", "Asturias", "Spain");
         fillPaymentDetails(driver, waiter, "6271 7012 2597 9642", "Jose Ramon", "03/38", "456");
-        checkOrderItems(driver, 3);
+        checkOrderAmountAndNumItems(driver, "$ 36.00", 3);
         By placeOrderLocator = By.xpath("//button[normalize-space(text())='Place Order']");
         waiter.waitUntil(ExpectedConditions.elementToBeClickable(placeOrderLocator), "Place Order button is not clickable");
         Click.element(driver, waiter, driver.findElement(placeOrderLocator));
@@ -132,10 +132,13 @@ public class OrdersWebSPA extends Orders {
     }
 
     /**
-     * Checks the expected number of order items in the checkout summary.
+     * Checks the expected number of order items and total amount in the checkout summary.
      */
-    private void checkOrderItems(WebDriver driver, int expectedNumItems) {
+    private void checkOrderAmountAndNumItems(WebDriver driver, String amount, int expectedNumItems) {
         List<WebElement> items = driver.findElements(By.cssSelector("article.divider--bottom"));
         Assertions.assertEquals(expectedNumItems, items.size(), "Expected " + expectedNumItems + " order items in checkout summary");
+        String numericValue = amount.replaceAll("[^0-9.,]", "");
+        Assertions.assertTrue(driver.getPageSource().contains(numericValue),
+                "Checkout page should display the total amount: " + amount);
     }
 }

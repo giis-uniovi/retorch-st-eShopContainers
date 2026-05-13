@@ -38,8 +38,8 @@ public class BaseLoggedClass {
     protected WebDriver driver;
     protected Waiter waiter;
     private static final SeleManager seleManager = new SeleManager(new SelemaConfig().setReportSubdir("target/containerlogs/" + (System.getProperty("TJOB_NAME") == null ? "" : System.getProperty("TJOB_NAME"))).setName(System.getProperty("TJOB_NAME") == null ? "locallogs" : System.getProperty("TJOB_NAME")));
-    protected String userName;
-    protected String password;
+    private String userName;
+    private String password;
     protected boolean isLogged = false;
     private static String dbURL;
     protected Navigation navHelper;
@@ -47,6 +47,8 @@ public class BaseLoggedClass {
     protected Basket basketHelper;
 
     public static String getDbURL() {return dbURL;}
+    protected String getUserName() { return userName; }
+    protected String getPassword() { return password; }
 
     @BeforeAll()
     static void setupAll() throws IOException { //28 lines
@@ -152,11 +154,15 @@ public class BaseLoggedClass {
     }
 
     @AfterEach
-    void tearDown(TestInfo testInfo) throws ElementNotFoundException {
+    void tearDown(TestInfo testInfo) {
         log.info("Disposing user and releasing/closing browser for the test {}", testInfo.getDisplayName());
         if (isLogged) {
             log.debug("Logging out user: {}", this.userName);
-            this.logout();
+            try {
+                this.logout();
+            } catch (ElementNotFoundException e) {
+                log.warn("Logout failed during tearDown (test still passes): {}", e.getMessage());
+            }
         }
     }
 

@@ -111,5 +111,11 @@ public class Basket extends Shopping {
     }
 
     public void checkProductButtonDisabled(WebDriver driver, Waiter waiter) throws ElementNotFoundException {
+        navUtils.toMainMenu(driver, waiter);
+        waiter.waitUntil(ExpectedConditions.numberOfElementsToBeMoreThan(By.className("esh-catalog-item"), 4),
+                "Expected more than 4 catalog items");
+        WebElement productButton = driver.findElement(By.xpath("/html/body/div/div[3]/div[1]/form/input[1]"));
+        Assertions.assertEquals("esh-catalog-button is-disabled", productButton.getAttribute("class"),
+                "The eShop product button was expected to be disabled but was enabled");
     }
 }
