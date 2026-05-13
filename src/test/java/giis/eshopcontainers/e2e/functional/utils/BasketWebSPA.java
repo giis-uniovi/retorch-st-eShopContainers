@@ -60,16 +60,6 @@ public class BasketWebSPA extends Basket {
     }
 
     /**
-     * Adds three products to the basket for order creation.
-     */
-    @Override
-    public void addProductsToBasket(WebDriver driver, Waiter waiter) throws ElementNotFoundException {
-        addProductToBasket(driver, waiter, 2, ".NET Blue Hoodie");
-        addProductToBasket(driver, waiter, 4, ".NET Foundation Pin");
-        addProductToBasket(driver, waiter, 5, ".NET Foundation T-shirt");
-    }
-
-    /**
      * Selects an option from the brand or type dropdown by passing 1-based, for then apply the filter and
      * wait for the catalog reloading.
      *
@@ -104,25 +94,11 @@ public class BasketWebSPA extends Basket {
         }
     }
 
-    /**
-     * Selects a brand filter.
-     *
-     * @param option 1 = All Brands, 2 = Net Core, 3 = Others.
-     */
     @Override
-    public void selectBrandFilter(WebDriver driver, Waiter waiter, Integer option) throws ElementNotFoundException {
-        selectFilter(driver, waiter, "brand", new String[]{"All Brands", "Net Core", "Others"}, option);
-    }
+    protected String getBrandFilterId() { return "brand"; }
 
-    /**
-     * Selects a type filter.
-     *
-     * @param option 1 = All Types, 2 = Mug, 3 = TShirt, 4 = Pin.
-     */
     @Override
-    public void selectTypeFilter(WebDriver driver, Waiter waiter, Integer option) throws ElementNotFoundException {
-        selectFilter(driver, waiter, "type", new String[]{"All Types", "Mug", "TShirt", "Pin"}, option);
-    }
+    protected String getTypeFilterId() { return "type"; }
 
     /**
      * Returns the total number of catalog items for the current filter by reading the

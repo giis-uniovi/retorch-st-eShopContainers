@@ -114,12 +114,13 @@ public class Orders extends Shopping {
 
     /**
      * Fills in address details during the checkout process, including the Street, State, City, and Country.
+     *
      * @param street  The street address to be filled in the address details.
      * @param state   The state information to be filled in the address details.
      * @param city    The city information to be filled in the address details.
      * @param country The country information to be filled in the address details.
      */
-    private void fillAddressDetails(WebDriver driver, Waiter waiter, String street, String state, String city, String country) {
+    protected void fillAddressDetails(WebDriver driver, Waiter waiter, String street, String state, String city, String country) {
         fillField(driver, waiter, By.id("Street"), street);
         fillField(driver, waiter, By.id("State"), state);
         fillField(driver, waiter, By.id("City"), city);
@@ -129,12 +130,13 @@ public class Orders extends Shopping {
     /**
      * Fills in payment details during the checkout process, including the Card Number, Cardholder Name,
      * Card Expiration Date, and Security Number.
+     *
      * @param cardNumber     The Card Number to be filled in the payment details.
      * @param cardHolderName The Cardholder Name to be filled in the payment details.
      * @param expirationDate The Card Expiration Date to be filled in the payment details.
      * @param secNumber      The Security Number to be filled in the payment details.
      */
-    private void fillPaymentDetails(WebDriver driver, Waiter waiter, String cardNumber, String cardHolderName, String expirationDate, String secNumber) {
+    protected void fillPaymentDetails(WebDriver driver, Waiter waiter, String cardNumber, String cardHolderName, String expirationDate, String secNumber) {
         log.debug("Filling payment details with Card Number: {}, Card Holder: {}, Expiration Date: {}, Security Number: {}",
                 cardNumber, cardHolderName, expirationDate, secNumber);
         fillField(driver, waiter, By.id("CardNumber"), cardNumber);

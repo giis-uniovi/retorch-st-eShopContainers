@@ -113,7 +113,8 @@ public class OrdersWebSPA extends Orders {
     /**
      * Fills in address details during checkout using CSS selectors (SPA version).
      */
-    private void fillAddressDetails(WebDriver driver, Waiter waiter, String street, String city, String state, String country) {
+    @Override
+    protected void fillAddressDetails(WebDriver driver, Waiter waiter, String street, String city, String state, String country) {
         fillField(driver, waiter, By.cssSelector("[placeholder='Street']"), street);
         fillField(driver, waiter, By.cssSelector("[placeholder='City']"), city);
         fillField(driver, waiter, By.cssSelector("[placeholder='state']"), state);
@@ -123,7 +124,8 @@ public class OrdersWebSPA extends Orders {
     /**
      * Fills in payment details during checkout using CSS selectors (SPA version).
      */
-    private void fillPaymentDetails(WebDriver driver, Waiter waiter, String cardNumber, String cardHolderName, String expirationDate, String secCode) {
+    @Override
+    protected void fillPaymentDetails(WebDriver driver, Waiter waiter, String cardNumber, String cardHolderName, String expirationDate, String secCode) {
         log.debug("Filling payment: card={}, holder={}, exp={}", cardNumber, cardHolderName, expirationDate);
         fillField(driver, waiter, By.cssSelector("[placeholder='000000000000000']"), cardNumber);
         fillField(driver, waiter, By.cssSelector("[placeholder='Card holder']"), cardHolderName);

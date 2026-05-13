@@ -71,12 +71,24 @@ public class Basket extends Shopping {
     }
 
     /**
+     * Returns the HTML element ID for the brand filter dropdown.
+     * Override in subclasses that use a different ID.
+     */
+    protected String getBrandFilterId() { return "BrandFilterApplied"; }
+
+    /**
+     * Returns the HTML element ID for the type filter dropdown.
+     * Override in subclasses that use a different ID.
+     */
+    protected String getTypeFilterId() { return "TypesFilterApplied"; }
+
+    /**
      * Selects a brand filter option for the eShopOnContainers catalog.
      * @param option The selected brand filter option: 1) All brands, 2)NETCore and 3) Others
      */
     public void selectBrandFilter(WebDriver driver, Waiter waiter, Integer option) throws ElementNotFoundException {
         String[] brandOptions = {"All Brands", "Net Core", "Others"};
-        selectFilter(driver, waiter, "BrandFilterApplied", brandOptions, option);
+        selectFilter(driver, waiter, getBrandFilterId(), brandOptions, option);
     }
 
     /**
@@ -85,7 +97,7 @@ public class Basket extends Shopping {
      */
     public void selectTypeFilter(WebDriver driver, Waiter waiter, Integer option) throws ElementNotFoundException {
         String[] typeOptions = {"All Types", "Mug", "TShirt", "Pin"};
-        selectFilter(driver, waiter, "TypesFilterApplied", typeOptions, option);
+        selectFilter(driver, waiter, getTypeFilterId(), typeOptions, option);
     }
 
     /**
