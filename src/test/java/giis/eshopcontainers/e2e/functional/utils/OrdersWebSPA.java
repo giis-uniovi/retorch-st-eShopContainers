@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * WebSPA order management helpers for order creation, cancellation, and state checking.
@@ -108,8 +109,6 @@ public class OrdersWebSPA extends Orders {
         Click.element(driver, waiter, cancelLink);
     }
 
-
-
     /**
      * Fills in address details during checkout using CSS selectors (SPA version).
      */
@@ -140,7 +139,7 @@ public class OrdersWebSPA extends Orders {
         List<WebElement> items = driver.findElements(By.cssSelector("article.divider--bottom"));
         Assertions.assertEquals(expectedNumItems, items.size(), "Expected " + expectedNumItems + " order items in checkout summary");
         String numericValue = amount.replaceAll("[^0-9.,]", "");
-        Assertions.assertTrue(driver.getPageSource().contains(numericValue),
+        Assertions.assertTrue(Objects.requireNonNull(driver.getPageSource()).contains(numericValue),
                 "Checkout page should display the total amount: " + amount);
     }
 }

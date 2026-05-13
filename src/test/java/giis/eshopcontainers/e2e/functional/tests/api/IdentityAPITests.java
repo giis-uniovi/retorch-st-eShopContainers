@@ -1,4 +1,4 @@
-package giis.eshopcontainers.e2e.functional.tests;
+package giis.eshopcontainers.e2e.functional.tests.api;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;

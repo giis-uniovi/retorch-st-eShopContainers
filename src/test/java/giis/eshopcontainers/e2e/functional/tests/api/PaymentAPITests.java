@@ -1,4 +1,4 @@
-package giis.eshopcontainers.e2e.functional.tests;
+package giis.eshopcontainers.e2e.functional.tests.api;
 
 import giis.eshopcontainers.e2e.functional.common.BaseAPIClass;
 import giis.eshopcontainers.e2e.functional.model.PaymentResponse;

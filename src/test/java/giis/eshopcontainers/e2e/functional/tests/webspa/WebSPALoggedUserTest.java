@@ -1,4 +1,4 @@
-package giis.eshopcontainers.e2e.functional.tests;
+package giis.eshopcontainers.e2e.functional.tests.webspa;
 
 import giis.eshopcontainers.e2e.functional.common.BaseWebSPALoggedClass;
 import giis.eshopcontainers.e2e.functional.common.ElementNotFoundException;

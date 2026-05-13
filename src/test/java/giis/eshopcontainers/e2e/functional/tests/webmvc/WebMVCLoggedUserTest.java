@@ -1,4 +1,4 @@
-package giis.eshopcontainers.e2e.functional.tests;
+package giis.eshopcontainers.e2e.functional.tests.webmvc;
 
 import giis.eshopcontainers.e2e.functional.common.BaseLoggedClass;
 import giis.eshopcontainers.e2e.functional.common.ElementNotFoundException;

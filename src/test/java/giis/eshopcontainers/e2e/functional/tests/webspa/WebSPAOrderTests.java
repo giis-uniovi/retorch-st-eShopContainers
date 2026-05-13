@@ -1,6 +1,6 @@
-package giis.eshopcontainers.e2e.functional.tests;
+package giis.eshopcontainers.e2e.functional.tests.webspa;
 
-import giis.eshopcontainers.e2e.functional.common.BaseLoggedClass;
+import giis.eshopcontainers.e2e.functional.common.BaseWebSPALoggedClass;
 import giis.eshopcontainers.e2e.functional.common.ElementNotFoundException;
 import giis.retorch.annotations.AccessMode;
 import org.junit.jupiter.api.DisplayName;
@@ -10,15 +10,15 @@ import java.util.LinkedList;
 
 
 /**
- * Test class for Order-related functionalities.
+ * Validates order creation and cancellation flows in the WebSPA frontend.
+ * The clearing of the basket is handled by {@code BaseWebSPALoggedClass}
  */
-class WebMVCOrderTests extends BaseLoggedClass {
+class WebSPAOrderTests extends BaseWebSPALoggedClass {
 
     /**
-     * Tests the creation of a new order in the MVC frontend and its correct state configuration.
+     * Tests the creation of a new order in the SPA frontend and its correct state configuration.
      */
-
-    @AccessMode(resID = "webmvc", concurrency = 10, sharing = true, accessMode = "READONLY")
+    @AccessMode(resID = "webspa", concurrency = 10, sharing = true, accessMode = "READONLY")
     @AccessMode(resID = "identity-api", concurrency = 50, sharing = true, accessMode = "READONLY")
     @AccessMode(resID = "catalog-api", concurrency = 60, sharing = true, accessMode = "READONLY")
     @AccessMode(resID = "basket-api", concurrency = 30, sharing = true, accessMode = "READWRITE")
@@ -27,25 +27,23 @@ class WebMVCOrderTests extends BaseLoggedClass {
     @AccessMode(resID = "chrome-browser", concurrency = 1, accessMode = "READWRITE")
     @AccessMode(resID = "eshopUser", concurrency = 1, accessMode = "READWRITE")
     @Test
-    @DisplayName("testCreateNewOrderMVC")
-    void testCreateNewOrderMVC() throws ElementNotFoundException {
-        LinkedList<String> expectedStatesPriorCancelling = new LinkedList<>();
-        expectedStatesPriorCancelling.add("submitted");
-        expectedStatesPriorCancelling.add("paid");
-
+    @DisplayName("testCreateNewOrderSPA")
+    void testCreateNewOrderSPA() throws ElementNotFoundException {
+        LinkedList<String> expectedStates = new LinkedList<>();
+        expectedStates.add("submitted");
+        expectedStates.add("paid");
         login();
         navHelper.toOrdersPage(driver, waiter);
         orderHelper.createOrder(driver,waiter);
-        orderHelper.checkLastOrderState(driver,waiter,expectedStatesPriorCancelling);
+        orderHelper.checkLastOrderState(driver,waiter,expectedStates);
         logout();
     }
 
     /**
-     * Created an order in the WebMVC frontend with three different products, fulfil the order data (payment and address) and removes it
+     * Created an order with three different products in the SPA frontend, fulfil the order data (payment and address) and removes it
      * checking that the order state changes as expected.
      */
-
-    @AccessMode(resID = "webmvc", concurrency = 10, sharing = true, accessMode = "READONLY")
+    @AccessMode(resID = "webspa", concurrency = 10, sharing = true, accessMode = "READONLY")
     @AccessMode(resID = "identity-api", concurrency = 50, sharing = true, accessMode = "READONLY")
     @AccessMode(resID = "catalog-api", concurrency = 60, sharing = true, accessMode = "READONLY")
     @AccessMode(resID = "basket-api", concurrency = 30, sharing = true, accessMode = "READWRITE")
@@ -54,25 +52,24 @@ class WebMVCOrderTests extends BaseLoggedClass {
     @AccessMode(resID = "chrome-browser", concurrency = 1, sharing = false, accessMode = "READWRITE")
     @AccessMode(resID = "eshopUser", concurrency = 1, accessMode = "READWRITE")
     @Test
-    @DisplayName("testCancelOrderMVC")
-    void testCancelOrderMVC() throws ElementNotFoundException {
+    @DisplayName("testCancelOrderSPA")
+    void testCancelOrderSPA() throws ElementNotFoundException {
         LinkedList<String> expectedStatesPriorCancelling = new LinkedList<>();
         expectedStatesPriorCancelling.add("submitted");
         expectedStatesPriorCancelling.add("stockconfirmed");
         LinkedList<String> expectedStatesPostCancelling = new LinkedList<>();
         expectedStatesPostCancelling.add("cancelled");
-        LinkedList <String> expectedStatesBeforeLongDelay = new LinkedList<>();
+        LinkedList<String> expectedStatesBeforeLongDelay = new LinkedList<>();
         expectedStatesBeforeLongDelay.add("paid");
 
-        login();
+        this.login();
         navHelper.toOrdersPage(driver, waiter);
         orderHelper.createOrder(driver,waiter);
         long startTime = System.currentTimeMillis();
-        orderHelper.checkLastOrderState( driver,waiter,expectedStatesPriorCancelling);
-        long endTime = System.currentTimeMillis();
-        long duration =endTime-startTime;
-        log.debug("The time invested in place the order was: {}s", duration);
-        if(duration<=3000) {
+        orderHelper.checkLastOrderState(driver,waiter,expectedStatesPriorCancelling);
+        long duration = System.currentTimeMillis() - startTime;
+        log.debug("Time invested in placing the order: {}ms", duration);
+        if (duration <= 3000) {
             orderHelper.cancelLastOrder(driver,waiter);
             orderHelper.checkLastOrderState(driver,waiter,expectedStatesPostCancelling);
         }
@@ -83,4 +80,3 @@ class WebMVCOrderTests extends BaseLoggedClass {
         logout();
     }
 }
-

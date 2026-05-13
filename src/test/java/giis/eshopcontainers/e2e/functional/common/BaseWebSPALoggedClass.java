@@ -49,7 +49,12 @@ public class BaseWebSPALoggedClass extends BaseLoggedClass {
 
     private static String addBase64Padding(String base64Url) {
         int mod = base64Url.length() % 4;
-        return mod == 0 ? base64Url : base64Url + "=".repeat(4 - mod);
+        switch (mod) {
+            case 1: return base64Url + "===";
+            case 2: return base64Url + "==";
+            case 3: return base64Url + "=";
+            default: return base64Url;
+        }
     }
 
     /**
