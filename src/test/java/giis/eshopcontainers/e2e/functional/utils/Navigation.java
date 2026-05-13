@@ -17,12 +17,10 @@ import org.slf4j.LoggerFactory;
 public class Navigation {
     public static final Logger log = LoggerFactory.getLogger(Navigation.class);
 
-    // WebMVC
-
     /**
      * Returns to the catalog home page by clicking the top logo image.
      */
-    public static void toMainMenu(WebDriver driver, Waiter waiter) throws ElementNotFoundException {
+    public void toMainMenu(WebDriver driver, Waiter waiter) throws ElementNotFoundException {
         log.debug("Navigating to main menu (WebMVC), clicking logo...");
         waiter.waitUntil(ExpectedConditions.visibilityOfElementLocated(By.xpath("//img")), "The menu image is not visible");
         Click.element(driver, waiter, driver.findElement(By.xpath("//img")));
@@ -31,10 +29,10 @@ public class Navigation {
     /**
      * Navigates to the Orders page via the WebMVC identity drop-down menu.
      */
-    public static void toOrdersPage(WebDriver driver, Waiter waiter) throws ElementNotFoundException {
+    public void toOrdersPage(WebDriver driver, Waiter waiter) throws ElementNotFoundException {
         toMainMenu(driver, waiter);
         log.debug("Navigating to orders page (WebMVC)...");
-        Navigation.toMainMenu(driver, waiter);
+        toMainMenu(driver, waiter);
         WebElement ordersButton;
         try {
             ordersButton = driver.findElement(By.xpath("//*[@id=\"logoutForm\"]/section[2]/a[1]/div"));
@@ -51,46 +49,19 @@ public class Navigation {
         Click.element(driver, waiter, ordersButton);
     }
 
-    // -----------------------------------------------------------------------
-    // WebSPA
-    // -----------------------------------------------------------------------
-
     /**
-     * Returns to the catalog home page by clicking the Angular app header logo.
+     * Navigates to the checkout page and checks that the total amount of money for being paid is the expected one
+     * @param priceOrder Price of the selected order products
      */
-    public static void toMainMenuSPA(WebDriver driver, Waiter waiter) throws ElementNotFoundException {
-        log.debug("Navigating to main menu (WebSPA), clicking header logo...");
-        By logoLocator = By.className("esh-app-header-brand");
-        waiter.waitUntil(ExpectedConditions.visibilityOfElementLocated(logoLocator), "Header logo is not visible");
-        Click.element(driver, waiter, driver.findElement(logoLocator));
-        waiter.waitUntil(ExpectedConditions.numberOfElementsToBeMoreThan(By.className("esh-catalog-item"), 0),
-                "Catalog items did not appear after navigating to main menu");
-    }
-
-    /**
-     * Navigates to the Orders page via the WebSPA Angular identity component.
-     * The {@code .esh-identity-drop} section is always rendered when authenticated
-     * so no explicit dropdown expansion is needed.
-     */
-    public static void toOrdersPageSPA(WebDriver driver, Waiter waiter) throws ElementNotFoundException {
-        toMainMenuSPA(driver, waiter);
-        log.debug("Navigating to orders page (WebSPA), hovering identity and clicking My orders...");
-        // The .esh-identity-drop is CSS hover-triggered; JS click bypasses the visibility guard.
-        By myOrdersLocator = By.xpath(
-                "//*[contains(@class,'esh-identity-item')]//*[normalize-space(text())='My orders']");
-        waiter.waitUntil(ExpectedConditions.presenceOfElementLocated(myOrdersLocator),
-                "'My orders' link not found in DOM");
-        Click.byJS(driver, driver.findElement(myOrdersLocator));
-        waiter.waitUntil(ExpectedConditions.urlContains("orders"), "Orders page did not load");
-    }
-    public static void navigateToCheckoutSPA(WebDriver driver, Waiter waiter) throws ElementNotFoundException {
-        By basketLocator = By.className("esh-basketstatus");
-        waiter.waitUntil(ExpectedConditions.elementToBeClickable(basketLocator), "Basket icon is not clickable");
-        Click.element(driver, waiter, driver.findElement(basketLocator));
-        waiter.waitUntil(ExpectedConditions.urlContains("basket"), "Basket page did not load");
-        By checkoutLocator = By.xpath("//button[normalize-space(text())='Checkout']");
-        waiter.waitUntil(ExpectedConditions.elementToBeClickable(checkoutLocator), "Checkout button is not clickable");
-        Click.element(driver, waiter, driver.findElement(checkoutLocator));
-        waiter.waitUntil(ExpectedConditions.urlContains("order"), "Checkout form did not load");
+    public void navigateToCheckout(WebDriver driver, Waiter waiter) throws ElementNotFoundException {
+        WebElement menuOrder = driver.findElement(By.xpath("/html/body/header/div/article/section[3]/a/div[2]"));
+        Click.element(driver, waiter, menuOrder);
+        // Get the order price and check if it's correct
+        //WebElement totalAmountBasket = driver.findElement(By.xpath("//*[@id=\"cartForm\"]/div/div[2]/div[4]/article[2" +
+        //        "]/section[2]"));
+        //Assertions.assertEquals(priceOrder, totalAmountBasket.getText());
+        //Click into the Checkout button
+        WebElement buttonCheckout = driver.findElement(By.name("action"));
+        Click.element(driver, waiter, buttonCheckout);
     }
 }

@@ -36,7 +36,6 @@ class WebSPALoggedUserTest extends BaseWebSPALoggedClass {
         Assertions.assertTrue(Objects.requireNonNull(firstItem.getAttribute("class")).contains("is-disabled"), "Catalog item should be disabled before login, class was: " + firstItem.getAttribute("class"));
 
         this.login();
-
         // After login: Checks that the username is displayed and the catalog products are enabled.
         WebElement loggedUser = driver.findElement(By.cssSelector(".esh-identity-section .esh-identity-name"));
         String displayedName = loggedUser.getText();

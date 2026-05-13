@@ -1,8 +1,6 @@
 package giis.eshopcontainers.e2e.functional.common;
 
-import giis.eshopcontainers.e2e.functional.utils.Click;
-import giis.eshopcontainers.e2e.functional.utils.Navigation;
-import giis.eshopcontainers.e2e.functional.utils.Waiter;
+import giis.eshopcontainers.e2e.functional.utils.*;
 import giis.selema.framework.junit5.LifecycleJunit5;
 import giis.selema.manager.SeleManager;
 import giis.selema.manager.SelemaConfig;
@@ -44,6 +42,9 @@ public class BaseLoggedClass {
     protected String password;
     protected boolean isLogged = false;
     private static String dbURL;
+    protected Navigation navHelper;
+    protected Orders orderHelper;
+    protected Basket basketHelper;
 
     public static String getDbURL() {return dbURL;}
 
@@ -85,8 +86,17 @@ public class BaseLoggedClass {
         // Navigate to SUT URL
         log.debug("Navigating to {}.", sutUrl);
         driver.get(sutUrl);
-
+        //Instantiate the different helpers
+        //Instantiate the navigation and shopping helpers
+        initializeHelpers();
         log.info("Individual Set-up for the TJob {} finished, starting test: {}.", tJobName, testInfo.getDisplayName());
+    }
+
+    // Default helpers are initialized here
+    protected void initializeHelpers() {
+        this.navHelper = new Navigation(); // Assuming they need driver/waiter
+        this.basketHelper = new Basket();
+        this.orderHelper = new Orders();
     }
 
     /**
@@ -112,7 +122,7 @@ public class BaseLoggedClass {
      * Logs in the user with the specified credentials navigating to the main menu.
      */
     protected void login() throws ElementNotFoundException {
-        Navigation.toMainMenu(driver, waiter);
+        navHelper.toMainMenu(driver, waiter);
         log.debug("Logging in user: {}", userName);
         // Click the "Login" button
         By loginButtonXPath = By.xpath("//a[contains(text(),'Login')]");
@@ -155,7 +165,7 @@ public class BaseLoggedClass {
      */
     protected void logout() throws ElementNotFoundException {
         // Navigate to the main menu
-        Navigation.toMainMenu(driver, waiter);
+        navHelper.toMainMenu(driver, waiter);
         WebElement logoutElement;
         try {
             // Attempt to locate the logout link directly

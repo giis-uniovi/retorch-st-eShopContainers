@@ -2,15 +2,12 @@ package giis.eshopcontainers.e2e.functional.tests;
 
 import giis.eshopcontainers.e2e.functional.common.BaseWebSPALoggedClass;
 import giis.eshopcontainers.e2e.functional.common.ElementNotFoundException;
-import giis.eshopcontainers.e2e.functional.utils.Navigation;
-import giis.eshopcontainers.e2e.functional.utils.Shopping;
 import giis.retorch.annotations.AccessMode;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.util.LinkedList;
 
-import static giis.eshopcontainers.e2e.functional.utils.Navigation.*;
 
 /**
  * Validates order creation and cancellation flows in the WebSPA frontend.
@@ -35,14 +32,12 @@ class WebSPAOrderTests extends BaseWebSPALoggedClass {
         LinkedList<String> expectedStates = new LinkedList<>();
         expectedStates.add("submitted");
         expectedStates.add("paid");
-
         login();
-        Navigation.toOrdersPageSPA(driver, waiter);
-        Shopping.createOrder(driver,waiter);
-        Shopping.checkLastOrderState(expectedStates,driver,waiter);
+        navHelper.toOrdersPage(driver, waiter);
+        orderHelper.createOrder(driver,waiter);
+        orderHelper.checkLastOrderState(driver,waiter,expectedStates);
         logout();
     }
-
 
     /**
      * Created an order with three different products in the SPA frontend, fulfil the order data (payment and address) and removes it
@@ -67,25 +62,21 @@ class WebSPAOrderTests extends BaseWebSPALoggedClass {
         LinkedList<String> expectedStatesBeforeLongDelay = new LinkedList<>();
         expectedStatesBeforeLongDelay.add("paid");
 
-        login();
-        toOrdersPageSPA(driver, waiter);
-        Shopping.createOrder(driver,waiter);
+        this.login();
+        navHelper.toOrdersPage(driver, waiter);
+        orderHelper.createOrder(driver,waiter);
         long startTime = System.currentTimeMillis();
-        Shopping.checkLastOrderState(expectedStatesPriorCancelling,driver,waiter);
+        orderHelper.checkLastOrderState(driver,waiter,expectedStatesPriorCancelling);
         long duration = System.currentTimeMillis() - startTime;
         log.debug("Time invested in placing the order: {}ms", duration);
         if (duration <= 3000) {
-            Shopping.cancelLastOrder(driver,waiter);
-            Shopping.checkLastOrderState(expectedStatesPostCancelling,driver,waiter);
-        } else {
-            Shopping.checkLastOrderState(expectedStatesBeforeLongDelay,driver,waiter);
+            orderHelper.cancelLastOrder(driver,waiter);
+            orderHelper.checkLastOrderState(driver,waiter,expectedStatesPostCancelling);
         }
+        else {
+            orderHelper.checkLastOrderState(driver,waiter,expectedStatesBeforeLongDelay);
+        }
+
         logout();
     }
-
-    // -----------------------------------------------------------------------
-    // Order list helpers
-    // -----------------------------------------------------------------------
-
-
 }

@@ -1,7 +1,7 @@
 package giis.eshopcontainers.e2e.functional.common;
 
 import com.google.gson.JsonParser;
-import giis.eshopcontainers.e2e.functional.utils.Click;
+import giis.eshopcontainers.e2e.functional.utils.*;
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpDelete;
@@ -50,6 +50,16 @@ public class BaseWebSPALoggedClass extends BaseLoggedClass {
             sutUrl = "http://webspa_" + tJobName + ":80";
         }
         log.info("WebSPA tests will connect to: {}", sutUrl);
+    }
+
+    /**
+     * Overrides initialization methods to get the correct helpers for this case.
+     */
+    @Override
+    protected void initializeHelpers() {
+        this.navHelper = new NavigationWebSPA();
+        this.basketHelper = new BasketWebSPA();
+        this.orderHelper = new OrdersWebSPA();
     }
 
     /**
