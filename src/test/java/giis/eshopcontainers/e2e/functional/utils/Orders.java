@@ -109,7 +109,7 @@ public class Orders extends Shopping {
                     waiter.waitUntil(ExpectedConditions.not(ExpectedConditions.textToBePresentInElement(statusElement, actualState)),
                             "The actual state remains untouched");
                     log.debug("Refreshing the webpage to update order status...");
-                } catch (Exception ex) {
+                } catch (TimeoutException ex) {
                     log.debug("Timeout the element remains with the previous state, previous was{}current is:{}", actualState, statusElement.getText());
                 }
             }

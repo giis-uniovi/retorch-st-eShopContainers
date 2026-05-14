@@ -17,6 +17,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.openqa.selenium.By;
+import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.StaleElementReferenceException;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.interactions.Actions;
@@ -42,12 +43,16 @@ import java.util.List;
 public class BaseWebSPALoggedClass extends BaseLoggedClass {
 
 
+    private static String buildContainerUrl(String containerPattern) {
+        return "http://" + containerPattern + "_" + tJobName + ":80";
+    }
+
     private static String resolveUrl(String envKey, String localPropKey, String containerPattern) {
         String envUrl = System.getProperty(envKey) != null
                 ? System.getProperty(envKey) : System.getenv(envKey);
         return envUrl == null
                 ? properties.getProperty(localPropKey)
-                : "http://" + containerPattern + "_" + tJobName + ":80";
+                : buildContainerUrl(containerPattern);
     }
 
     private static String addBase64Padding(String base64Url) {
@@ -173,7 +178,7 @@ public class BaseWebSPALoggedClass extends BaseLoggedClass {
         for (int retry = 0; retry < 3 && displayedName.isEmpty(); retry++) {
             try {
                 displayedName = driver.findElement(loginSelector).getText();
-            } catch (Exception e) {
+            } catch (StaleElementReferenceException | NoSuchElementException e) {
                 log.debug("Stale element on login name read, retrying ({})...", retry + 1);
             }
         }

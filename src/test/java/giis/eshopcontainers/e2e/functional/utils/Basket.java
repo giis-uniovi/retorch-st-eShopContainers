@@ -124,6 +124,7 @@ public class Basket extends Shopping {
     public Integer numberCatalogDisplayedItems(WebDriver driver, Waiter waiter) throws ElementNotFoundException {
         int totalItems = 0;
 
+        waiter.waitUntil(ExpectedConditions.presenceOfElementLocated(By.id("Next")), "Next button not present");
         log.debug("Checking the visibility of the Next button");
         WebElement nextButton = driver.findElement(By.id("Next"));
 

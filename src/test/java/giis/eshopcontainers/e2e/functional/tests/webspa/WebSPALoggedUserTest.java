@@ -10,8 +10,6 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 
-import java.util.Objects;
-
 /**
  * Verifies that login/logout work correctly in the WebSPA frontend, checking that the
  * catalog items are disabled and the menus display the correct state.
@@ -33,7 +31,7 @@ class WebSPALoggedUserTest extends BaseWebSPALoggedClass {
         // Check that the Catalog products are disabled before the logging
         waiter.waitUntil(ExpectedConditions.numberOfElementsToBeMoreThan(By.className("esh-catalog-item"), 0), "No catalog items rendered before login");
         WebElement firstItem = driver.findElement(By.className("esh-catalog-item"));
-        Assertions.assertTrue(Objects.requireNonNull(firstItem.getAttribute("class")).contains("is-disabled"), "Catalog item should be disabled before login, class was: " + firstItem.getAttribute("class"));
+        Assertions.assertTrue(firstItem.getAttribute("class").contains("is-disabled"), "Catalog item should be disabled before login, class was: " + firstItem.getAttribute("class"));
 
         this.login();
         // After login: Checks that the username is displayed and the catalog products are enabled.
@@ -44,7 +42,7 @@ class WebSPALoggedUserTest extends BaseWebSPALoggedClass {
 
         waiter.waitUntil(ExpectedConditions.numberOfElementsToBeMoreThan(By.className("esh-catalog-item"), 0), "No catalog items rendered after login");
         WebElement enabledItem = driver.findElement(By.className("esh-catalog-item"));
-        Assertions.assertFalse(Objects.requireNonNull(enabledItem.getAttribute("class")).contains("is-disabled"), "Catalog item should be enabled after login, class was: " + enabledItem.getAttribute("class"));
+        Assertions.assertFalse(enabledItem.getAttribute("class").contains("is-disabled"), "Catalog item should be enabled after login, class was: " + enabledItem.getAttribute("class"));
 
         this.logout();
     }

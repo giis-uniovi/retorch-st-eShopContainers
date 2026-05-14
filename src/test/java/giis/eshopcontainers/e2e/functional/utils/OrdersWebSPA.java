@@ -116,7 +116,7 @@ public class OrdersWebSPA extends Orders {
             }
             try {
                 waiter.waitUntil(ExpectedConditions.not(ExpectedConditions.textToBePresentInElement(statusElement, actualState)), "Order status has not changed yet");
-            } catch (Exception ex) {
+            } catch (TimeoutException ex) {
                 log.debug("Status unchanged after wait, retrying...");
             }
         }

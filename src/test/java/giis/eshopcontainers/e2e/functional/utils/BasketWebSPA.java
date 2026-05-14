@@ -3,17 +3,15 @@ package giis.eshopcontainers.e2e.functional.utils;
 import giis.eshopcontainers.e2e.functional.common.ElementNotFoundException;
 import org.junit.jupiter.api.Assertions;
 import org.openqa.selenium.By;
+import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
-import org.openqa.selenium.support.ui.WebDriverWait;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.time.Duration;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * This class extends {@code Basket} with the necessary overrides SPA-specific selectors and interactions
@@ -43,7 +41,7 @@ public class BasketWebSPA extends Basket {
         waiter.waitUntil(ExpectedConditions.numberOfElementsToBeMoreThan(By.className("esh-catalog-item"), numProduct - 1), "Not enough catalog items loaded for position " + numProduct);
         List<WebElement> catalogItems = driver.findElements(By.className("esh-catalog-item"));
         WebElement item = catalogItems.get(numProduct - 1);
-        Assertions.assertFalse(Objects.requireNonNull(item.getAttribute("class")).contains("is-disabled"), "Product '" + productName + "' is disabled — is the user logged in?");
+        Assertions.assertFalse(item.getAttribute("class").contains("is-disabled"), "Product '" + productName + "' is disabled — is the user logged in?");
         Click.element(driver, waiter, item);
         int expected = numItemsPriorAdd + 1;
         waiter.waitUntil(ExpectedConditions.textToBe(By.className("esh-basketstatus-badge"), String.valueOf(expected)), "Basket count did not increase to " + expected + " after adding '" + productName + "'");
@@ -61,7 +59,7 @@ public class BasketWebSPA extends Basket {
         navUtils.toMainMenu(driver, waiter);
         waiter.waitUntil(ExpectedConditions.numberOfElementsToBeMoreThan(By.className("esh-catalog-item"), 4), "Expected more than 4 catalog items");
         WebElement firstItem = driver.findElement(By.className("esh-catalog-item"));
-        Assertions.assertTrue(Objects.requireNonNull(firstItem.getAttribute("class")).contains("is-disabled"), "Catalog item should be disabled when not logged in, class was: " + firstItem.getAttribute("class"));
+        Assertions.assertTrue(firstItem.getAttribute("class").contains("is-disabled"), "Catalog item should be disabled when not logged in, class was: " + firstItem.getAttribute("class"));
     }
 
     /**
@@ -94,10 +92,10 @@ public class BasketWebSPA extends Basket {
 
         final String capturedText = pagerTextBefore;
         try {
-            new WebDriverWait(driver, Duration.ofSeconds(3)).until(ExpectedConditions.not(ExpectedConditions.textToBe(pagerInfoLocator, capturedText)));
+            waiter.waitUntil(ExpectedConditions.not(ExpectedConditions.textToBe(pagerInfoLocator, capturedText)), "Pager did not update after filter");
             log.debug("Pager updated after filter, was: '{}'", capturedText);
-        } catch (org.openqa.selenium.TimeoutException e) {
-            log.debug("Pager unchanged after 3s (same count expected for this filter combination)");
+        } catch (TimeoutException e) {
+            log.debug("Pager unchanged (same count expected for this filter combination)");
         }
     }
 
