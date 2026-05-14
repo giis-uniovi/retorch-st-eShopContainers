@@ -47,7 +47,7 @@ public class NavigationWebSPA extends Navigation {
     }
 
     /**
-     * Navigates to the Orders checkout through the basket button .
+     * Navigates to the Orders checkout through the basket button.
      */
     @Override
     public void navigateToCheckout(WebDriver driver, Waiter waiter) throws ElementNotFoundException {

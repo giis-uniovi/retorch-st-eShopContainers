@@ -9,6 +9,9 @@ import org.junit.jupiter.api.Test;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 
+/**
+ * Test class for authentification-related functionalities.
+ */
 class WebMVCLoggedUserTest extends BaseLoggedClass {
 
     @AccessMode(resID = "webmvc", concurrency = 10, sharing = true, accessMode = "READONLY")

@@ -202,7 +202,7 @@ class BasketAPITests extends BaseAPIClass {
     }
 
     /**
-     * Support method to provide to the Basket request the neccesary heathers: the type of content accepted and submited
+     * Support method to provide to the Basket request the necessary headers: the type of content accepted and submitted
      * as well as the token-Bearer
      */
     private void addBasketHeaders(HttpRequestBase request) {

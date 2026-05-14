@@ -11,8 +11,8 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Navigation helpers for both the WebMVC and WebSPA frontends.
- * Methods with the {@code SPA} suffix use Angular-specific selectors; the
- * plain variants target the server-rendered WebMVC markup.
+ * The variants required for the WebSPA are addressed overriding in the
+ * {@code NavigationWebSPA} class.
  */
 public class Navigation {
     public static final Logger log = LoggerFactory.getLogger(Navigation.class);

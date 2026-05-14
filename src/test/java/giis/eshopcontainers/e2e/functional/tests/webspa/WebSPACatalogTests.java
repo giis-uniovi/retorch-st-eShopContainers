@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 
 /**
  * Contains all the test cases that validates catalog browsing features of the WebSPA frontend
- * including the functionalities of add a new product to the basket and filtering by brand/type:
+ * including the functionalities of add a new product to the basket and filtering by brand/type.
  *
  */
 class WebSPACatalogTests extends BaseWebSPALoggedClass {

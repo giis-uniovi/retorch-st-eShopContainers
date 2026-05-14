@@ -7,7 +7,9 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-
+/**
+ * Test class for Catalog-related functionalities.
+ */
 class WebMVCCatalogTests extends BaseLoggedClass {
 
     @AccessMode(resID = "webmvc", concurrency = 10, sharing = true, accessMode = "READONLY")

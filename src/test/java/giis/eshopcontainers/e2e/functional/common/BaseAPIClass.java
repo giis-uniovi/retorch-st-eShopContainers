@@ -77,7 +77,7 @@ public class BaseAPIClass {
                 paymentURL = "http://payment_api_" + tJobName + ":80";
                 log.debug("Configuring the API test to use docker network connectivity, identity api at following URL: {}", identityURL);
             }
-            tokenAPI = getTokenWithPasswd(identityURL);
+            tokenAPI = getTokenWithPassword(identityURL);
             tokenOrdering = getTokenForScope(identityURL, "orders");
             log.debug("Basket token acquired (length={})", tokenAPI.length());
             log.debug("Ordering token acquired (length={})", tokenOrdering.length());
@@ -94,7 +94,7 @@ public class BaseAPIClass {
      * @param identityURI base URL of the identity/token endpoint
      * @return access token string
      */
-    public static String getTokenWithPasswd(String identityURI) throws IOException {
+    public static String getTokenWithPassword(String identityURI) throws IOException {
         return getTokenForScope(identityURI, properties.getProperty("API_SCOPE"));
     }
 
@@ -164,7 +164,7 @@ public class BaseAPIClass {
         }
     }
 
-    /*Support methods to extract bodies and status codes in the different API tests*/
+    //Support methods to extract bodies and status codes in the different API tests
     protected String getOrderingProxyBody(String path) throws IOException {
         return executeGet(getDesktopBFFOrderingURL() + path, tokenOrdering);
     }

@@ -43,7 +43,9 @@ class OrderingAPITests extends BaseAPIClass {
         );
     }
 
-    /** Check that the list of orders for a user, differentiating between code 200 + orders JSON,empty in a clean env*/
+    /**
+     * Check that the list of orders for a user, differentiating between code 200 + orders JSON,empty in a clean env
+     */
     @AccessMode(resID = "identity-api", concurrency = 50, sharing = true, accessMode = "READONLY")
     @AccessMode(resID = "ordering-api", concurrency = 50, sharing = true, accessMode = "READONLY")
     @AccessMode(resID = "eshopUser", concurrency = 1, accessMode = "READONLY")
@@ -57,7 +59,9 @@ class OrderingAPITests extends BaseAPIClass {
         Assertions.assertNotNull(orders, "Orders response cannot be null");
     }
 
-    /** Test that checks that against and non-existent order id the API raises a 404 HTTP status code*/
+    /**
+     * Test that checks that against and non-existent order id the API raises a 404 HTTP status code
+     */
     @AccessMode(resID = "identity-api", concurrency = 50, sharing = true, accessMode = "READONLY")
     @AccessMode(resID = "ordering-api", concurrency = 50, sharing = true, accessMode = "READONLY")
     @Test

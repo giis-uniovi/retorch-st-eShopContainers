@@ -1,5 +1,7 @@
 package giis.eshopcontainers.e2e.functional.model;
 
+/** {@code CatalogItem} DTO employed to serialize the different products that are available in the
+ * eShopOnContainers product catalog.*/
 public class CatalogItem {
 
     private int id;

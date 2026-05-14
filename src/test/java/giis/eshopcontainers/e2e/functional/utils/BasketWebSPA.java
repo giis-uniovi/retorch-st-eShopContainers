@@ -49,7 +49,7 @@ public class BasketWebSPA extends Basket {
     }
 
     /**
-     * Support method that enables the catalog navigation the checking that all visible products items are disabled
+     * Support method that checks if the catalog correctly dis products button and its state before the login
      *
      * @param driver {@code WebDriver} on which the operations are performed.
      * @param waiter {@code Waiter} to perform the necessary async waits.
@@ -63,7 +63,7 @@ public class BasketWebSPA extends Basket {
     }
 
     /**
-     * Selects an option from the brand or type dropdown by passing 1-based, for then apply the filter and
+     * Selects an option from the brand or type dropdown by passing 1-based, for then filtering and
      * wait for the catalog reloading.
      *
      * @param driver        {@code WebDriver} on which the operations are performed.

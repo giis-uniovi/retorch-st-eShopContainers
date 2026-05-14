@@ -41,7 +41,7 @@ public class Basket extends Shopping {
     }
 
     /**
-     * Support methods that add three test product to the eshop basket.
+     * Support methods that add three test products to the eshop basket.
      *
      * @param driver {@code WebDriver} on which the operations are performed.
      * @param waiter {@code Waiter} to perform the necessary async waits.

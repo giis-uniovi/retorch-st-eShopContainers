@@ -145,7 +145,7 @@ public class BaseWebSPALoggedClass extends BaseLoggedClass {
 
     /**
      * Override login, uses the WebSPA frontend, waiting for the {@code .esh-identity-drop}
-     * only rendered when {@code authenticated=true}) retrying several times if the authentification takes
+     * only rendered when {@code authenticated=true}) retrying several times if the authentication takes
      * more time than expected.
      */
     @Override

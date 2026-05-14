@@ -1,5 +1,7 @@
 package giis.eshopcontainers.e2e.functional.model;
 
+/** {@code OrderItem} DTO employed to serialize the different products that compose a client order in
+ * the eShopOnContainers application.*/
 public class OrderItem {
     private int productId;
     private String productName;

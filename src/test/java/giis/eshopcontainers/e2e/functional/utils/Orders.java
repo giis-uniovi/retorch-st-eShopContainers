@@ -59,7 +59,7 @@ public class Orders extends Shopping {
      * Method to verify if an order is correctly placed by ensuring that the basket is empty.
      * This verification should also be extended to the consistency of the database, not solely relying on the final
      * UI state.
-     * While detailed functional tests are not conducted, this UI check its enough for now.
+     *
      * @return true if the basket is empty (no elements), otherwise returns false.
      **/
     public boolean checkOrderPlaced(WebDriver driver, Waiter waiter) throws ElementNotFoundException {
@@ -82,7 +82,7 @@ public class Orders extends Shopping {
     /**
      * This method is used to check if the state of the last order is the expected. In eShopContainers order list, the
      * different orders that the user create are ordered by inverse date. In this method we make an iterative order
-     * because in some cases the order state it's not updated as soon as expected, and remains for miliseconds-seconds as
+     * because in some cases the order state it's not updated as soon as expected, and remains for milliseconds as
      * "awaitingvalidation" state
      *
      * @param driver         {@code WebDriver} on which the operations are performed.

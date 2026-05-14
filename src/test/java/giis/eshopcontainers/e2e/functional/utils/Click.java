@@ -16,7 +16,8 @@ public class Click {
     private static final Logger log = LoggerFactory.getLogger(Click.class);
 
     /**
-     * Clicks on the specified WebElement using the default method provided by the browser. If that method fails, it attempts to perform the click operation using JavaScript.
+     * Clicks on the specified WebElement using the default method provided by the browser.
+     * If that method fails, it attempts to perform the click operation using JavaScript.
      *
      * @param driver {@code WebDriver} on which the operations are performed.
      * @param waiter {@code Waiter} to perform the necessary async waits.
