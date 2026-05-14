@@ -88,8 +88,6 @@ public class BaseLoggedClass {
         // Navigate to SUT URL
         log.debug("Navigating to {}.", sutUrl);
         driver.get(sutUrl);
-        //Instantiate the different helpers
-        //Instantiate the navigation and shopping helpers
         initializeHelpers();
         log.info("Individual Set-up for the TJob {} finished, starting test: {}.", tJobName, testInfo.getDisplayName());
     }

@@ -118,6 +118,9 @@ public class OrdersWebSPA extends Orders {
                 waiter.waitUntil(ExpectedConditions.not(ExpectedConditions.textToBePresentInElement(statusElement, actualState)), "Order status has not changed yet");
             } catch (TimeoutException ex) {
                 log.debug("Status unchanged after wait, retrying...");
+            } catch (org.openqa.selenium.WebDriverException ex) {
+                log.debug("Navigation/state issue during order status check, retrying: {}", ex.getMessage());
+                navUtils.toOrdersPage(driver, waiter);
             }
         }
         Assertions.assertFalse(actualState.isEmpty(), "No orders appeared in the list after " + maxIterations + " iterations");

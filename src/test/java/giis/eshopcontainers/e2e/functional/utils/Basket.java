@@ -132,6 +132,7 @@ public class Basket extends Shopping {
             totalItems += driver.findElements(By.className("esh-catalog-item")).size();
             log.debug("Clicking to go to the next page. The total number of items on the first page is: {}", totalItems);
             Click.element(driver, waiter, nextButton);
+            waiter.waitUntil(ExpectedConditions.stalenessOf(nextButton), "Next button did not become stale after click");
         } else {
             log.debug("Next button not visible. Counting only the elements on the current page.");
         }

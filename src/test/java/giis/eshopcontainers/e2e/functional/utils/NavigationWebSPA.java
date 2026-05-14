@@ -24,6 +24,9 @@ public class NavigationWebSPA extends Navigation {
      * Navigates to the Orders page.
      * The {@code .esh-identity-drop} section is always rendered when authenticated
      * so no explicit dropdown expansion is needed.
+     * Note: this override intentionally does NOT call {@code super.toOrdersPage}
+     * because the parent uses WebMVC-specific selectors; calling it would trigger
+     * a redundant {@code toMainMenu} navigation.
      */
     @Override
     public void toOrdersPage(WebDriver driver, Waiter waiter) throws ElementNotFoundException {

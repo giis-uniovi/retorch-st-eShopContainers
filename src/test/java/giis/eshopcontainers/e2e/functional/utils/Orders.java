@@ -111,6 +111,9 @@ public class Orders extends Shopping {
                     log.debug("Refreshing the webpage to update order status...");
                 } catch (TimeoutException ex) {
                     log.debug("Timeout the element remains with the previous state, previous was{}current is:{}", actualState, statusElement.getText());
+                } catch (org.openqa.selenium.WebDriverException ex) {
+                    log.debug("Navigation/state issue during order status check, retrying: {}", ex.getMessage());
+                    navUtils.toOrdersPage(driver, waiter);
                 }
             }
         }

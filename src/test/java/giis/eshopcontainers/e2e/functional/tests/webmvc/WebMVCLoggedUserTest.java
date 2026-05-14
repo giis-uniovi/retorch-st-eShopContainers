@@ -24,7 +24,7 @@ class WebMVCLoggedUserTest extends BaseLoggedClass {
     void loginTestMVC() throws ElementNotFoundException {
         this.login();
         WebElement loggedUser = driver.findElement(By.xpath("//*[@id=\"logoutForm\"]/section[1]/div"));
-        Assertions.assertEquals("alice", loggedUser.getText(), "The user logged is not the expected, the expected was alice and the obtained is " + loggedUser.getText());
+        Assertions.assertEquals(getUserName(), loggedUser.getText(), "The user logged is not the expected, the expected was " + getUserName() + " and the obtained is " + loggedUser.getText());
         WebElement product = driver.findElement(By.xpath("/html/body/div/div[3]/div[3]/form/input[1]"));
         Assertions.assertEquals("esh-catalog-button ", product.getAttribute("class"), "The eShop product button was expected for being enabled and was disabled");
         this.logout();

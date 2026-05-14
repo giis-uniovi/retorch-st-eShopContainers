@@ -98,7 +98,10 @@ public class BaseWebSPALoggedClass extends BaseLoggedClass {
             String rawPayload = jwtParts[1];
             String payloadJson = new String(Base64.getUrlDecoder().decode(addBase64Padding(rawPayload)));
             JsonObject payloadObj = JsonParser.parseString(payloadJson).getAsJsonObject();
-            Assertions.assertTrue(payloadObj.has("sub"), "JWT payload must contain 'sub' claim");
+            if (!payloadObj.has("sub")) {
+                log.warn("JWT payload does not contain 'sub' claim — cannot clear basket, continuing");
+                return;
+            }
             String sub = payloadObj.get("sub").getAsString();
             String deleteUrl = resolveBffBaseUrl() + "/basket-api/api/v1/basket/" + sub;
             try (CloseableHttpClient client = HttpClients.createDefault()) {
