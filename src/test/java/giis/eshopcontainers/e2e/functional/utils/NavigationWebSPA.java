@@ -3,6 +3,8 @@ package giis.eshopcontainers.e2e.functional.utils;
 import giis.eshopcontainers.e2e.functional.common.ElementNotFoundException;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,12 +29,20 @@ public class NavigationWebSPA extends Navigation {
     public void toOrdersPage(WebDriver driver, Waiter waiter) throws ElementNotFoundException {
         toMainMenu(driver, waiter);
         log.debug("Navigating to orders page (WebSPA), hovering identity and clicking My orders...");
-        // The .esh-identity-drop is CSS hover-triggered; JS click bypasses the visibility guard.
+        // The .esh-identity-drop is CSS hover-triggered; Actions hover then click
+        // simulates real user behavior better than a raw JS click.
+        By identityDropLocator = By.className("esh-identity-drop");
+        waiter.waitUntil(ExpectedConditions.presenceOfElementLocated(identityDropLocator),
+                "Identity drop not found");
+        WebElement identityDrop = driver.findElement(identityDropLocator);
+        new Actions(driver)
+                .moveToElement(identityDrop)
+                .perform();
         By myOrdersLocator = By.xpath(
                 "//*[contains(@class,'esh-identity-item')]//*[normalize-space(text())='My orders']");
-        waiter.waitUntil(ExpectedConditions.presenceOfElementLocated(myOrdersLocator),
-                "'My orders' link not found in DOM");
-        Click.byJS(driver, driver.findElement(myOrdersLocator));
+        waiter.waitUntil(ExpectedConditions.visibilityOfElementLocated(myOrdersLocator),
+                "'My orders' link not visible after hover");
+        Click.element(driver, waiter, driver.findElement(myOrdersLocator));
         waiter.waitUntil(ExpectedConditions.urlContains("orders"), "Orders page did not load");
     }
 

@@ -1,5 +1,6 @@
 package giis.eshopcontainers.e2e.functional.utils;
 
+import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.support.ui.ExpectedCondition;
 import org.openqa.selenium.support.ui.WebDriverWait;
@@ -27,9 +28,9 @@ public class Waiter {
     public void waitUntil(ExpectedCondition <?> condition, String errorMessage){
         try {
             this.waiter.until(condition);
-        } catch (org.openqa.selenium.TimeoutException timeout) {
-            log.error(errorMessage);
-            throw new org.openqa.selenium.TimeoutException("\"" + errorMessage + "\" (checked with condition) > " + timeout.getMessage());
+        } catch (TimeoutException e) {
+            log.error("Timeout: {}", errorMessage);
+            throw e;
         }
     }
 }

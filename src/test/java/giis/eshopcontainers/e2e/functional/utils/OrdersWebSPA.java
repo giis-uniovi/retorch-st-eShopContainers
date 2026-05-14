@@ -11,7 +11,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
-import java.util.Objects;
 
 /**
  * WebSPA order management helpers for order creation, cancellation, and state checking.
@@ -44,7 +43,8 @@ public class OrdersWebSPA extends Orders {
     public By getCountryBy() {return By.cssSelector("[placeholder='country']");}
 
     /**
-     * Creates an order in the WebSPA frontend, adds three products to the baskets
+     * Creates an order in the WebSPA frontend, adds three products to the baskets.
+     * The SPA checkout renders 3 line-item entries for the 3 products (no extra total row).
      *
      * @param driver {@code WebDriver} on which the operations are performed.
      * @param waiter {@code Waiter} to perform the necessary async waits.
@@ -140,17 +140,17 @@ public class OrdersWebSPA extends Orders {
     }
 
     /**
-     * Checks the expected number of order items and total expectedAamount in the checkout summary.
+     * Checks the expected number of order items and total expected amount in the checkout summary.
      *
      * @param driver           {@code WebDriver} on which the operations are performed.
-     * @param expectedAamount  Total amount of $ that the order is expected to cost.
+     * @param expectedAmount   Total amount of $ that the order is expected to cost.
      * @param expectedNumItems Expected number of items of the order.
      */
-    private void checkOrderAmountAndNumItems(WebDriver driver, String expectedAamount, int expectedNumItems) {
+    private void checkOrderAmountAndNumItems(WebDriver driver, String expectedAmount, int expectedNumItems) {
         List<WebElement> items = driver.findElements(By.cssSelector("article.divider--bottom"));
         Assertions.assertEquals(expectedNumItems, items.size(), "Expected " + expectedNumItems + " order items in checkout summary");
-        String numericValue = expectedAamount.replaceAll("[^0-9.,]", "");
-        Assertions.assertTrue(Objects.requireNonNull(driver.getPageSource()).contains(numericValue),
-                "Checkout page should display the total expectedAamount: " + expectedAamount);
+        String numericValue = expectedAmount.replaceAll("[^0-9.,]", "");
+        Assertions.assertTrue(driver.findElement(By.tagName("body")).getText().contains(numericValue),
+                "Checkout page should display the total expectedAmount: " + expectedAmount);
     }
 }

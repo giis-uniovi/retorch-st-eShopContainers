@@ -43,7 +43,7 @@ public class Click {
         }
         throw new ElementNotFoundException("Click.element ERROR");
     }
-    /**Support method used to */
+    /** Falls back to dispatching a click event via JavaScript when native Selenium clicks fail. */
     public static void byJS(WebDriver driver, WebElement we) {
         JavascriptExecutor js = (JavascriptExecutor) driver;
         js.executeScript("var evt = document.createEvent('MouseEvents');"

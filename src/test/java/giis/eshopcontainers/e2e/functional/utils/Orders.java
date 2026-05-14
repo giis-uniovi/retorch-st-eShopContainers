@@ -17,6 +17,7 @@ import java.util.List;
  */
 public class Orders extends Shopping {
     public static final Logger log = LoggerFactory.getLogger(Orders.class);
+    protected Basket utils;
 
     public Orders(){
         navUtils = new Navigation();
@@ -37,7 +38,9 @@ public class Orders extends Shopping {
 
     /**
      * Creates an order with three products, fulfilling payment data, address data and checking that the order
-     * price is the amount of money expected
+     * price is the amount of money expected.
+     * The MVC checkout renders 4 line-item entries for the 3 products (one extra entry for the total row).
+     * @see OrdersWebSPA#createOrder for the SPA variant which renders 3 entries.
      */
     public void createOrder(WebDriver driver, Waiter waiter) throws ElementNotFoundException {
         navUtils.toMainMenu(driver, waiter);
@@ -65,7 +68,7 @@ public class Orders extends Shopping {
             try {
                 log.debug("Trial {} to check that number of items in the basket is updated", totalAttempts);
                 waiter.waitUntil(ExpectedConditions.textToBe(By.className("esh-basketstatus-badge"), "0"), "The Basket value is not 0");
-                log.debug("Order placed sucessfully!");
+                log.debug("Order placed successfully!");
                 return true;
             } catch (TimeoutException e) {
                 log.debug("The number of items was not 0");

@@ -14,7 +14,6 @@ import org.slf4j.LoggerFactory;
 public class Shopping {
     public static final Logger log = LoggerFactory.getLogger(Shopping.class);
     protected Navigation navUtils;
-    protected Basket utils;
 
     /**
      * Returns the number of items currently shown in the basket badge.

@@ -6,6 +6,7 @@ import com.google.gson.JsonParser;
 import giis.eshopcontainers.e2e.functional.utils.*;
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.BasicResponseHandler;
@@ -16,7 +17,9 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.openqa.selenium.By;
-import org.openqa.selenium.WebDriverException;
+import org.openqa.selenium.StaleElementReferenceException;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
@@ -96,8 +99,9 @@ public class BaseWebSPALoggedClass extends BaseLoggedClass {
             try (CloseableHttpClient client = HttpClients.createDefault()) {
                 HttpDelete req = new HttpDelete(deleteUrl);
                 req.addHeader("Authorization", "Bearer " + token);
-                client.execute(req);
-                log.debug("Basket cleared for sub={} before WebSPA test", sub);
+                try (CloseableHttpResponse response = client.execute(req)) {
+                    log.debug("Basket cleared for sub={} before WebSPA test, HTTP {}", sub, response.getStatusLine().getStatusCode());
+                }
             }
         } catch (IOException | JsonParseException e) {
             log.warn("Could not clear basket before WebSPA test (continuing): {}", e.getMessage());
@@ -157,11 +161,11 @@ public class BaseWebSPALoggedClass extends BaseLoggedClass {
                 "Login button is not clickable");
         Click.element(driver, waiter, driver.findElement(loginButtonLocator));
 
-        // After the OIDC redirect Chrome is still mid-navigation; ignoring WebDriverException
+        // After the OIDC redirect Chrome is still mid-navigation; ignoring StaleElementReferenceException
         // ensures the wait retries instead of propagating the "aborted by navigation" error.
         By dropLocator = By.className("esh-identity-drop");
         new WebDriverWait(driver, Duration.ofSeconds(15))
-                .ignoring(WebDriverException.class)
+                .ignoring(StaleElementReferenceException.class)
                 .until(ExpectedConditions.presenceOfElementLocated(dropLocator));
 
         // Re-find with a retry in case re-renders the element while we read it
@@ -180,17 +184,24 @@ public class BaseWebSPALoggedClass extends BaseLoggedClass {
     }
 
     /**
-     * Logs out via the WebSPA  frontend using a JS click to bypass the
-     * CSS hover-gated visibility that Selenium produces.
+     * Logs out via the WebSPA frontend using Actions hover + click to work around the
+     * CSS hover-gated visibility that Selenium cannot otherwise interact with.
      */
     @Override
-    protected void logout() {
+    protected void logout() throws ElementNotFoundException {
         log.debug("WebSPA logout");
+        By identityDropLocator = By.className("esh-identity-drop");
+        waiter.waitUntil(ExpectedConditions.presenceOfElementLocated(identityDropLocator),
+                "WebSPA identity drop not found");
+        WebElement identityDrop = driver.findElement(identityDropLocator);
+        new Actions(driver)
+                .moveToElement(identityDrop)
+                .perform();
         By logoutLocator = By.xpath(
                 "//*[contains(@class,'esh-identity-item')]//*[normalize-space(text())='Log Out']");
-        waiter.waitUntil(ExpectedConditions.presenceOfElementLocated(logoutLocator),
-                "WebSPA 'Log Out' item not found in DOM");
-        Click.byJS(driver, driver.findElement(logoutLocator));
+        waiter.waitUntil(ExpectedConditions.visibilityOfElementLocated(logoutLocator),
+                "WebSPA 'Log Out' item not visible after hover");
+        Click.element(driver, waiter, driver.findElement(logoutLocator));
         isLogged = false;
         log.debug("WebSPA logout successful");
     }
