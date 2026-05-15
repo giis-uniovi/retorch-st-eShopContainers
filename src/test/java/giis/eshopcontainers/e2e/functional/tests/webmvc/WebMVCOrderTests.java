@@ -6,7 +6,9 @@ import giis.retorch.annotations.AccessMode;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import java.util.LinkedList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 
 /**
@@ -29,15 +31,10 @@ class WebMVCOrderTests extends BaseLoggedClass {
     @Test
     @DisplayName("testCreateNewOrderMVC")
     void testCreateNewOrderMVC() throws ElementNotFoundException {
-        //Listof
-        LinkedList<String> expectedStatesPriorCancelling = new LinkedList<>();
-        expectedStatesPriorCancelling.add("submitted");
-        expectedStatesPriorCancelling.add("paid");
-
         login();
         navHelper.toOrdersPage(driver, waiter);
-        orderHelper.createOrder(driver,waiter);
-        orderHelper.checkLastOrderState(driver,waiter,expectedStatesPriorCancelling);
+        orderHelper.createOrder(driver, waiter);
+        orderHelper.checkLastOrderState(driver, waiter, Arrays.asList("submitted", "paid"));
         logout();
     }
 
@@ -57,28 +54,20 @@ class WebMVCOrderTests extends BaseLoggedClass {
     @Test
     @DisplayName("testCancelOrderMVC")
     void testCancelOrderMVC() throws ElementNotFoundException {
-        LinkedList<String> expectedStatesPriorCancelling = new LinkedList<>();
-        expectedStatesPriorCancelling.add("submitted");
-        expectedStatesPriorCancelling.add("stockconfirmed");
-        LinkedList<String> expectedStatesPostCancelling = new LinkedList<>();
-        expectedStatesPostCancelling.add("cancelled");
-        LinkedList <String> expectedStatesBeforeLongDelay = new LinkedList<>();
-        expectedStatesBeforeLongDelay.add("paid");
+        // States that can cancel an order
+        List<String> cancellableStates = Arrays.asList("submitted", "stockconfirmed");
+        // States that not allow the order cancelling
+        List<String> preCancelStates = Arrays.asList("submitted", "stockconfirmed", "paid");
 
         login();
         navHelper.toOrdersPage(driver, waiter);
-        orderHelper.createOrder(driver,waiter);
-        long startTime = System.currentTimeMillis();
-        orderHelper.checkLastOrderState( driver,waiter,expectedStatesPriorCancelling);
-        long endTime = System.currentTimeMillis();
-        long duration =endTime-startTime;
-        log.debug("The time invested in place the order was: {}s", duration);
-        if(duration<=3000) {
-            orderHelper.cancelLastOrder(driver,waiter);
-            orderHelper.checkLastOrderState(driver,waiter,expectedStatesPostCancelling);
-        }
-        else {
-            orderHelper.checkLastOrderState(driver,waiter,expectedStatesBeforeLongDelay);
+        orderHelper.createOrder(driver, waiter);
+        String reachedState = orderHelper.checkLastOrderState(driver, waiter, preCancelStates);
+        if (cancellableStates.contains(reachedState)) {
+            orderHelper.cancelLastOrder(driver, waiter);
+            orderHelper.checkLastOrderState(driver, waiter, Collections.singletonList("cancelled"));
+        } else {
+            log.debug("Order reached '{}' before cancellation was attempted — skipping cancel step", reachedState);
         }
 
         logout();

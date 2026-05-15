@@ -96,7 +96,7 @@ public class OrdersWebSPA extends Orders {
      * @param expectedStates List with the expected state of the last order
      */
     @Override
-    public void checkLastOrderState(WebDriver driver, Waiter waiter, List<String> expectedStates) throws ElementNotFoundException {
+    public String checkLastOrderState(WebDriver driver, Waiter waiter, List<String> expectedStates) throws ElementNotFoundException {
         int maxIterations = 10;
         String actualState = "";
         for (int iter = 0; iter < maxIterations; iter++) {
@@ -125,6 +125,7 @@ public class OrdersWebSPA extends Orders {
         }
         Assertions.assertFalse(actualState.isEmpty(), "No orders appeared in the list after " + maxIterations + " iterations");
         Assertions.assertTrue(expectedStates.contains(actualState), "Last order status is not as expected. Expected: " + expectedStates + ", Actual: " + actualState);
+        return actualState;
     }
 
     /**
