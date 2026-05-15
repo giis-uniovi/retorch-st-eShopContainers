@@ -6,6 +6,8 @@ import giis.retorch.annotations.AccessMode;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 
 /**
  * Contains all the test cases that validates catalog browsing features of the WebSPA frontend
@@ -39,24 +41,26 @@ class WebSPACatalogTests extends BaseWebSPALoggedClass {
     @AccessMode(resID = "webspa", concurrency = 10, sharing = true, accessMode = "READONLY")
     @AccessMode(resID = "catalog-api", concurrency = 60, sharing = true, accessMode = "READONLY")
     @AccessMode(resID = "chrome-browser", concurrency = 1, accessMode = "READWRITE")
-    @Test
-    @DisplayName("FilterProductsByBrandSPA")
-    void filterProductsByBrandTypeSPA() throws ElementNotFoundException {
-        // Option indices are 1-based: 1=All, 2=second brand, 3=third brand
-        int[] brands = {1, 2, 3};
-        int[] types = {1, 2, 3, 4};
-        int[][] expectedNumItems = {{14, 4, 7, 3}, {7, 2, 3, 2}, {7, 2, 4, 1}};
-
-        for (int brand : brands) {
-            basketHelper.selectBrandFilter(driver,waiter,brand);
-            for (int type : types) {
-                basketHelper.selectTypeFilter(driver,waiter,type);
-                String brandName = new String[]{"All Brands", "Net Core", "Others"}[brand - 1];
-                String typeName = new String[]{"All Types", "Mug", "TShirt", "Pin"}[type - 1];
-                int expected = expectedNumItems[brand - 1][type - 1];
-                Assertions.assertEquals(expected, basketHelper.numberCatalogDisplayedItems(driver,waiter), "Brand: " + brandName + ", Type: " + typeName + ", Expected Items: " + expected);
-            }
-        }
+    @ParameterizedTest(name = "filterProductsByBrandTypeSPA brand={1}, type={3}, expected={4}")
+    @CsvSource({
+        "1, 'All Brands', 1, 'All Types', 14",
+        "1, 'All Brands', 2, 'Mug',        4",
+        "1, 'All Brands', 3, 'TShirt',     7",
+        "1, 'All Brands', 4, 'Pin',        3",
+        "2, 'Net Core',   1, 'All Types',  7",
+        "2, 'Net Core',   2, 'Mug',        2",
+        "2, 'Net Core',   3, 'TShirt',     3",
+        "2, 'Net Core',   4, 'Pin',        2",
+        "3, 'Others',     1, 'All Types',  7",
+        "3, 'Others',     2, 'Mug',        2",
+        "3, 'Others',     3, 'TShirt',     4",
+        "3, 'Others',     4, 'Pin',        1"
+    })
+    void filterProductsByBrandTypeSPA(int brand, String brandName, int type, String typeName, int expected) throws ElementNotFoundException {
+        basketHelper.selectBrandFilter(driver, waiter, brand);
+        basketHelper.selectTypeFilter(driver, waiter, type);
+        Assertions.assertEquals(expected, basketHelper.numberCatalogDisplayedItems(driver, waiter),
+                "Brand: " + brandName + ", Type: " + typeName + ", Expected Items: " + expected);
     }
 
 }

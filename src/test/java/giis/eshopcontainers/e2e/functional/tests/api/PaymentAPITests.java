@@ -5,8 +5,7 @@ import giis.eshopcontainers.e2e.functional.model.PaymentResponse;
 import giis.retorch.annotations.AccessMode;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
+
 import org.apache.http.util.EntityUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
@@ -67,22 +66,18 @@ class PaymentAPITests extends BaseAPIClass {
      * @param subPath payment-relative path including leading slash (e.g. {@code "/hc"})
      */
     private PaymentResponse getPaymentResponse(String subPath) throws IOException {
-        // First the trial to the gateway
-        try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
-            HttpGet request = new HttpGet(this.getDesktopBFFPaymentURL() + subPath);
-            HttpResponse response = httpClient.execute(request);
-            int status = response.getStatusLine().getStatusCode();
-            if (status != 404) {
-                return new PaymentResponse(status, EntityUtils.toString(response.getEntity()));
-            }
-            log.debug("Payment path {} not exposed by the gateway (404), falling back to direct URL", subPath);
+        // First try the gateway
+        HttpGet gatewayRequest = new HttpGet(this.getDesktopBFFPaymentURL() + subPath);
+        HttpResponse gatewayResponse = httpClient.execute(gatewayRequest);
+        int status = gatewayResponse.getStatusLine().getStatusCode();
+        if (status != 404) {
+            return new PaymentResponse(status, EntityUtils.toString(gatewayResponse.getEntity()));
         }
-        // Then use the http client to reach the service.
-        try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
-            HttpGet request = new HttpGet(getPaymentURL() + subPath);
-            HttpResponse response = httpClient.execute(request);
-            return new PaymentResponse(response.getStatusLine().getStatusCode(), EntityUtils.toString(response.getEntity()));
-        }
+        log.debug("Payment path {} not exposed by the gateway (404), falling back to direct URL", subPath);
+        // Fall back to the Payment service directly
+        HttpGet directRequest = new HttpGet(getPaymentURL() + subPath);
+        HttpResponse directResponse = httpClient.execute(directRequest);
+        return new PaymentResponse(directResponse.getStatusLine().getStatusCode(), EntityUtils.toString(directResponse.getEntity()));
     }
 
 }

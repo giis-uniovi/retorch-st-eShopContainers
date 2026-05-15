@@ -29,6 +29,7 @@ class WebMVCOrderTests extends BaseLoggedClass {
     @Test
     @DisplayName("testCreateNewOrderMVC")
     void testCreateNewOrderMVC() throws ElementNotFoundException {
+        //Listof
         LinkedList<String> expectedStatesPriorCancelling = new LinkedList<>();
         expectedStatesPriorCancelling.add("submitted");
         expectedStatesPriorCancelling.add("paid");

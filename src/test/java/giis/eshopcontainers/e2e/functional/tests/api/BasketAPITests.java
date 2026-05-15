@@ -15,8 +15,7 @@ import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.BasicResponseHandler;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
+
 import org.apache.http.util.EntityUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -131,9 +130,7 @@ class BasketAPITests extends BaseAPIClass {
         HttpPost httpPost = new HttpPost(this.getDesktopBFFURLBasket());
         addBasketHeaders(httpPost);
         httpPost.setEntity(getJSONofBasketWithTwoProducts());
-        try (CloseableHttpClient httpclient = HttpClients.createDefault()) {
-            return httpclient.execute(httpPost, new BasicResponseHandler());
-        }
+        return httpClient.execute(httpPost, new BasicResponseHandler());
     }
 
     public String addItemToBasket(String basketId, int catalogItemId, int quantity) throws IOException {
@@ -145,9 +142,7 @@ class BasketAPITests extends BaseAPIClass {
         body.addProperty("catalogItemId", catalogItemId);
         body.addProperty("quantity", quantity);
         httpPost.setEntity(new StringEntity(body.toString(), StandardCharsets.UTF_8));
-        try (CloseableHttpClient httpclient = HttpClients.createDefault()) {
-            return httpclient.execute(httpPost, new BasicResponseHandler());
-        }
+        return httpClient.execute(httpPost, new BasicResponseHandler());
     }
 
     public String updateBasketItemQuantities(String basketId,
@@ -172,18 +167,14 @@ class BasketAPITests extends BaseAPIClass {
 
         basket.add("updates", updates);
         httpPut.setEntity(new StringEntity(basket.toString(), StandardCharsets.UTF_8));
-        try (CloseableHttpClient httpclient = HttpClients.createDefault()) {
-            return httpclient.execute(httpPut, new BasicResponseHandler());
-        }
+        return httpClient.execute(httpPut, new BasicResponseHandler());
     }
 
     public String getBasket(String basketId) throws IOException {
-        try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
-            HttpGet request = new HttpGet(this.getDesktopBFFURLOrders() + basketId);
-            addBasketHeaders(request);
-            HttpEntity entity = httpClient.execute(request).getEntity();
-            return entity != null ? EntityUtils.toString(entity) : "";
-        }
+        HttpGet request = new HttpGet(this.getDesktopBFFURLOrders() + basketId);
+        addBasketHeaders(request);
+        HttpEntity entity = httpClient.execute(request).getEntity();
+        return entity != null ? EntityUtils.toString(entity) : "";
     }
 
     /**
@@ -191,7 +182,7 @@ class BasketAPITests extends BaseAPIClass {
      * Ignores errors so it is safe to call from {@code @BeforeEach}.
      */
     private void clearBasket(String userId) {
-        try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
+        try {
             HttpDelete request = new HttpDelete(this.getDesktopBFFBasketProxyURL() + userId);
             request.addHeader("Authorization", "Bearer " + tokenAPI);
             httpClient.execute(request);

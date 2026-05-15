@@ -12,6 +12,7 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,6 +34,7 @@ import java.util.Properties;
 public class BaseAPIClass {
 
     public static final Logger log = LoggerFactory.getLogger(BaseAPIClass.class);
+    protected static CloseableHttpClient httpClient;
     protected static String tokenAPI;
     protected static String tokenOrdering;
     protected static Properties properties;
@@ -77,6 +79,7 @@ public class BaseAPIClass {
                 paymentURL = "http://payment_api_" + tJobName + ":80";
                 log.debug("Configuring the API test to use docker network connectivity, identity api at following URL: {}", identityURL);
             }
+            httpClient = HttpClients.createDefault();
             tokenAPI = getTokenWithPassword(identityURL);
             tokenOrdering = getTokenForScope(identityURL, "orders");
             log.debug("Basket token acquired (length={})", tokenAPI.length());
@@ -85,6 +88,14 @@ public class BaseAPIClass {
             throw new IllegalStateException("Test suite setup failed: " + e.getMessage(), e);
         }
         log.info("Ending global setup for all test cases.");
+    }
+
+    @AfterAll
+    static void tearDownAll() throws IOException {
+        if (httpClient != null) {
+            httpClient.close();
+            log.info("Shared HTTP client closed.");
+        }
     }
 
     /**
@@ -117,12 +128,10 @@ public class BaseAPIClass {
         params.add(new BasicNameValuePair("client_secret", properties.getProperty("API_SCOPE_SECRET")));
         params.add(new BasicNameValuePair("scope", scope));
         httppost.setEntity(new UrlEncodedFormEntity(params, StandardCharsets.UTF_8));
-        try (CloseableHttpClient httpclient = HttpClients.createDefault()) {
-            String httpResponseString = httpclient.execute(httppost, new BasicResponseHandler());
-            JsonObject jsonObject = JsonParser.parseString(httpResponseString).getAsJsonObject();
-            log.debug("Token response JSON: {}", jsonObject);
-            return jsonObject.get("access_token").getAsString();
-        }
+        String httpResponseString = httpClient.execute(httppost, new BasicResponseHandler());
+        JsonObject jsonObject = JsonParser.parseString(httpResponseString).getAsJsonObject();
+        log.debug("Token response JSON: {}", jsonObject);
+        return jsonObject.get("access_token").getAsString();
     }
 
     /**
@@ -134,15 +143,13 @@ public class BaseAPIClass {
      * @return response body, or empty string if the response has no entity
      */
     private String executeGet(String url, String authToken) throws IOException {
-        try (CloseableHttpClient client = HttpClients.createDefault()) {
-            HttpGet req = new HttpGet(url);
-            req.addHeader("content-type", "application/json");
-            if (authToken != null) {
-                req.addHeader("Authorization", "Bearer " + authToken);
-            }
-            HttpEntity entity = client.execute(req).getEntity();
-            return entity != null ? EntityUtils.toString(entity) : "";
+        HttpGet req = new HttpGet(url);
+        req.addHeader("content-type", "application/json");
+        if (authToken != null) {
+            req.addHeader("Authorization", "Bearer " + authToken);
         }
+        HttpEntity entity = httpClient.execute(req).getEntity();
+        return entity != null ? EntityUtils.toString(entity) : "";
     }
 
     /**
@@ -154,14 +161,12 @@ public class BaseAPIClass {
      * @return HTTP status code
      */
     private int executeGetStatusCode(String url, String authToken) throws IOException {
-        try (CloseableHttpClient client = HttpClients.createDefault()) {
-            HttpGet req = new HttpGet(url);
-            req.addHeader("content-type", "application/json");
-            if (authToken != null) {
-                req.addHeader("Authorization", "Bearer " + authToken);
-            }
-            return client.execute(req).getStatusLine().getStatusCode();
+        HttpGet req = new HttpGet(url);
+        req.addHeader("content-type", "application/json");
+        if (authToken != null) {
+            req.addHeader("Authorization", "Bearer " + authToken);
         }
+        return httpClient.execute(req).getStatusLine().getStatusCode();
     }
 
     //Support methods to extract bodies and status codes in the different API tests
@@ -188,30 +193,26 @@ public class BaseAPIClass {
     protected String getIdentityBody(String path, String authToken) throws IOException {
         String primaryUrl = this.getDesktopBFFIdentityURL() + path;
         String fallbackUrl = getIdentityURL() + path;
-        try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
-            HttpGet request = new HttpGet(primaryUrl);
-            request.addHeader("content-type", "application/json");
-            if (authToken != null) request.addHeader("Authorization", "Bearer " + authToken);
-            HttpResponse response = httpClient.execute(request);
-            int status = response.getStatusLine().getStatusCode();
-            if (status == 200) {
-                HttpEntity entity = response.getEntity();
-                return entity != null ? EntityUtils.toString(entity) : "";
-            }
-            if (status != 404) {
-                log.warn("Unexpected {} from gateway {}, not falling back", status, primaryUrl);
-                return "";
-            }
-            log.debug("Primary URL {} returned status {}, falling back to {}", primaryUrl, status, fallbackUrl);
-        }
-        // Fall back to the identity url
-        try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
-            HttpGet request = new HttpGet(fallbackUrl);
-            request.addHeader("content-type", "application/json");
-            if (authToken != null) request.addHeader("Authorization", "Bearer " + authToken);
-            HttpResponse response = httpClient.execute(request);
-            HttpEntity entity = response.getEntity();
+        HttpGet gatewayRequest = new HttpGet(primaryUrl);
+        gatewayRequest.addHeader("content-type", "application/json");
+        if (authToken != null) gatewayRequest.addHeader("Authorization", "Bearer " + authToken);
+        HttpResponse gatewayResponse = httpClient.execute(gatewayRequest);
+        int status = gatewayResponse.getStatusLine().getStatusCode();
+        if (status == 200) {
+            HttpEntity entity = gatewayResponse.getEntity();
             return entity != null ? EntityUtils.toString(entity) : "";
         }
+        if (status != 404) {
+            log.warn("Unexpected {} from gateway {}, not falling back", status, primaryUrl);
+            return "";
+        }
+        log.debug("Primary URL {} returned status {}, falling back to {}", primaryUrl, status, fallbackUrl);
+        // Fall back to the identity url directly
+        HttpGet fallbackRequest = new HttpGet(fallbackUrl);
+        fallbackRequest.addHeader("content-type", "application/json");
+        if (authToken != null) fallbackRequest.addHeader("Authorization", "Bearer " + authToken);
+        HttpResponse fallbackResponse = httpClient.execute(fallbackRequest);
+        HttpEntity entity = fallbackResponse.getEntity();
+        return entity != null ? EntityUtils.toString(entity) : "";
     }
 }

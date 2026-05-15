@@ -13,6 +13,7 @@ import org.apache.http.impl.client.BasicResponseHandler;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -42,6 +43,7 @@ import java.util.List;
  */
 public class BaseWebSPALoggedClass extends BaseLoggedClass {
 
+    protected static CloseableHttpClient httpClient;
 
     private static String buildContainerUrl(String containerPattern) {
         return "http://" + containerPattern + "_" + tJobName + ":80";
@@ -71,7 +73,16 @@ public class BaseWebSPALoggedClass extends BaseLoggedClass {
     @BeforeAll
     static void setupSPAUrl() {
         sutUrl = resolveUrl("SUT_URL", "LOCALHOST_SPA_URL", "webspa");
+        httpClient = HttpClients.createDefault();
         log.info("WebSPA tests will connect to: {}", sutUrl);
+    }
+
+    @AfterAll
+    static void tearDownSPAAll() throws IOException {
+        if (httpClient != null) {
+            httpClient.close();
+            log.info("Shared WebSPA HTTP client closed.");
+        }
     }
 
     /**
@@ -95,6 +106,10 @@ public class BaseWebSPALoggedClass extends BaseLoggedClass {
             // The WebSPA keys baskets by the user's Identity 'sub' (GUID), not by username.
             // Decode the JWT payload (middle segment) to extract the sub claim.
             String[] jwtParts = token.split("\\.");
+            if (jwtParts.length != 3) {
+                log.warn("Token is not a valid JWT (expected 3 parts, got {}) — cannot clear basket, continuing", jwtParts.length);
+                return;
+            }
             String rawPayload = jwtParts[1];
             String payloadJson = new String(Base64.getUrlDecoder().decode(addBase64Padding(rawPayload)));
             JsonObject payloadObj = JsonParser.parseString(payloadJson).getAsJsonObject();
@@ -104,12 +119,10 @@ public class BaseWebSPALoggedClass extends BaseLoggedClass {
             }
             String sub = payloadObj.get("sub").getAsString();
             String deleteUrl = resolveBffBaseUrl() + "/basket-api/api/v1/basket/" + sub;
-            try (CloseableHttpClient client = HttpClients.createDefault()) {
-                HttpDelete req = new HttpDelete(deleteUrl);
-                req.addHeader("Authorization", "Bearer " + token);
-                try (CloseableHttpResponse response = client.execute(req)) {
-                    log.debug("Basket cleared for sub={} before WebSPA test, HTTP {}", sub, response.getStatusLine().getStatusCode());
-                }
+            HttpDelete req = new HttpDelete(deleteUrl);
+            req.addHeader("Authorization", "Bearer " + token);
+            try (CloseableHttpResponse response = httpClient.execute(req)) {
+                log.debug("Basket cleared for sub={} before WebSPA test, HTTP {}", sub, response.getStatusLine().getStatusCode());
             }
         } catch (IOException | JsonParseException e) {
             log.warn("Could not clear basket before WebSPA test (continuing): {}", e.getMessage());
@@ -125,25 +138,23 @@ public class BaseWebSPALoggedClass extends BaseLoggedClass {
     }
 
     private String getBasketTokenForCleanup() throws IOException {
-        try (CloseableHttpClient httpclient = HttpClients.createDefault()) {
-            HttpPost post = new HttpPost(resolveIdentityUrl() + "/connect/token");
-            post.addHeader("content-type", "application/x-www-form-urlencoded");
+        HttpPost post = new HttpPost(resolveIdentityUrl() + "/connect/token");
+        post.addHeader("content-type", "application/x-www-form-urlencoded");
 
-            List<BasicNameValuePair> params = new ArrayList<>();
-            params.add(new BasicNameValuePair("grant_type", properties.getProperty("API_GRANT_TYPE")));
-            params.add(new BasicNameValuePair("client_id", properties.getProperty("API_CLIENT_ID")));
-            params.add(new BasicNameValuePair("username", properties.getProperty("USER_ESHOP")));
-            params.add(new BasicNameValuePair("password", properties.getProperty("USER_ESHOP_PASSWORD")));
-            params.add(new BasicNameValuePair("client_secret", properties.getProperty("API_SCOPE_SECRET")));
-            params.add(new BasicNameValuePair("scope", "basket"));
+        List<BasicNameValuePair> params = new ArrayList<>();
+        params.add(new BasicNameValuePair("grant_type", properties.getProperty("API_GRANT_TYPE")));
+        params.add(new BasicNameValuePair("client_id", properties.getProperty("API_CLIENT_ID")));
+        params.add(new BasicNameValuePair("username", properties.getProperty("USER_ESHOP")));
+        params.add(new BasicNameValuePair("password", properties.getProperty("USER_ESHOP_PASSWORD")));
+        params.add(new BasicNameValuePair("client_secret", properties.getProperty("API_SCOPE_SECRET")));
+        params.add(new BasicNameValuePair("scope", "basket"));
 
-            post.setEntity(new UrlEncodedFormEntity(params, StandardCharsets.UTF_8));
+        post.setEntity(new UrlEncodedFormEntity(params, StandardCharsets.UTF_8));
 
-            ResponseHandler<String> handler = new BasicResponseHandler();
-            String response = httpclient.execute(post, handler);
+        ResponseHandler<String> handler = new BasicResponseHandler();
+        String response = httpClient.execute(post, handler);
 
-            return JsonParser.parseString(response).getAsJsonObject().get("access_token").getAsString();
-        }
+        return JsonParser.parseString(response).getAsJsonObject().get("access_token").getAsString();
     }
 
     /**
