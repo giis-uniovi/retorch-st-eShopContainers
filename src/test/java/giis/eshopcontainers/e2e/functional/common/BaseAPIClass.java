@@ -39,6 +39,7 @@ public class BaseAPIClass {
     protected static String tokenOrdering;
     protected static Properties properties;
     protected static String tJobName;
+    private static String containerPort;
     private static String desktopBFFURL;
     private static String desktopBFFBaseURL;
     private static String identityURL;
@@ -65,6 +66,7 @@ public class BaseAPIClass {
             properties.load(Files.newInputStream(Paths.get("src/test/resources/test.properties")));
             tJobName = System.getProperty("TJOB_NAME");
             user = properties.getProperty("USER_ESHOP");
+            containerPort = properties.getProperty("CONTAINER_PORT", "80");
             String envUrl = System.getProperty("SUT_URL") != null ? System.getProperty("SUT_URL") : System.getenv("SUT_URL");
             if (envUrl == null) {
                 identityURL = properties.getProperty("LOCALHOST_IDENTITY_URL");
@@ -73,10 +75,10 @@ public class BaseAPIClass {
                 paymentURL = properties.getProperty("LOCALHOST_PAYMENT_URL");
                 log.debug("Configuring to connect a local identity_api, whose URL is (SUT) at: {}", identityURL);
             } else {
-                identityURL = "http://identity_api_" + tJobName + ":80";
-                desktopBFFURL = "http://webshoppingagg_" + tJobName + ":80/api/v1";
-                desktopBFFBaseURL = "http://webshoppingagg_" + tJobName + ":80";
-                paymentURL = "http://payment_api_" + tJobName + ":80";
+                identityURL = "http://identity_api_" + tJobName + ":" + containerPort;
+                desktopBFFURL = "http://webshoppingagg_" + tJobName + ":" + containerPort + "/api/v1";
+                desktopBFFBaseURL = "http://webshoppingagg_" + tJobName + ":" + containerPort;
+                paymentURL = "http://payment_api_" + tJobName + ":" + containerPort;
                 log.debug("Configuring the API test to use docker network connectivity, identity api at following URL: {}", identityURL);
             }
             httpClient = HttpClients.createDefault();

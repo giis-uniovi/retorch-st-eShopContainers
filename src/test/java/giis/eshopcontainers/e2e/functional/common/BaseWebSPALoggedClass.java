@@ -46,7 +46,8 @@ public class BaseWebSPALoggedClass extends BaseLoggedClass {
     protected static CloseableHttpClient httpClient;
 
     private static String buildContainerUrl(String containerPattern) {
-        return "http://" + containerPattern + "_" + tJobName + ":80";
+        String port = properties.getProperty("CONTAINER_PORT", "80");
+        return "http://" + containerPattern + "_" + tJobName + ":" + port;
     }
 
     private static String resolveUrl(String envKey, String localPropKey, String containerPattern) {
