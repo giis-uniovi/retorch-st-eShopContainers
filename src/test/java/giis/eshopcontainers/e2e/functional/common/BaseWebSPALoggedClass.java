@@ -154,7 +154,11 @@ public class BaseWebSPALoggedClass extends BaseLoggedClass {
         ResponseHandler<String> handler = new BasicResponseHandler();
         String response = httpClient.execute(post, handler);
 
-        return JsonParser.parseString(response).getAsJsonObject().get("access_token").getAsString();
+        JsonObject jsonResponse = JsonParser.parseString(response).getAsJsonObject();
+        if (!jsonResponse.has("access_token") || jsonResponse.get("access_token").isJsonNull()) {
+            throw new IOException("Token response does not contain 'access_token': " + response);
+        }
+        return jsonResponse.get("access_token").getAsString();
     }
 
     /**
