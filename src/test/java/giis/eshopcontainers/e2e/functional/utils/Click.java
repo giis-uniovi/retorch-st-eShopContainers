@@ -3,6 +3,7 @@ package giis.eshopcontainers.e2e.functional.utils;
 import giis.eshopcontainers.e2e.functional.common.ElementNotFoundException;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebDriverException;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.slf4j.Logger;
@@ -15,8 +16,12 @@ public class Click {
     private static final Logger log = LoggerFactory.getLogger(Click.class);
 
     /**
-     * Clicks on the specified WebElement using the default method provided by the browser. If that method fails, it attempts to perform the click operation using JavaScript.
-     * @param ele  WebElement that is intended to be clicked.
+     * Clicks on the specified WebElement using the default method provided by the browser.
+     * If that method fails, it attempts to perform the click operation using JavaScript.
+     *
+     * @param driver {@code WebDriver} on which the operations are performed.
+     * @param waiter {@code Waiter} to perform the necessary async waits.
+     * @param ele    WebElement that is intended to be clicked.
      */
     public static WebDriver element(WebDriver driver,Waiter waiter, WebElement ele) throws ElementNotFoundException {
         String tagName = ele.getTagName();
@@ -27,19 +32,19 @@ public class Click {
             ele.click();
             log.debug("Click.element (click): ele:{}:{} ==>OK", tagName, text);
             return driver;
-        } catch (Exception e) {
+        } catch (WebDriverException e) {
             log.error("Click.element (click): ele:{}:{} ==>KO {}:{}", tagName, text, e.getClass().getName(), e.getLocalizedMessage());
         }
         try {
             byJS(driver, ele);
             log.debug("Click.element by JS (click): ele:{}:{} ==>OK", tagName, text);
             return driver;
-        } catch (Exception e) {
+        } catch (WebDriverException e) {
             log.error("Click.element by JS (click): ele:{}:{} ==>KO {}:{}", tagName, text, e.getClass().getName(), e.getLocalizedMessage());
         }
         throw new ElementNotFoundException("Click.element ERROR");
     }
-
+    /** Falls back to dispatching a click event via JavaScript when native Selenium clicks fail. */
     public static void byJS(WebDriver driver, WebElement we) {
         JavascriptExecutor js = (JavascriptExecutor) driver;
         js.executeScript("var evt = document.createEvent('MouseEvents');"

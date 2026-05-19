@@ -1,4 +1,4 @@
-package giis.eshopcontainers.e2e.functional.tests;
+package giis.eshopcontainers.e2e.functional.tests.api;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -11,10 +11,10 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 
 /**
- The IdentityAPITests suite validates the Identity API (OIDC/IdentityServer4) endpoints
- through the two routes of eShopOnContainers.
- Due to the purpose of provide the access tokens before any other request, the test check
- first the /identity-api prefix, and fall back to the identity URI if is not configured.
+ * The IdentityAPITests suite validates the Identity API (OIDC/IdentityServer4) endpoints
+ * through the two routes of eShopOnContainers.
+ * Due to the purpose of provide the access tokens before any other request, the test check
+ * first the /identity-api prefix, and fall back to the identity URI if is not configured.
  *
  * <p>Endpoints under test:
  * <ul>
@@ -25,7 +25,9 @@ import java.io.IOException;
  */
 class IdentityAPITests extends BaseAPIClass {
 
-    /**Validates the standard OIDC discovery tokens with the issuer and key URIs*/
+    /**
+     * Validates the standard OIDC discovery tokens with the issuer and key URIs
+     */
     @AccessMode(resID = "identity-api", concurrency = 50, sharing = true, accessMode = "READONLY")
     @Test
     @DisplayName("testGetOpenIdConfigurationIdentityAPI")
@@ -58,8 +60,10 @@ class IdentityAPITests extends BaseAPIClass {
         );
     }
 
-    /** Tests the /connect/token endpoint with the owner password credentials, checking that must return
-     * a no-empty access token for the basket scope */
+    /**
+     * Tests the /connect/token endpoint with the owner password credentials, checking that must return
+     * a no-empty access token for the basket scope
+     */
     @AccessMode(resID = "identity-api", concurrency = 50, sharing = true, accessMode = "READONLY")
     @AccessMode(resID = "eshopUser", concurrency = 1, accessMode = "READONLY")
     @Test

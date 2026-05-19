@@ -1,13 +1,10 @@
-package giis.eshopcontainers.e2e.functional.tests;
+package giis.eshopcontainers.e2e.functional.tests.api;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonParser;
 import giis.eshopcontainers.e2e.functional.common.BaseAPIClass;
 import giis.retorch.annotations.AccessMode;
-import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -43,7 +40,9 @@ class OrderingAPITests extends BaseAPIClass {
         );
     }
 
-    /** Check that the list of orders for a user, differentiating between code 200 + orders JSON,empty in a clean env*/
+    /**
+     * Check that the list of orders for a user, differentiating between code 200 + orders JSON,empty in a clean env
+     */
     @AccessMode(resID = "identity-api", concurrency = 50, sharing = true, accessMode = "READONLY")
     @AccessMode(resID = "ordering-api", concurrency = 50, sharing = true, accessMode = "READONLY")
     @AccessMode(resID = "eshopUser", concurrency = 1, accessMode = "READONLY")
@@ -57,7 +56,9 @@ class OrderingAPITests extends BaseAPIClass {
         Assertions.assertNotNull(orders, "Orders response cannot be null");
     }
 
-    /** Test that checks that against and non-existent order id the API raises a 404 HTTP status code*/
+    /**
+     * Test that checks that against and non-existent order id the API raises a 404 HTTP status code
+     */
     @AccessMode(resID = "identity-api", concurrency = 50, sharing = true, accessMode = "READONLY")
     @AccessMode(resID = "ordering-api", concurrency = 50, sharing = true, accessMode = "READONLY")
     @Test
@@ -91,12 +92,9 @@ class OrderingAPITests extends BaseAPIClass {
      * order draft, while the YARP route forwards directly to the ordering microservice.
      */
     private int getOrderDraftStatusCode(String basketId) throws IOException {
-        try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
-            HttpGet request = new HttpGet(this.getDesktopBFFURLOrders() + basketId);
-            request.addHeader("content-type", "application/json");
-            request.addHeader("Authorization", "Bearer " + tokenAPI);
-            HttpResponse response = httpClient.execute(request);
-            return response.getStatusLine().getStatusCode();
-        }
+        HttpGet request = new HttpGet(this.getDesktopBFFURLOrders() + basketId);
+        request.addHeader("content-type", "application/json");
+        request.addHeader("Authorization", "Bearer " + tokenAPI);
+        return httpClient.execute(request).getStatusLine().getStatusCode();
     }
 }

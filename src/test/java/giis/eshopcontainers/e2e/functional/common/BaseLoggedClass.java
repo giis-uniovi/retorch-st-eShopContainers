@@ -1,8 +1,6 @@
 package giis.eshopcontainers.e2e.functional.common;
 
-import giis.eshopcontainers.e2e.functional.utils.Click;
-import giis.eshopcontainers.e2e.functional.utils.Navigation;
-import giis.eshopcontainers.e2e.functional.utils.Waiter;
+import giis.eshopcontainers.e2e.functional.utils.*;
 import giis.selema.framework.junit5.LifecycleJunit5;
 import giis.selema.manager.SeleManager;
 import giis.selema.manager.SelemaConfig;
@@ -42,10 +40,15 @@ public class BaseLoggedClass {
     private static final SeleManager seleManager = new SeleManager(new SelemaConfig().setReportSubdir("target/containerlogs/" + (System.getProperty("TJOB_NAME") == null ? "" : System.getProperty("TJOB_NAME"))).setName(System.getProperty("TJOB_NAME") == null ? "locallogs" : System.getProperty("TJOB_NAME")));
     private String userName;
     private String password;
-    private boolean isLogged = false;
+    protected boolean isLogged = false;
     private static String dbURL;
+    protected Navigation navHelper;
+    protected Orders orderHelper;
+    protected Basket basketHelper;
 
     public static String getDbURL() {return dbURL;}
+    protected String getUserName() { return userName; }
+    protected String getPassword() { return password; }
 
     @BeforeAll()
     static void setupAll() throws IOException { //28 lines
@@ -85,8 +88,15 @@ public class BaseLoggedClass {
         // Navigate to SUT URL
         log.debug("Navigating to {}.", sutUrl);
         driver.get(sutUrl);
-
+        initializeHelpers();
         log.info("Individual Set-up for the TJob {} finished, starting test: {}.", tJobName, testInfo.getDisplayName());
+    }
+
+    // Default helpers are initialized here
+    protected void initializeHelpers() {
+        this.navHelper = new Navigation(); // Assuming they need driver/waiter
+        this.basketHelper = new Basket();
+        this.orderHelper = new Orders();
     }
 
     /**
@@ -112,7 +122,7 @@ public class BaseLoggedClass {
      * Logs in the user with the specified credentials navigating to the main menu.
      */
     protected void login() throws ElementNotFoundException {
-        Navigation.toMainMenu(driver, waiter);
+        navHelper.toMainMenu(driver, waiter);
         log.debug("Logging in user: {}", userName);
         // Click the "Login" button
         By loginButtonXPath = By.xpath("//a[contains(text(),'Login')]");
@@ -142,11 +152,15 @@ public class BaseLoggedClass {
     }
 
     @AfterEach
-    void tearDown(TestInfo testInfo) throws ElementNotFoundException {
+    void tearDown(TestInfo testInfo) {
         log.info("Disposing user and releasing/closing browser for the test {}", testInfo.getDisplayName());
         if (isLogged) {
             log.debug("Logging out user: {}", this.userName);
-            this.logout();
+            try {
+                this.logout();
+            } catch (ElementNotFoundException e) {
+                log.warn("Logout failed during tearDown (test still passes): {}", e.getMessage());
+            }
         }
     }
 
@@ -155,7 +169,7 @@ public class BaseLoggedClass {
      */
     protected void logout() throws ElementNotFoundException {
         // Navigate to the main menu
-        Navigation.toMainMenu(driver, waiter);
+        navHelper.toMainMenu(driver, waiter);
         WebElement logoutElement;
         try {
             // Attempt to locate the logout link directly

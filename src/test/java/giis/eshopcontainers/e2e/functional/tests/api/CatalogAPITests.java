@@ -1,4 +1,4 @@
-package giis.eshopcontainers.e2e.functional.tests;
+package giis.eshopcontainers.e2e.functional.tests.api;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
@@ -58,7 +58,9 @@ class CatalogAPITests extends BaseAPIClass {
         );
     }
 
-    /** Test the paginated list endpoint, retrieving the elements that start with a given prefix*/
+    /**
+     * Test the paginated list endpoint, retrieving the elements that start with a given prefix
+     */
     @AccessMode(resID = "catalog-api", concurrency = 50, sharing = true, accessMode = "READONLY")
     @Test
     @DisplayName("GetCatalogItemsByNameCatalogAPI")
@@ -73,7 +75,10 @@ class CatalogAPITests extends BaseAPIClass {
                 () -> Assertions.assertTrue(result.contains("Roslyn Red Pin"), "Expected 'Roslyn Red Pin' in matching items")
         );
     }
-    /** Test the paginated list endpoint, retrieving the elements filtered by brand and type*/
+
+    /**
+     * Test the paginated list endpoint, retrieving the elements filtered by brand and type
+     */
     @AccessMode(resID = "catalog-api", concurrency = 50, sharing = true, accessMode = "READONLY")
     @Test
     @DisplayName("getCatalogItemsByTypeAndBrandCatalogAPI")

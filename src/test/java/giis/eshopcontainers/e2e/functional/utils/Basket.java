@@ -1,0 +1,159 @@
+package giis.eshopcontainers.e2e.functional.utils;
+
+import giis.eshopcontainers.e2e.functional.common.ElementNotFoundException;
+import org.junit.jupiter.api.Assertions;
+import org.openqa.selenium.By;
+import org.openqa.selenium.NoSuchElementException;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+/**
+ *  Shopping helpers for basket and catalog operations. The methods target the
+ *  WebMVC frontend, and are overridden if necessary.
+ */
+public class Basket extends Shopping {
+    public static final Logger log = LoggerFactory.getLogger(Basket.class);
+
+    public Basket() {
+        navUtils = new Navigation();
+    }
+
+    /**
+     * Adds the Nth catalog product to the basket using the WebMVC form-submit button.
+     * Verifies the basket badge increments by one after the click.
+     *
+     * @param driver {@code WebDriver} on which the operations are performed.
+     * @param waiter {@code Waiter} to perform the necessary async waits.
+     * @param numProduct  1-based position of the product on the catalog page
+     * @param productName product name (used only for log / assertion messages)
+     */
+    public void addProductToBasket(WebDriver driver, Waiter waiter, Integer numProduct, String productName) throws ElementNotFoundException {
+        int numItemsPriorAdd = getNumShoppingItems(driver, waiter);
+        log.debug("Adding the product: {}", productName);
+        WebElement productButton = driver.findElement(By.xpath("/html/body/div/div[3]/div[" + numProduct + "]/form/input[1]"));
+        Assertions.assertEquals("esh-catalog-button ", productButton.getAttribute("class"), "The eShop product button was expected to be enabled but was disabled");
+        Click.element(driver, waiter, productButton);
+        Assertions.assertEquals(numItemsPriorAdd + 1, getNumShoppingItems(driver, waiter), "The number of items in the basket doesn't match");
+        log.debug("Product: {} correctly added!", productName);
+    }
+
+    /**
+     * Support methods that add three test products to the eshop basket.
+     *
+     * @param driver {@code WebDriver} on which the operations are performed.
+     * @param waiter {@code Waiter} to perform the necessary async waits.
+     *
+     */
+    public void addThreeProductsToBasket(WebDriver driver, Waiter waiter) throws ElementNotFoundException {
+        addProductToBasket(driver, waiter, 2, ".NET Blue Hoodie");
+        addProductToBasket(driver, waiter, 4, ".NET Foundation Pin");
+        addProductToBasket(driver, waiter, 5, ".NET Foundation T-shirt");
+    }
+
+    /**
+     * Selects a filter option for a given filter on the MVC frontend eShopOnContainers catalog.
+     *
+     * @param driver        {@code WebDriver} on which the operations are performed.
+     * @param waiter        {@code Waiter} to perform the necessary async waits
+     * @param filterId      The ID of the filter element.
+     * @param filterOptions Array of display names for filter options.
+     * @param option        The selected option for the filter.
+     */
+    public void selectFilter(WebDriver driver, Waiter waiter, String filterId, String[] filterOptions, Integer option) throws ElementNotFoundException {
+        WebElement elementOfInterest;
+        try {
+            elementOfInterest = driver.findElement(By.xpath("//*[@id=\"" + filterId + "\"]/option[" + option + "]"));
+        } catch (NoSuchElementException e) {
+            WebElement mainMenu = driver.findElement(By.id(filterId));
+            Click.element(driver, waiter, mainMenu);
+            elementOfInterest = mainMenu.findElement(By.xpath("//*[@id=\"" + filterId + "\"]/option[" + option + "]"));
+        }
+        log.debug("Selecting the {} : {}", filterId, filterOptions[option - 1]);
+        Click.element(driver, waiter, elementOfInterest);
+        log.debug("Click the Filter Apply button");
+        WebElement filterApplyButton = driver.findElement(By.xpath("/html/body/section[2]/div/form/input[1]"));
+        Click.element(driver, waiter, filterApplyButton);
+        waiter.waitUntil(ExpectedConditions.presenceOfElementLocated(By.id("Next")), "Catalog page did not reload after filter apply");
+    }
+
+    /**
+     * Returns the HTML element ID for the brand filter dropdown.
+     * Override in subclasses that use a different ID.
+     */
+    protected String getBrandFilterId() { return "BrandFilterApplied"; }
+
+    /**
+     * Returns the HTML element ID for the type filter dropdown.
+     * Override in subclasses that use a different ID.
+     */
+    protected String getTypeFilterId() { return "TypesFilterApplied"; }
+
+    /**
+     * Selects a brand filter option for the eShopOnContainers catalog.
+     *
+     * @param driver {@code WebDriver} on which the operations are performed.
+     * @param waiter {@code Waiter} to perform the necessary async waits
+     * @param option The selected brand filter option: 1) All brands, 2)NETCore and 3) Others
+     */
+    public void selectBrandFilter(WebDriver driver, Waiter waiter, Integer option) throws ElementNotFoundException {
+        String[] brandOptions = {"All Brands", "Net Core", "Others"};
+        selectFilter(driver, waiter, getBrandFilterId(), brandOptions, option);
+    }
+
+    /**
+     * Selects a type filter option for the eShopOnContainers catalog
+     *
+     * @param driver {@code WebDriver} on which the operations are performed.
+     * @param waiter {@code Waiter} to perform the necessary async waits
+     * @param option The selected type filter option: 1) All Types, 2) Mug, 3) TShirt and 4)Pin
+     */
+    public void selectTypeFilter(WebDriver driver, Waiter waiter, Integer option) throws ElementNotFoundException {
+        String[] typeOptions = {"All Types", "Mug", "TShirt", "Pin"};
+        selectFilter(driver, waiter, getTypeFilterId(), typeOptions, option);
+    }
+
+    /**
+     * Get the number of displayed items in the catalog, counting also the items in the second page (if exist).
+     *
+     * @param driver {@code WebDriver} on which the operations are performed.
+     * @param waiter {@code Waiter} to perform the necessary async waits
+     */
+    public Integer numberCatalogDisplayedItems(WebDriver driver, Waiter waiter) throws ElementNotFoundException {
+        int totalItems = 0;
+
+        waiter.waitUntil(ExpectedConditions.presenceOfElementLocated(By.id("Next")), "Next button not present");
+        log.debug("Checking the visibility of the Next button");
+        WebElement nextButton = driver.findElement(By.id("Next"));
+
+        if (nextButton.isDisplayed()) {
+            totalItems += driver.findElements(By.className("esh-catalog-item")).size();
+            log.debug("Clicking to go to the next page. The total number of items on the first page is: {}", totalItems);
+            Click.element(driver, waiter, nextButton);
+            waiter.waitUntil(ExpectedConditions.stalenessOf(nextButton), "Next button did not become stale after click");
+        } else {
+            log.debug("Next button not visible. Counting only the elements on the current page.");
+        }
+        totalItems += driver.findElements(By.className("esh-catalog-item")).size();
+
+        log.debug("The total number of items is: {}", totalItems);
+        return totalItems;
+    }
+
+    /**
+     * Support method used to ensure that the product button is disabled before the user of the eshop is logged
+     * in.
+     *
+     * @param driver {@code WebDriver} on which the operations are performed.
+     * @param waiter {@code Waiter} to perform the necessary async waits.*/
+    public void checkProductButtonDisabled(WebDriver driver, Waiter waiter) throws ElementNotFoundException {
+        navUtils.toMainMenu(driver, waiter);
+        waiter.waitUntil(ExpectedConditions.numberOfElementsToBeMoreThan(By.className("esh-catalog-item"), 4),
+                "Expected more than 4 catalog items");
+        WebElement productButton = driver.findElement(By.xpath("/html/body/div/div[3]/div[1]/form/input[1]"));
+        Assertions.assertEquals("esh-catalog-button is-disabled", productButton.getAttribute("class"),
+                "The eShop product button was expected to be disabled but was enabled");
+    }
+}

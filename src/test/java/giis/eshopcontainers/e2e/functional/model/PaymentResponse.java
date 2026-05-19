@@ -1,7 +1,8 @@
 package giis.eshopcontainers.e2e.functional.model;
 
 /**
- * Tuple of HTTP status code and response body, employed in the PaymentAPITests.
+ * {@code PaymentResponse} contains a DTO used as tuple of HTTP status code and response body,
+ * employed in the {@code PaymentAPITests}.
  */
 public class PaymentResponse {
 

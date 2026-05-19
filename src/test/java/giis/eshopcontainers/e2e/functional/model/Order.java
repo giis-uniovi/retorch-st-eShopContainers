@@ -1,6 +1,9 @@
 package giis.eshopcontainers.e2e.functional.model;
 import java.util.List;
 
+/** {@code Order} DTO employed to serialize a client order, starting by it's the different
+ * items that contains, but also all the information related to the buyer, payment and
+ * destination address.*/
 public class Order {
     private String orderNumber;
     private String date;

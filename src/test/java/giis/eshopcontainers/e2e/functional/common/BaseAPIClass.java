@@ -12,6 +12,7 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,10 +34,12 @@ import java.util.Properties;
 public class BaseAPIClass {
 
     public static final Logger log = LoggerFactory.getLogger(BaseAPIClass.class);
+    protected static CloseableHttpClient httpClient;
     protected static String tokenAPI;
     protected static String tokenOrdering;
     protected static Properties properties;
     protected static String tJobName;
+    private static String containerPort;
     private static String desktopBFFURL;
     private static String desktopBFFBaseURL;
     private static String identityURL;
@@ -63,21 +66,23 @@ public class BaseAPIClass {
             properties.load(Files.newInputStream(Paths.get("src/test/resources/test.properties")));
             tJobName = System.getProperty("TJOB_NAME");
             user = properties.getProperty("USER_ESHOP");
+            containerPort = properties.getProperty("CONTAINER_PORT", "80");
             String envUrl = System.getProperty("SUT_URL") != null ? System.getProperty("SUT_URL") : System.getenv("SUT_URL");
             if (envUrl == null) {
                 identityURL = properties.getProperty("LOCALHOST_IDENTITY_URL");
                 desktopBFFURL = properties.getProperty("LOCALHOST_DESKTOP_BFF_URL");
-                desktopBFFBaseURL = desktopBFFURL.replace("/api/v1", "");
+                desktopBFFBaseURL = properties.getProperty("LOCALHOST_BFF_URL");
                 paymentURL = properties.getProperty("LOCALHOST_PAYMENT_URL");
                 log.debug("Configuring to connect a local identity_api, whose URL is (SUT) at: {}", identityURL);
             } else {
-                identityURL = "http://identity_api_" + tJobName + ":80";
-                desktopBFFURL = "http://webshoppingagg_" + tJobName + ":80/api/v1";
-                desktopBFFBaseURL = "http://webshoppingagg_" + tJobName + ":80";
-                paymentURL = "http://payment_api_" + tJobName + ":80";
+                identityURL = "http://identity_api_" + tJobName + ":" + containerPort;
+                desktopBFFURL = "http://webshoppingagg_" + tJobName + ":" + containerPort + "/api/v1";
+                desktopBFFBaseURL = "http://webshoppingagg_" + tJobName + ":" + containerPort;
+                paymentURL = "http://payment_api_" + tJobName + ":" + containerPort;
                 log.debug("Configuring the API test to use docker network connectivity, identity api at following URL: {}", identityURL);
             }
-            tokenAPI = getTokenWithPasswd(identityURL);
+            httpClient = HttpClients.createDefault();
+            tokenAPI = getTokenWithPassword(identityURL);
             tokenOrdering = getTokenForScope(identityURL, "orders");
             log.debug("Basket token acquired (length={})", tokenAPI.length());
             log.debug("Ordering token acquired (length={})", tokenOrdering.length());
@@ -87,6 +92,14 @@ public class BaseAPIClass {
         log.info("Ending global setup for all test cases.");
     }
 
+    @AfterAll
+    static void tearDownAll() throws IOException {
+        if (httpClient != null) {
+            httpClient.close();
+            log.info("Shared HTTP client closed.");
+        }
+    }
+
     /**
      * Performs an OAuth2 Resource Owner Password Credentials (ROPC) flow to obtain a Bearer token
      * for the scope configured in {@code API_SCOPE} (test.properties).
@@ -94,7 +107,7 @@ public class BaseAPIClass {
      * @param identityURI base URL of the identity/token endpoint
      * @return access token string
      */
-    public static String getTokenWithPasswd(String identityURI) throws IOException {
+    public static String getTokenWithPassword(String identityURI) throws IOException {
         return getTokenForScope(identityURI, properties.getProperty("API_SCOPE"));
     }
 
@@ -117,12 +130,10 @@ public class BaseAPIClass {
         params.add(new BasicNameValuePair("client_secret", properties.getProperty("API_SCOPE_SECRET")));
         params.add(new BasicNameValuePair("scope", scope));
         httppost.setEntity(new UrlEncodedFormEntity(params, StandardCharsets.UTF_8));
-        try (CloseableHttpClient httpclient = HttpClients.createDefault()) {
-            String httpResponseString = httpclient.execute(httppost, new BasicResponseHandler());
-            JsonObject jsonObject = JsonParser.parseString(httpResponseString).getAsJsonObject();
-            log.debug("Token response JSON: {}", jsonObject);
-            return jsonObject.get("access_token").getAsString();
-        }
+        String httpResponseString = httpClient.execute(httppost, new BasicResponseHandler());
+        JsonObject jsonObject = JsonParser.parseString(httpResponseString).getAsJsonObject();
+        log.debug("Token response JSON: {}", jsonObject);
+        return jsonObject.get("access_token").getAsString();
     }
 
     /**
@@ -134,15 +145,13 @@ public class BaseAPIClass {
      * @return response body, or empty string if the response has no entity
      */
     private String executeGet(String url, String authToken) throws IOException {
-        try (CloseableHttpClient client = HttpClients.createDefault()) {
-            HttpGet req = new HttpGet(url);
-            req.addHeader("content-type", "application/json");
-            if (authToken != null) {
-                req.addHeader("Authorization", "Bearer " + authToken);
-            }
-            HttpEntity entity = client.execute(req).getEntity();
-            return entity != null ? EntityUtils.toString(entity) : "";
+        HttpGet req = new HttpGet(url);
+        req.addHeader("content-type", "application/json");
+        if (authToken != null) {
+            req.addHeader("Authorization", "Bearer " + authToken);
         }
+        HttpEntity entity = httpClient.execute(req).getEntity();
+        return entity != null ? EntityUtils.toString(entity) : "";
     }
 
     /**
@@ -154,17 +163,15 @@ public class BaseAPIClass {
      * @return HTTP status code
      */
     private int executeGetStatusCode(String url, String authToken) throws IOException {
-        try (CloseableHttpClient client = HttpClients.createDefault()) {
-            HttpGet req = new HttpGet(url);
-            req.addHeader("content-type", "application/json");
-            if (authToken != null) {
-                req.addHeader("Authorization", "Bearer " + authToken);
-            }
-            return client.execute(req).getStatusLine().getStatusCode();
+        HttpGet req = new HttpGet(url);
+        req.addHeader("content-type", "application/json");
+        if (authToken != null) {
+            req.addHeader("Authorization", "Bearer " + authToken);
         }
+        return httpClient.execute(req).getStatusLine().getStatusCode();
     }
 
-    /*Support methods to extract bodies and status codes in the different API tests*/
+    //Support methods to extract bodies and status codes in the different API tests
     protected String getOrderingProxyBody(String path) throws IOException {
         return executeGet(getDesktopBFFOrderingURL() + path, tokenOrdering);
     }
@@ -188,30 +195,26 @@ public class BaseAPIClass {
     protected String getIdentityBody(String path, String authToken) throws IOException {
         String primaryUrl = this.getDesktopBFFIdentityURL() + path;
         String fallbackUrl = getIdentityURL() + path;
-        try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
-            HttpGet request = new HttpGet(primaryUrl);
-            request.addHeader("content-type", "application/json");
-            if (authToken != null) request.addHeader("Authorization", "Bearer " + authToken);
-            HttpResponse response = httpClient.execute(request);
-            int status = response.getStatusLine().getStatusCode();
-            if (status == 200) {
-                HttpEntity entity = response.getEntity();
-                return entity != null ? EntityUtils.toString(entity) : "";
-            }
-            if (status != 404) {
-                log.warn("Unexpected {} from gateway {}, not falling back", status, primaryUrl);
-                return "";
-            }
-            log.debug("Primary URL {} returned status {}, falling back to {}", primaryUrl, status, fallbackUrl);
-        }
-        // Fall back to the identity url
-        try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
-            HttpGet request = new HttpGet(fallbackUrl);
-            request.addHeader("content-type", "application/json");
-            if (authToken != null) request.addHeader("Authorization", "Bearer " + authToken);
-            HttpResponse response = httpClient.execute(request);
-            HttpEntity entity = response.getEntity();
+        HttpGet gatewayRequest = new HttpGet(primaryUrl);
+        gatewayRequest.addHeader("content-type", "application/json");
+        if (authToken != null) gatewayRequest.addHeader("Authorization", "Bearer " + authToken);
+        HttpResponse gatewayResponse = httpClient.execute(gatewayRequest);
+        int status = gatewayResponse.getStatusLine().getStatusCode();
+        if (status == 200) {
+            HttpEntity entity = gatewayResponse.getEntity();
             return entity != null ? EntityUtils.toString(entity) : "";
         }
+        if (status != 404) {
+            log.warn("Unexpected {} from gateway {}, not falling back", status, primaryUrl);
+            return "";
+        }
+        log.debug("Primary URL {} returned status {}, falling back to {}", primaryUrl, status, fallbackUrl);
+        // Fall back to the identity url directly
+        HttpGet fallbackRequest = new HttpGet(fallbackUrl);
+        fallbackRequest.addHeader("content-type", "application/json");
+        if (authToken != null) fallbackRequest.addHeader("Authorization", "Bearer " + authToken);
+        HttpResponse fallbackResponse = httpClient.execute(fallbackRequest);
+        HttpEntity entity = fallbackResponse.getEntity();
+        return entity != null ? EntityUtils.toString(entity) : "";
     }
 }
