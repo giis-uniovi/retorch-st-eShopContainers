@@ -38,7 +38,6 @@ class WebMVCBasketTests extends BaseLoggedClass {
         basketHelper.checkProductButtonDisabled(driver, waiter);
     }
 
-
     @AccessMode(resID = "webmvc", concurrency = 10, sharing = true, accessMode = "READONLY")
     @AccessMode(resID = "identity-api", concurrency = 50, sharing = true, accessMode = "READONLY")
     @AccessMode(resID = "catalog-api", concurrency = 60, sharing = true, accessMode = "READONLY")

@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Navigation helpers for the WebSPA frontends.
  * Some methods override the current implemented in Navigation, the inheritance is
- * planned for method sharing (e.g. those that use the same selectors)
+ * planned for method sharing (e.g. those that use the same selectors).
  */
 public class NavigationWebSPA extends Navigation {
     public static final Logger log = LoggerFactory.getLogger(NavigationWebSPA.class);
@@ -21,12 +21,8 @@ public class NavigationWebSPA extends Navigation {
     protected By getMainMenuBy(){return By.className("esh-app-header-brand");}
 
     /**
-     * Navigates to the Orders page.
-     * The {@code .esh-identity-drop} section is always rendered when authenticated
+     * Navigates to the Orders page. The {@code .esh-identity-drop} section is always rendered when authenticated
      * so no explicit dropdown expansion is needed.
-     * Note: this override intentionally does NOT call {@code super.toOrdersPage}
-     * because the parent uses WebMVC-specific selectors; calling it would trigger
-     * a redundant {@code toMainMenu} navigation.
      */
     @Override
     public void toOrdersPage(WebDriver driver, Waiter waiter) throws ElementNotFoundException {
@@ -50,7 +46,7 @@ public class NavigationWebSPA extends Navigation {
     }
 
     /**
-     * Navigates to the basket page by clicking the basket icon in the header.
+     * Navigates to the basket page by clicking the basket icon in the header of the WebSPA frontend.
      */
     @Override
     public void navigateToBasket(WebDriver driver, Waiter waiter) throws ElementNotFoundException {
@@ -62,7 +58,7 @@ public class NavigationWebSPA extends Navigation {
     }
 
     /**
-     * Navigates to the Orders checkout through the basket button.
+     * Navigates to the Orders checkout through the basket button in the WebSPA frontend.
      */
     @Override
     public void navigateToCheckout(WebDriver driver, Waiter waiter) throws ElementNotFoundException {

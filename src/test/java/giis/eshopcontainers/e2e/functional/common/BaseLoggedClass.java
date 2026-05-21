@@ -253,6 +253,7 @@ public class BaseLoggedClass {
             fail("The Catalog Status is not the expected after " + MAX_ITERATIONS + " attempts.");
         }
     }
+
     /**
      * Checks the status of the CatalogDB by attempting to connect and query the number of products
      * in the Catalog table. Retries the connection and query up to a specified number of times.
@@ -301,9 +302,8 @@ public class BaseLoggedClass {
 
     /**
      * Clears the test user's basket via API before each test, preventing pollution between tests.
-     * Acquires an OAuth2 token, decodes the JWT sub claim (the actual basket key used by the
+     * Acquires an OAuth2 token, decodes the JWT subclaim (the actual basket key used by the
      * frontend), and issues a DELETE against the basket service through the BFF proxy.
-     * Errors are swallowed so a missing or already-empty basket never fails the setup.
      */
     @BeforeEach
     void clearUserBasket() {

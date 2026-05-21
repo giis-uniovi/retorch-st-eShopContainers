@@ -72,7 +72,7 @@ public class Navigation {
     }
 
     /**
-     * Navigates to the basket page by clicking the basket icon in the header.
+     * Navigates to the basket page by clicking the basket icon in the WebMVC header.
      */
     public void navigateToBasket(WebDriver driver, Waiter waiter) throws ElementNotFoundException {
         log.debug("Navigating to basket page by clicking the basket icon...");

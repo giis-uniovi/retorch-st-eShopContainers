@@ -185,6 +185,9 @@ class BasketAPITests extends BaseAPIClass {
         );
     }
 
+    /**
+     * Creates basket with two items inside.
+     */
     public String createBasketWithTwoItems() throws IOException {
         log.debug("Creating the connection with URL: {}", this.getDesktopBFFURLBasket());
         HttpPost httpPost = new HttpPost(this.getDesktopBFFURLBasket());
@@ -193,6 +196,9 @@ class BasketAPITests extends BaseAPIClass {
         return httpClient.execute(httpPost, new BasicResponseHandler());
     }
 
+    /**
+     * Creates basket with one two items inside.
+     */
     private String createBasketWithOneItem(int productId, int quantity) throws IOException {
         log.debug("Creating basket with productId={} quantity={} via BFF at: {}", productId, quantity, this.getDesktopBFFURLBasket());
         HttpPost httpPost = new HttpPost(this.getDesktopBFFURLBasket());
@@ -213,7 +219,9 @@ class BasketAPITests extends BaseAPIClass {
         httpPost.setEntity(new StringEntity(basket.toString(), StandardCharsets.UTF_8));
         return httpClient.execute(httpPost, new BasicResponseHandler());
     }
-
+    /**
+     * Support method that is employed to add a certain quantity of one item to the specified basket.
+     */
     public String addItemToBasket(String basketId, int catalogItemId, int quantity) throws IOException {
         log.debug("Adding item {} (qty={}) to basket {}", catalogItemId, quantity, basketId);
         HttpPost httpPost = new HttpPost(this.getDesktopBFFURLBasketItems());
@@ -226,6 +234,10 @@ class BasketAPITests extends BaseAPIClass {
         return httpClient.execute(httpPost, new BasicResponseHandler());
     }
 
+    /**
+     * Support method that is used to  update two item quantity, providing the new quantities and the
+     * product id for both items.
+     */
     public String updateBasketItemQuantities(String basketId,
                                              String item1Id, int newQty1,
                                              String item2Id, int newQty2) throws IOException {
@@ -251,6 +263,9 @@ class BasketAPITests extends BaseAPIClass {
         return httpClient.execute(httpPut, new BasicResponseHandler());
     }
 
+    /**
+     * Makes a request against the BFF to get the current basket with their items
+     */
     public String getBasket(String basketId) throws IOException {
         HttpGet request = new HttpGet(this.getDesktopBFFURLOrders() + basketId);
         addBasketHeaders(request);

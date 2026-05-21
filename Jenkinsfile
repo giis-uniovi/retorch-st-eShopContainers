@@ -91,7 +91,7 @@ pipeline {
           steps {
             catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
               sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-setup.sh tjobg 1 http://webmvc_tjobg:80'
-              sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-testexecution.sh tjobg 1 http://webmvc_tjobg:80 "WebSPABasketTests#addProductsToBasketSPA,WebSPABasketTests#testBasketContentsVisible,WebSPABasketTests#testRemoveItemFromBasket"'
+              sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-testexecution.sh tjobg 1 http://webmvc_tjobg:80 "WebSPABasketTests#addProductsToBasketSPA,WebSPABasketTests#testBasketContentsVisibleSPA,WebSPABasketTests#testRemoveItemFromBasketSPA"'
             }// EndExecutionStageErrortjobg
             sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-teardown.sh tjobg 1'
           }// EndStepstjobg
