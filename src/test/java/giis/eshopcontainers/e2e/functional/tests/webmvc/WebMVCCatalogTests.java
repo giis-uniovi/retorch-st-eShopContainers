@@ -42,6 +42,7 @@ class WebMVCCatalogTests extends BaseLoggedClass {
                 "The number of catalog items on the first page was less than expected");
 
         // Count items on the first page
+        WebElement firstPageFirstItem = driver.findElement(By.className("esh-catalog-item"));
         int firstPageCount = driver.findElements(By.className("esh-catalog-item")).size();
         log.debug("First page item count: {}", firstPageCount);
         Assertions.assertTrue(firstPageCount > 0, "First page should show at least one item");
@@ -50,10 +51,10 @@ class WebMVCCatalogTests extends BaseLoggedClass {
         WebElement nextButton = driver.findElement(By.id("Next"));
         Assertions.assertTrue(nextButton.isDisplayed(), "Next button should be visible on the first page");
 
-        // Navigate to the second page
+        // Navigate to the second page; wait for the first-page items to go stale before counting
         Click.element(driver, waiter, nextButton);
-        waiter.waitUntil(ExpectedConditions.numberOfElementsToBeMoreThan(By.className("esh-catalog-item"), 0),
-                "No items found on the second page");
+        waiter.waitUntil(ExpectedConditions.stalenessOf(firstPageFirstItem),
+                "Page did not transition after clicking Next");
 
         int secondPageCount = driver.findElements(By.className("esh-catalog-item")).size();
         log.debug("Second page item count: {}", secondPageCount);
@@ -65,10 +66,11 @@ class WebMVCCatalogTests extends BaseLoggedClass {
         WebElement previousButton = driver.findElement(By.id("Previous"));
         Assertions.assertTrue(previousButton.isDisplayed(), "Previous button should be visible on the second page");
 
-        // Navigate back to the first page
+        // Navigate back to the first page; wait for the second-page items to go stale before counting
+        WebElement secondPageFirstItem = driver.findElement(By.className("esh-catalog-item"));
         Click.element(driver, waiter, previousButton);
-        waiter.waitUntil(ExpectedConditions.numberOfElementsToBeMoreThan(By.className("esh-catalog-item"), 4),
-                "Insufficient items after navigating back to the first page");
+        waiter.waitUntil(ExpectedConditions.stalenessOf(secondPageFirstItem),
+                "Page did not transition after clicking Previous");
 
         int backToFirstCount = driver.findElements(By.className("esh-catalog-item")).size();
         Assertions.assertEquals(firstPageCount, backToFirstCount,

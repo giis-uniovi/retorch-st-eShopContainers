@@ -24,12 +24,13 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
+
 /**
  * The {@code BaseAPIClass} implements all the common methods required to perform the API testing
  * of the different microservices that compose eShopOnContainers. Has the necessary operations to
  * perform the oAuth2 authentication against the identity_service as well as the common set-up and
  * tear-down methods.
-*/
+ */
 public class BaseAPIClass {
 
     public static final Logger log = LoggerFactory.getLogger(BaseAPIClass.class);

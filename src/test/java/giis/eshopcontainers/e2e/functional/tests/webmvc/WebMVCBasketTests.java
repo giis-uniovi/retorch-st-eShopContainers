@@ -19,11 +19,10 @@ import java.util.List;
  */
 class WebMVCBasketTests extends BaseLoggedClass {
 
-
     @AccessMode(resID = "webmvc", concurrency = 10, sharing = true, accessMode = "READONLY")
     @AccessMode(resID = "identity-api", concurrency = 50, sharing = true, accessMode = "READONLY")
     @AccessMode(resID = "catalog-api", concurrency = 60, sharing = true, accessMode = "READONLY")
-    @AccessMode(resID = "basket-api", concurrency = 30,sharing = true, accessMode = "READWRITE")
+    @AccessMode(resID = "basket-api", concurrency = 30, sharing = true, accessMode = "READWRITE")
     @AccessMode(resID = "chrome-browser", concurrency = 1, sharing = false, accessMode = "READWRITE")
     @AccessMode(resID = "eshopUser", concurrency = 1, accessMode = "READWRITE")
     @Test
@@ -32,9 +31,9 @@ class WebMVCBasketTests extends BaseLoggedClass {
         log.debug("Before login, checking that the product buttons are disabled");
         basketHelper.checkProductButtonDisabled(driver, waiter);
         this.login();
-        basketHelper.addProductToBasket(driver, waiter,1, "NetCore Cup");
-        basketHelper.addProductToBasket(driver, waiter,3, "Hoodie");
-        basketHelper.addProductToBasket(driver, waiter,6, "Pin");
+        basketHelper.addProductToBasket(driver, waiter, 1, "NetCore Cup");
+        basketHelper.addProductToBasket(driver, waiter, 3, "Hoodie");
+        basketHelper.addProductToBasket(driver, waiter, 6, "Pin");
         this.logout();
         basketHelper.checkProductButtonDisabled(driver, waiter);
     }
@@ -51,11 +50,11 @@ class WebMVCBasketTests extends BaseLoggedClass {
     void testBasketContentsVisibleMVC() throws ElementNotFoundException {
         login();
         // Add two products to the basket
-        basketHelper.addProductToBasket(driver,waiter,1, "NetCore Cup");
-        basketHelper.addProductToBasket(driver, waiter,3, "Hoodie" );
+        basketHelper.addProductToBasket(driver, waiter, 1, "NetCore Cup");
+        basketHelper.addProductToBasket(driver, waiter, 3, "Hoodie");
 
         // Navigate to the basket page
-        navHelper.navigateToBasket(driver,waiter);
+        navHelper.navigateToBasket(driver, waiter);
         waiter.waitUntil(ExpectedConditions.presenceOfElementLocated(By.id("cartForm")),
                 "Basket form not loaded after navigation");
 
@@ -67,6 +66,7 @@ class WebMVCBasketTests extends BaseLoggedClass {
 
         logout();
     }
+
     @AccessMode(resID = "webmvc", concurrency = 10, sharing = true, accessMode = "READONLY")
     @AccessMode(resID = "identity-api", concurrency = 50, sharing = true, accessMode = "READONLY")
     @AccessMode(resID = "catalog-api", concurrency = 60, sharing = true, accessMode = "READONLY")
@@ -79,11 +79,11 @@ class WebMVCBasketTests extends BaseLoggedClass {
     void testRemoveItemFromBasketMVC() throws ElementNotFoundException {
         login();
         // Add two products to the basket
-        basketHelper.addProductToBasket(driver, waiter,2, ".NET Blue Hoodie" );
-        basketHelper.addProductToBasket(driver, waiter,4, ".NET Foundation Pin" );
+        basketHelper.addProductToBasket(driver, waiter, 2, ".NET Blue Hoodie");
+        basketHelper.addProductToBasket(driver, waiter, 4, ".NET Foundation Pin");
 
         // Navigate to the basket page
-        navHelper.navigateToBasket(driver,waiter);
+        navHelper.navigateToBasket(driver, waiter);
         waiter.waitUntil(ExpectedConditions.presenceOfElementLocated(By.id("cartForm")),
                 "Basket form not loaded after navigation");
 

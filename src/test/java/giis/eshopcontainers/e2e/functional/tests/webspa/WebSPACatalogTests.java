@@ -2,6 +2,7 @@ package giis.eshopcontainers.e2e.functional.tests.webspa;
 
 import giis.eshopcontainers.e2e.functional.common.BaseWebSPALoggedClass;
 import giis.eshopcontainers.e2e.functional.common.ElementNotFoundException;
+import giis.eshopcontainers.e2e.functional.utils.BasketWebSPA;
 import giis.eshopcontainers.e2e.functional.utils.Click;
 import giis.retorch.annotations.AccessMode;
 import org.junit.jupiter.api.Assertions;
@@ -23,7 +24,7 @@ class WebSPACatalogTests extends BaseWebSPALoggedClass {
     @AccessMode(resID = "webspa", concurrency = 10, sharing = true, accessMode = "READONLY")
     @AccessMode(resID = "catalog-api", concurrency = 60, sharing = true, accessMode = "READONLY")
     @AccessMode(resID = "chrome-browser", concurrency = 1, accessMode = "READWRITE")
-    @ParameterizedTest(name = "filterProductsByBrandTypeSPA brand={1}, type={3}, expected={4}")
+    @ParameterizedTest(name = "FilterProductsByBrandTypeSPA brand={1}, type={3}, expected={4}")
     @CsvFileSource(resources = "/catalog-filter-combinations.csv", numLinesToSkip = 1)
     void filterProductsByBrandTypeSPA(int brand, String brandName, int type, String typeName, int expected) throws ElementNotFoundException {
         basketHelper.selectBrandFilter(driver, waiter, brand);
@@ -36,12 +37,13 @@ class WebSPACatalogTests extends BaseWebSPALoggedClass {
     @AccessMode(resID = "catalog-api", concurrency = 60, sharing = true, accessMode = "READONLY")
     @AccessMode(resID = "chrome-browser", concurrency = 1, accessMode = "READWRITE")
     @Test
-    @DisplayName("testCatalogPaginationSPA")
+    @DisplayName("TestCatalogPaginationSPA")
     void testCatalogPaginationSPA() throws ElementNotFoundException {
+        BasketWebSPA spaBasket = (BasketWebSPA) basketHelper;
+
         // Navigate to the main menu (default: All Brands, All Types)
         navHelper.toMainMenu(driver, waiter);
-        By pagerInfoLocator = By.cssSelector(".esh-pager-item:not([id])");
-        waiter.waitUntil(ExpectedConditions.presenceOfElementLocated(pagerInfoLocator),
+        waiter.waitUntil(ExpectedConditions.presenceOfElementLocated(BasketWebSPA.PAGER_INFO_LOCATOR),
                 "Pager info not present after navigation to main menu");
 
         // Count items on the first page
@@ -54,10 +56,9 @@ class WebSPACatalogTests extends BaseWebSPALoggedClass {
         Assertions.assertTrue(nextButton.isDisplayed(), "Next button should be visible on the first page");
 
         // Navigate to the second page and wait for the pager text to update
-        String pagerTextPage1 = driver.findElement(pagerInfoLocator).getText();
+        String pagerTextPage1 = driver.findElement(BasketWebSPA.PAGER_INFO_LOCATOR).getText();
         Click.element(driver, waiter, nextButton);
-        waiter.waitUntil(ExpectedConditions.not(ExpectedConditions.textToBe(pagerInfoLocator, pagerTextPage1)),
-                "Pager did not update after clicking Next");
+        spaBasket.waitForPagerUpdate(driver, waiter, pagerTextPage1);
 
         int secondPageCount = driver.findElements(By.className("esh-catalog-item")).size();
         log.debug("Second page item count: {}", secondPageCount);
@@ -70,10 +71,9 @@ class WebSPACatalogTests extends BaseWebSPALoggedClass {
         Assertions.assertTrue(previousButton.isDisplayed(), "Previous button should be visible on the second page");
 
         // Navigate back to the first page and wait for the pager text to update
-        String pagerTextPage2 = driver.findElement(pagerInfoLocator).getText();
+        String pagerTextPage2 = driver.findElement(BasketWebSPA.PAGER_INFO_LOCATOR).getText();
         Click.element(driver, waiter, previousButton);
-        waiter.waitUntil(ExpectedConditions.not(ExpectedConditions.textToBe(pagerInfoLocator, pagerTextPage2)),
-                "Pager did not update after clicking Previous");
+        spaBasket.waitForPagerUpdate(driver, waiter, pagerTextPage2);
 
         int backToFirstCount = driver.findElements(By.className("esh-catalog-item")).size();
         Assertions.assertEquals(firstPageCount, backToFirstCount,

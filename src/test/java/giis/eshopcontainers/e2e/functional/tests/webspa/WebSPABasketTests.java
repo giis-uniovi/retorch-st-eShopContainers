@@ -28,16 +28,16 @@ class WebSPABasketTests extends BaseWebSPALoggedClass {
     @DisplayName("AddProductsToBasketSPA")
     void addProductsToBasketSPA() throws ElementNotFoundException {
         // Before login catalog items must be disabled
-        basketHelper.checkProductButtonDisabled(driver,waiter);
+        basketHelper.checkProductButtonDisabled(driver, waiter);
 
         this.login();
-        basketHelper.addProductToBasket(driver, waiter,1, "NetCore Cup");
-        basketHelper.addProductToBasket(driver, waiter,3, "Hoodie");
-        basketHelper.addProductToBasket(driver, waiter,6, "Pin");
+        basketHelper.addProductToBasket(driver, waiter, 1, "NetCore Cup");
+        basketHelper.addProductToBasket(driver, waiter, 3, "Hoodie");
+        basketHelper.addProductToBasket(driver, waiter, 6, "Pin");
 
         this.logout();
         // After logout items must be disabled again
-        basketHelper.checkProductButtonDisabled(driver,waiter);
+        basketHelper.checkProductButtonDisabled(driver, waiter);
     }
 
     @AccessMode(resID = "webspa", concurrency = 10, sharing = true, accessMode = "READONLY")
@@ -47,8 +47,8 @@ class WebSPABasketTests extends BaseWebSPALoggedClass {
     @AccessMode(resID = "chrome-browser", concurrency = 1, sharing = false, accessMode = "READWRITE")
     @AccessMode(resID = "eshopUser", concurrency = 1, accessMode = "READWRITE")
     @Test
-    @DisplayName("testBasketContentsVisibleSPA")
-    void testBasketContentsVisible() throws ElementNotFoundException {
+    @DisplayName("TestBasketContentsVisibleSPA")
+    void testBasketContentsVisibleSPA() throws ElementNotFoundException {
         login();
         // Add two products to the basket
         basketHelper.addProductToBasket(driver, waiter, 1, "NetCore Cup");
@@ -59,6 +59,7 @@ class WebSPABasketTests extends BaseWebSPALoggedClass {
 
         // Wait for basket items to render and count them
         // The SPA basket shows only product rows (no separate total summary row unlike WebMVC)
+        // class verified in basket.component.html: <article class="esh-basket-item"> inside *ngFor
         By basketItemsLocator = By.className("esh-basket-item");
         waiter.waitUntil(ExpectedConditions.numberOfElementsToBeMoreThan(basketItemsLocator, 0),
                 "No basket items rendered after navigation");
@@ -76,8 +77,8 @@ class WebSPABasketTests extends BaseWebSPALoggedClass {
     @AccessMode(resID = "chrome-browser", concurrency = 1, sharing = false, accessMode = "READWRITE")
     @AccessMode(resID = "eshopUser", concurrency = 1, accessMode = "READWRITE")
     @Test
-    @DisplayName("testRemoveItemFromBasketSPA")
-    void testRemoveItemFromBasket() throws ElementNotFoundException {
+    @DisplayName("TestRemoveItemFromBasketSPA")
+    void testRemoveItemFromBasketSPA() throws ElementNotFoundException {
         login();
         // Add two products to the basket
         basketHelper.addProductToBasket(driver, waiter, 2, ".NET Blue Hoodie");
@@ -87,6 +88,7 @@ class WebSPABasketTests extends BaseWebSPALoggedClass {
         navHelper.navigateToBasket(driver, waiter);
 
         // Wait for delete buttons to appear and click the first one
+        // class verified in basket.component.html: <div class="esh-basket-delete" (click)="deleteItem(...)"> inside each esh-basket-item
         By deleteButtonsLocator = By.className("esh-basket-delete");
         waiter.waitUntil(ExpectedConditions.numberOfElementsToBeMoreThan(deleteButtonsLocator, 0),
                 "No delete buttons found in the basket page");

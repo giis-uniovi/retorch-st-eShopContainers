@@ -1,5 +1,7 @@
 package giis.eshopcontainers.e2e.functional.common;
 
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
 import com.google.gson.JsonParser;
 import giis.eshopcontainers.e2e.functional.utils.*;
 import giis.selema.framework.junit5.LifecycleJunit5;
@@ -7,6 +9,7 @@ import giis.selema.manager.SeleManager;
 import giis.selema.manager.SelemaConfig;
 import giis.selema.services.browser.DynamicGridBrowserService;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.BasicResponseHandler;
@@ -301,8 +304,6 @@ public class BaseLoggedClass {
      * Acquires an OAuth2 token, decodes the JWT sub claim (the actual basket key used by the
      * frontend), and issues a DELETE against the basket service through the BFF proxy.
      * Errors are swallowed so a missing or already-empty basket never fails the setup.
-     * Subclasses (e.g. BaseWebSPALoggedClass) override this method when they manage their
-     * own HTTP client; the override shadows this one for those tests.
      */
     @BeforeEach
     void clearUserBasket() {
@@ -330,20 +331,33 @@ public class BaseLoggedClass {
                 token = JsonParser.parseString(tokenJson).getAsJsonObject().get("access_token").getAsString();
             }
             // Decode the JWT payload to get the sub claim — the actual basket key used by the frontend
-            String jwtPayload = token.split("\\.")[1];
+            String[] jwtParts = token.split("\\.");
+            if (jwtParts.length != 3) {
+                log.warn("clearUserBasket: token response is not a JWT (parts={}); token endpoint may have returned an error page", jwtParts.length);
+                return;
+            }
+            String jwtPayload = jwtParts[1];
             int mod = jwtPayload.length() % 4;
-            if (mod == 2) jwtPayload += "==";
+            if (mod == 1) jwtPayload += "===";
+            else if (mod == 2) jwtPayload += "==";
             else if (mod == 3) jwtPayload += "=";
-            String sub = JsonParser.parseString(
+            JsonObject payloadObj = JsonParser.parseString(
                     new String(Base64.getUrlDecoder().decode(jwtPayload), StandardCharsets.UTF_8)
-            ).getAsJsonObject().get("sub").getAsString();
+            ).getAsJsonObject();
+            if (!payloadObj.has("sub")) {
+                log.warn("clearUserBasket: JWT payload has no 'sub' claim; cannot identify basket key");
+                return;
+            }
+            String sub = payloadObj.get("sub").getAsString();
             try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
                 HttpDelete deleteRequest = new HttpDelete(bffBaseUrl + "/basket-api/api/v1/basket/" + sub);
                 deleteRequest.addHeader("Authorization", "Bearer " + token);
-                httpClient.execute(deleteRequest);
-                log.debug("Basket cleared for sub={} (user={})", sub, properties.getProperty("USER_ESHOP"));
+                try (CloseableHttpResponse deleteResponse = httpClient.execute(deleteRequest)) {
+                    int status = deleteResponse.getStatusLine().getStatusCode();
+                    log.debug("Basket cleared for sub={} (user={}) status={}", sub, properties.getProperty("USER_ESHOP"), status);
+                }
             }
-        } catch (Exception e) {
+        } catch (IOException | JsonParseException e) {
             log.debug("Could not clear basket before test (continuing): {}", e.getMessage());
         }
     }
