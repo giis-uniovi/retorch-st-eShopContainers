@@ -92,11 +92,6 @@
 				<artifactId>mssql-jdbc</artifactId>
 				<version>13.4.0.jre11</version>
 			</dependency>
-			<dependency>
-				<groupId>io.github.giis-uniovi</groupId>
-				<artifactId>retorch-orchestration</artifactId>
-				<version>${retorch-tool.version}</version>
-			</dependency>
 		</dependencies>
 	<build>
 		<!-- To avoid problems with concurrency we change the directories of the reports, outputs and build -->
