@@ -108,4 +108,3 @@ Write-Host "    --env-file .retorch\envfiles\local.env ``"
 Write-Host "    -p local down --volumes"
 
 Write-Host "Process complete."
-Read-Host -Prompt "Press Enter to exit"

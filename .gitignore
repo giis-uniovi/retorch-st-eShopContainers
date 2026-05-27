@@ -1,5 +1,7 @@
 target
 reports
+monitoring/data/
+monitoring/.venv/
 pom.xml.versionsBackup
 TESTS-TestSuites.xml
 *.db
