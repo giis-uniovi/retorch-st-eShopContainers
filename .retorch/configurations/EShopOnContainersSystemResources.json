@@ -9,22 +9,7 @@
     },
     "resourceType": "LOGICAL",
     "resourceID": "webmvc",
-    "minimalCapacities": [
-      {
-        "name": "memory",
-        "quantity": 0.048
-      },
-      {
-        "name": "processor",
-        "quantity": 0.25
-      },
-      {
-        "name": "storage",
-        "quantity": 0.31
-      }
-    ],
     "dockerImage": "webmvc;eexit/mirror-http-server"
-
   },
   "webspa": {
     "hierarchyParent": [],
@@ -36,22 +21,7 @@
     },
     "resourceType": "LOGICAL",
     "resourceID": "webspa",
-    "minimalCapacities": [
-      {
-        "name": "memory",
-        "quantity": 0.048
-      },
-      {
-        "name": "processor",
-        "quantity": 0.25
-      },
-      {
-        "name": "storage",
-        "quantity": 0.31
-      }
-    ],
     "dockerImage": "webspa;eexit/mirror-http-server"
-
   },
   "identity-api": {
     "hierarchyParent": [],
@@ -63,22 +33,7 @@
     },
     "resourceType": "LOGICAL",
     "resourceID": "identity-api",
-    "minimalCapacities": [
-      {
-        "name": "memory",
-        "quantity": 0.048
-      },
-      {
-        "name": "processor",
-        "quantity": 0.25
-      },
-      {
-        "name": "storage",
-        "quantity": 0.31
-      }
-    ],
     "dockerImage": "identity-api;eexit/mirror-http-server"
-
   },
   "catalog-api": {
     "hierarchyParent": [],
@@ -90,22 +45,7 @@
     },
     "resourceType": "LOGICAL",
     "resourceID": "catalog-api",
-    "minimalCapacities": [
-      {
-        "name": "memory",
-        "quantity": 0.048
-      },
-      {
-        "name": "processor",
-        "quantity": 0.25
-      },
-      {
-        "name": "storage",
-        "quantity": 0.31
-      }
-    ],
     "dockerImage": "catalog-api;eexit/mirror-http-server"
-
   },
   "basket-api": {
     "hierarchyParent": [],
@@ -117,22 +57,7 @@
     },
     "resourceType": "LOGICAL",
     "resourceID": "basket-api",
-    "minimalCapacities": [
-      {
-        "name": "memory",
-        "quantity": 0.048
-      },
-      {
-        "name": "processor",
-        "quantity": 0.25
-      },
-      {
-        "name": "storage",
-        "quantity": 0.31
-      }
-    ],
     "dockerImage": "basket-api;eexit/mirror-http-server"
-
   },
   "chrome-browser": {
     "hierarchyParent": [],
@@ -144,22 +69,7 @@
     },
     "resourceType": "LOGICAL",
     "resourceID": "chrome-browser",
-    "minimalCapacities": [
-      {
-        "name": "memory",
-        "quantity": 0.048
-      },
-      {
-        "name": "processor",
-        "quantity": 0.25
-      },
-      {
-        "name": "storage",
-        "quantity": 0.31
-      }
-    ],
     "dockerImage": "chrome-browser;eexit/mirror-http-server"
-
   },
   "eshopUser": {
     "hierarchyParent": [],
@@ -171,22 +81,7 @@
     },
     "resourceType": "LOGICAL",
     "resourceID": "eshopUser",
-    "minimalCapacities": [
-      {
-        "name": "memory",
-        "quantity": 0.048
-      },
-      {
-        "name": "processor",
-        "quantity": 0.25
-      },
-      {
-        "name": "storage",
-        "quantity": 0.31
-      }
-    ],
     "dockerImage": "eshopUser;eexit/mirror-http-server"
-
   },
   "ordering-api": {
     "hierarchyParent": [],
@@ -198,22 +93,7 @@
     },
     "resourceType": "LOGICAL",
     "resourceID": "ordering-api",
-    "minimalCapacities": [
-      {
-        "name": "memory",
-        "quantity": 0.048
-      },
-      {
-        "name": "processor",
-        "quantity": 0.25
-      },
-      {
-        "name": "storage",
-        "quantity": 0.31
-      }
-    ],
     "dockerImage": "ordering-api;eexit/mirror-http-server"
-
   },
   "payment-api": {
     "hierarchyParent": [],
@@ -225,21 +105,6 @@
     },
     "resourceType": "LOGICAL",
     "resourceID": "payment-api",
-    "minimalCapacities": [
-      {
-        "name": "memory",
-        "quantity": 0.048
-      },
-      {
-        "name": "processor",
-        "quantity": 0.25
-      },
-      {
-        "name": "storage",
-        "quantity": 0.31
-      }
-    ],
     "dockerImage": "payment-api;eexit/mirror-http-server"
-
   }
 }

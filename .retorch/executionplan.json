@@ -1,0 +1,99 @@
+{
+  "tjobs" : [ {
+    "id" : "tjoba",
+    "stage" : 0,
+    "resources" : [ "basket-api", "eshopUser", "identity-api" ],
+    "tests" : [ "BasketAPITests#addProductsBasketAPI", "BasketAPITests#addSingleBasketItemAPI", "BasketAPITests#basketDraftHasNoOrderNumberAPI", "BasketAPITests#replaceBasketWithSingleItemAPI", "BasketAPITests#replaceBasketWithSpecificQuantityAPI", "BasketAPITests#updateBasketItemQuantitiesAPI" ],
+    "predecessors" : [ ]
+  }, {
+    "id" : "tjobb",
+    "stage" : 0,
+    "resources" : [ "basket-api", "catalog-api", "chrome-browser", "eshopUser", "identity-api", "webmvc" ],
+    "tests" : [ "WebMVCBasketTests#addProductsToBasketMVC", "WebMVCBasketTests#testBasketContentsVisibleMVC", "WebMVCBasketTests#testRemoveItemFromBasketMVC" ],
+    "predecessors" : [ ]
+  }, {
+    "id" : "tjobc",
+    "stage" : 0,
+    "resources" : [ "identity-api", "ordering-api" ],
+    "tests" : [ "OrderingAPITests#getCardTypesAPI", "OrderingAPITests#getOrderByNonExistentIdAPI" ],
+    "predecessors" : [ ]
+  }, {
+    "id" : "tjobd",
+    "stage" : 0,
+    "resources" : [ "payment-api" ],
+    "tests" : [ "PaymentAPITests#paymentHealthCheckAPI", "PaymentAPITests#paymentLivenessAPI" ],
+    "predecessors" : [ ]
+  }, {
+    "id" : "tjobe",
+    "stage" : 0,
+    "resources" : [ "basket-api", "catalog-api", "chrome-browser", "eshopUser", "identity-api", "ordering-api", "payment-api", "webmvc" ],
+    "tests" : [ "WebMVCOrderTests#testCancelOrderMVC", "WebMVCOrderTests#testCreateNewOrderMVC" ],
+    "predecessors" : [ ]
+  }, {
+    "id" : "tjobf",
+    "stage" : 0,
+    "resources" : [ "basket-api", "catalog-api", "chrome-browser", "eshopUser", "identity-api", "ordering-api", "payment-api", "webspa" ],
+    "tests" : [ "WebSPAOrderTests#testCancelOrderSPA", "WebSPAOrderTests#testCreateNewOrderSPA" ],
+    "predecessors" : [ ]
+  }, {
+    "id" : "tjobg",
+    "stage" : 1,
+    "resources" : [ "basket-api", "catalog-api", "chrome-browser", "eshopUser", "identity-api", "webspa" ],
+    "tests" : [ "WebSPABasketTests#addProductsToBasketSPA", "WebSPABasketTests#testBasketContentsVisibleSPA", "WebSPABasketTests#testRemoveItemFromBasketSPA" ],
+    "predecessors" : [ "tjobe" ]
+  }, {
+    "id" : "tjobh",
+    "stage" : 1,
+    "resources" : [ "basket-api", "eshopUser", "identity-api" ],
+    "tests" : [ "OrderingAPITests#getOrderDraftFromNonExistentBasketAPI" ],
+    "predecessors" : [ "tjobf" ]
+  }, {
+    "id" : "tjobi",
+    "stage" : 1,
+    "resources" : [ "catalog-api", "chrome-browser", "eshopUser", "identity-api", "webmvc" ],
+    "tests" : [ "WebMVCLoggedUserTest#loginTestMVC" ],
+    "predecessors" : [ "tjobb" ]
+  }, {
+    "id" : "tjobj",
+    "stage" : 1,
+    "resources" : [ "catalog-api", "chrome-browser", "eshopUser", "identity-api", "webspa" ],
+    "tests" : [ "WebSPALoggedUserTest#loginTestSPA" ],
+    "predecessors" : [ "tjoba" ]
+  }, {
+    "id" : "tjobk",
+    "stage" : 1,
+    "resources" : [ "identity-api" ],
+    "tests" : [ "IdentityAPITests#testGetOpenIdConfiguration" ],
+    "predecessors" : [ "tjobc" ]
+  }, {
+    "id" : "tjobl",
+    "stage" : 2,
+    "resources" : [ "catalog-api", "chrome-browser", "webspa" ],
+    "tests" : [ "WebSPACatalogTests#filterProductsByBrandTypeSPA", "WebSPACatalogTests#testCatalogPaginationSPA" ],
+    "predecessors" : [ "tjobi" ]
+  }, {
+    "id" : "tjobm",
+    "stage" : 2,
+    "resources" : [ "catalog-api" ],
+    "tests" : [ "CatalogAPITests#getCatalogBrandsAPI", "CatalogAPITests#getCatalogItemByIdAPI", "CatalogAPITests#getCatalogItemsAPI", "CatalogAPITests#getCatalogItemsByNameAPI", "CatalogAPITests#getCatalogItemsByTypeAndBrandAPI", "CatalogAPITests#getCatalogTypesAPI" ],
+    "predecessors" : [ "tjobj" ]
+  }, {
+    "id" : "tjobn",
+    "stage" : 2,
+    "resources" : [ "eshopUser", "identity-api", "ordering-api" ],
+    "tests" : [ "OrderingAPITests#getOrdersForUserAPI" ],
+    "predecessors" : [ "tjobh" ]
+  }, {
+    "id" : "tjobo",
+    "stage" : 2,
+    "resources" : [ "catalog-api", "chrome-browser", "webmvc" ],
+    "tests" : [ "WebMVCCatalogTests#testCatalogPagination", "WebMVCCatalogTests#testFilterProductsByBrandTypeMVC" ],
+    "predecessors" : [ "tjobg" ]
+  }, {
+    "id" : "tjobp",
+    "stage" : 2,
+    "resources" : [ "eshopUser", "identity-api" ],
+    "tests" : [ "IdentityAPITests#testGetCurrentUserInfo", "IdentityAPITests#testGetTokenWithValidCredentials" ],
+    "predecessors" : [ "tjobk" ]
+  } ]
+}

@@ -82,8 +82,8 @@ pipeline {
             sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-teardown.sh tjobf 0'
           }// EndStepstjobf
         }// EndStagetjobf
-      } // End Parallel
-    } // End Stage
+} // End Parallel
+} // End Stage
     stage('Stage 1') {
       failFast false
       parallel {
@@ -132,8 +132,8 @@ pipeline {
             sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-teardown.sh tjobk 1'
           }// EndStepstjobk
         }// EndStagetjobk
-      } // End Parallel
-    } // End Stage
+} // End Parallel
+} // End Stage
     stage('Stage 2') {
       failFast false
       parallel {
@@ -182,18 +182,26 @@ pipeline {
             sh '$SCRIPTS_FOLDER/tjoblifecycles/tjob-teardown.sh tjobp 2'
           }// EndStepstjobp
         }// EndStagetjobp
-      } // End Parallel
-    } // End Stage
-stage('TEARDOWN-Infrastructure') {
-      failFast false
+} // End Parallel
+} // End Stage
+    stage('TEARDOWN-Infrastructure') {
       steps {
           sh '$SCRIPTS_FOLDER/coilifecycles/coi-teardown.sh'
       } // EndStepsTearDownInf
-} // EndStageTearDown
+    } // EndStageTearDown
+    stage('Usage-Profile') {
+      steps {
+          catchError(buildResult: 'SUCCESS', stageResult: 'UNSTABLE') {
+              sh '$SCRIPTS_FOLDER/generateusageprofile.sh'
+          }
+      } // EndStepsUsageProfile
+    } // EndStageUsageProfile
 } // EndStagesPipeline
 post {
     always {
         archiveArtifacts artifacts: 'artifacts/*.csv', onlyIfSuccessful: true
+        archiveArtifacts artifacts: 'artifacts/usageprofile/*.html', allowEmptyArchive: true
+        publishHTML(target: [reportDir: 'artifacts/usageprofile', reportFiles: 'usageprofile.html', reportName: 'RETORCH Usage Profile', keepAll: true, alwaysLinkToLastBuild: true, allowMissing: true])
         archiveArtifacts artifacts: 'target/testlogs/**/*.*', onlyIfSuccessful: false
         archiveArtifacts artifacts: 'target/containerlogs/**/*.*', onlyIfSuccessful: false
     }// EndAlways

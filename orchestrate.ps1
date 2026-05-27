@@ -29,3 +29,4 @@ if ($LASTEXITCODE -ne 0) {
 # 6. Run the orchestration generator
 java -jar $JarFile.FullName $RootPackageNameTests $SystemName $JenkinsFilePath
 
+# Example of a command java -jar retorch-orchestration-1.2.1-60-creation-of-a-tool-cli-with-retorch-orchestration-20260527.130705-3-standalone.jar "giis.eshopcontainers.e2e.functional.tests" "EShopOnContainers" "./"

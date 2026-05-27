@@ -1,0 +1,28 @@
+# TEMPORARY. Until a release publishes retorch-profiling-cli.jar, the profiling tool is built from source here.
+# DELETE THIS FILE when the release exists: generateusageprofile.sh then downloads the released jar by itself
+# (profiling-jar-url in retorchCI.properties).
+#
+# This snippet is inserted in generateusageprofile.sh, which already defines $PROFILING_JAR (where the tool is looked
+# for) and fail(). It clones the repository, builds the profiling module (only when the branch has new commits) and
+# leaves the jar in $PROFILING_JAR. It needs git, mvn and java in the agent.
+RETORCH_REPO="https://github.com/giis-uniovi/retorch.git"
+RETORCH_BRANCH="211-retorch-orchestration-package-improvement"
+RETORCH_SRC="$HOME/.retorch/retorch-src"
+
+if [ ! -d "$RETORCH_SRC/.git" ]; then
+    git clone --quiet "$RETORCH_REPO" "$RETORCH_SRC" || fail "Could not clone $RETORCH_REPO"
+fi
+git -C "$RETORCH_SRC" fetch --quiet origin "$RETORCH_BRANCH" || fail "Could not fetch the branch $RETORCH_BRANCH"
+git -C "$RETORCH_SRC" checkout --quiet -f -B "$RETORCH_BRANCH" "origin/$RETORCH_BRANCH" || fail "Could not checkout $RETORCH_BRANCH"
+
+RETORCH_COMMIT=$(git -C "$RETORCH_SRC" rev-parse HEAD)
+if [ ! -f "$RETORCH_SRC/.built-$RETORCH_COMMIT" ] || [ ! -f "$PROFILING_JAR" ]; then
+    "$SCRIPTS_FOLDER/printLog.sh" "INFO" "UsageProfile" "Building the profiling tool ($RETORCH_BRANCH, $RETORCH_COMMIT)"
+    rm -f "$RETORCH_SRC"/.built-*
+    mvn -q -B -f "$RETORCH_SRC/pom.xml" -pl retorch-profiling -am package -Dmaven.test.skip=true \
+        || fail "The build of the profiling tool failed"
+    BUILT_JAR=$(ls "$RETORCH_SRC"/retorch-profiling/target/retorch-profiling-*-cli.jar 2>/dev/null | head -1)
+    [ -n "$BUILT_JAR" ] || fail "The profiling jar was not built"
+    cp "$BUILT_JAR" "$PROFILING_JAR"
+    touch "$RETORCH_SRC/.built-$RETORCH_COMMIT"
+fi
