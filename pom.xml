@@ -31,7 +31,7 @@
 
         <selenium-java.version>4.44.0</selenium-java.version>
 
-		<selema.version>4.0.2</selema.version>
+		<selema.version>4.1.0</selema.version>
 
 		<retorch-tool.version>1.2.0</retorch-tool.version>
 
