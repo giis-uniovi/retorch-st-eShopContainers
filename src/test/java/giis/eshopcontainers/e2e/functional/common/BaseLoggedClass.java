@@ -1,10 +1,21 @@
 package giis.eshopcontainers.e2e.functional.common;
 
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
+import com.google.gson.JsonParser;
 import giis.eshopcontainers.e2e.functional.utils.*;
 import giis.selema.framework.junit5.LifecycleJunit5;
 import giis.selema.manager.SeleManager;
 import giis.selema.manager.SelemaConfig;
 import giis.selema.services.browser.DynamicGridBrowserService;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpDelete;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.impl.client.BasicResponseHandler;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.message.BasicNameValuePair;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.openqa.selenium.By;
@@ -16,9 +27,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.Base64;
+import java.util.List;
 import java.util.Properties;
 
 import static org.junit.jupiter.api.Assertions.fail;
@@ -238,6 +253,7 @@ public class BaseLoggedClass {
             fail("The Catalog Status is not the expected after " + MAX_ITERATIONS + " attempts.");
         }
     }
+
     /**
      * Checks the status of the CatalogDB by attempting to connect and query the number of products
      * in the Catalog table. Retries the connection and query up to a specified number of times.
@@ -283,4 +299,67 @@ public class BaseLoggedClass {
             fail("The Catalog Status is not the expected after " + maxIterations + " attempts.");
         }
     }
+
+    /**
+     * Clears the test user's basket via API before each test, preventing pollution between tests.
+     * Acquires an OAuth2 token, decodes the JWT subclaim (the actual basket key used by the
+     * frontend), and issues a DELETE against the basket service through the BFF proxy.
+     */
+    @BeforeEach
+    void clearUserBasket() {
+        String envUrl = System.getProperty("SUT_URL") != null ? System.getProperty("SUT_URL") : System.getenv("SUT_URL");
+        String identityUrl = envUrl == null
+                ? properties.getProperty("LOCALHOST_IDENTITY_URL")
+                : "http://identity_api_" + tJobName + ":" + properties.getProperty("CONTAINER_PORT", "80");
+        String bffBaseUrl = envUrl == null
+                ? properties.getProperty("LOCALHOST_BFF_URL")
+                : "http://webshoppingagg_" + tJobName + ":" + properties.getProperty("CONTAINER_PORT", "80");
+        try {
+            HttpPost tokenRequest = new HttpPost(identityUrl + "/connect/token");
+            tokenRequest.addHeader("content-type", "application/x-www-form-urlencoded");
+            List<BasicNameValuePair> params = new ArrayList<>();
+            params.add(new BasicNameValuePair("grant_type", properties.getProperty("API_GRANT_TYPE")));
+            params.add(new BasicNameValuePair("client_id", properties.getProperty("API_CLIENT_ID")));
+            params.add(new BasicNameValuePair("username", properties.getProperty("USER_ESHOP")));
+            params.add(new BasicNameValuePair("password", properties.getProperty("USER_ESHOP_PASSWORD")));
+            params.add(new BasicNameValuePair("client_secret", properties.getProperty("API_SCOPE_SECRET")));
+            params.add(new BasicNameValuePair("scope", "basket"));
+            tokenRequest.setEntity(new UrlEncodedFormEntity(params, StandardCharsets.UTF_8));
+            String token;
+            try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
+                String tokenJson = httpClient.execute(tokenRequest, new BasicResponseHandler());
+                token = JsonParser.parseString(tokenJson).getAsJsonObject().get("access_token").getAsString();
+            }
+            // Decode the JWT payload to get the sub claim — the actual basket key used by the frontend
+            String[] jwtParts = token.split("\\.");
+            if (jwtParts.length != 3) {
+                log.warn("clearUserBasket: token response is not a JWT (parts={}); token endpoint may have returned an error page", jwtParts.length);
+                return;
+            }
+            String jwtPayload = jwtParts[1];
+            int mod = jwtPayload.length() % 4;
+            if (mod == 1) jwtPayload += "===";
+            else if (mod == 2) jwtPayload += "==";
+            else if (mod == 3) jwtPayload += "=";
+            JsonObject payloadObj = JsonParser.parseString(
+                    new String(Base64.getUrlDecoder().decode(jwtPayload), StandardCharsets.UTF_8)
+            ).getAsJsonObject();
+            if (!payloadObj.has("sub")) {
+                log.warn("clearUserBasket: JWT payload has no 'sub' claim; cannot identify basket key");
+                return;
+            }
+            String sub = payloadObj.get("sub").getAsString();
+            try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
+                HttpDelete deleteRequest = new HttpDelete(bffBaseUrl + "/basket-api/api/v1/basket/" + sub);
+                deleteRequest.addHeader("Authorization", "Bearer " + token);
+                try (CloseableHttpResponse deleteResponse = httpClient.execute(deleteRequest)) {
+                    int status = deleteResponse.getStatusLine().getStatusCode();
+                    log.debug("Basket cleared for sub={} (user={}) status={}", sub, properties.getProperty("USER_ESHOP"), status);
+                }
+            }
+        } catch (IOException | JsonParseException e) {
+            log.debug("Could not clear basket before test (continuing): {}", e.getMessage());
+        }
+    }
+
 }

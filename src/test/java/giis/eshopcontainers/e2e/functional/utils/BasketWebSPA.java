@@ -19,6 +19,8 @@ import java.util.List;
  */
 public class BasketWebSPA extends Basket {
     public static final Logger log = LoggerFactory.getLogger(BasketWebSPA.class);
+    // Pager info element: the non-id .esh-pager-item that shows "Showing N of M products"
+    public static final By PAGER_INFO_LOCATOR = By.cssSelector(".esh-pager-item:not([id])");
 
     public BasketWebSPA() {
         navUtils = new NavigationWebSPA();
@@ -63,21 +65,25 @@ public class BasketWebSPA extends Basket {
     }
 
     /**
-     * Selects an option from the brand or type dropdown by passing 1-based, for then filtering and
-     * wait for the catalog reloading.
+     * Waits for the catalog pager text to change from {@code textBefore}, signalling that a
+     * page transition or filter application has completed. Fails the test if the pager does
+     * not update within the configured timeout.
      *
-     * @param driver        {@code WebDriver} on which the operations are performed.
-     * @param waiter        {@code Waiter} to perform the necessary async waits.
-     * @param filterId      the HTML {@code id} attribute of the selector.
-     * @param filterOptions display names for log messages (1-based)
-     * @param option        1-based option index
+     * @param driver     {@code WebDriver} on which the operations are performed.
+     * @param waiter     {@code Waiter} to perform the necessary async waits.
+     * @param textBefore pager text captured immediately before the action that should change it.
      */
+    public void waitForPagerUpdate(WebDriver driver, Waiter waiter, String textBefore) {
+        waiter.waitUntil(
+                ExpectedConditions.not(ExpectedConditions.textToBe(PAGER_INFO_LOCATOR, textBefore)),
+                "Pager did not update after navigation");
+    }
+
     @Override
     public void selectFilter(WebDriver driver, Waiter waiter, String filterId, String[] filterOptions, Integer option) throws ElementNotFoundException {
-        By pagerInfoLocator = By.cssSelector(".esh-pager-item:not([id])");
         String pagerTextBefore = "";
         try {
-            pagerTextBefore = driver.findElement(pagerInfoLocator).getText();
+            pagerTextBefore = driver.findElement(PAGER_INFO_LOCATOR).getText();
         } catch (Exception e) {
             log.debug("Pager not present before first filter apply — will wait for presence instead");
         }
@@ -90,10 +96,9 @@ public class BasketWebSPA extends Basket {
         waiter.waitUntil(ExpectedConditions.elementToBeClickable(applyLocator), "Apply button is not clickable");
         Click.element(driver, waiter, driver.findElement(applyLocator));
 
-        final String capturedText = pagerTextBefore;
         try {
-            waiter.waitUntil(ExpectedConditions.not(ExpectedConditions.textToBe(pagerInfoLocator, capturedText)), "Pager did not update after filter");
-            log.debug("Pager updated after filter, was: '{}'", capturedText);
+            waitForPagerUpdate(driver, waiter, pagerTextBefore);
+            log.debug("Pager updated after filter, was: '{}'", pagerTextBefore);
         } catch (TimeoutException e) {
             log.debug("Pager unchanged (same count expected for this filter combination)");
         }
@@ -114,9 +119,8 @@ public class BasketWebSPA extends Basket {
      */
     @Override
     public Integer numberCatalogDisplayedItems(WebDriver driver, Waiter waiter) {
-        By pagerInfoLocator = By.cssSelector(".esh-pager-item:not([id])");
-        waiter.waitUntil(ExpectedConditions.presenceOfElementLocated(pagerInfoLocator), "Pager info not found");
-        WebElement pagerInfo = driver.findElement(pagerInfoLocator);
+        waiter.waitUntil(ExpectedConditions.presenceOfElementLocated(PAGER_INFO_LOCATOR), "Pager info not found");
+        WebElement pagerInfo = driver.findElement(PAGER_INFO_LOCATOR);
         String text = pagerInfo.getText();
         log.debug("Pager text: '{}'", text);
         String[] splitOf = text.split(" of ");

@@ -125,6 +125,69 @@ class BasketAPITests extends BaseAPIClass {
         );
     }
 
+    @AccessMode(resID = "identity-api", concurrency = 50, sharing = true, accessMode = "READONLY")
+    @AccessMode(resID = "basket-api", concurrency = 30, sharing = true, accessMode = "READWRITE")
+    @AccessMode(resID = "eshopUser", concurrency = 1, accessMode = "READWRITE")
+    @Test
+    @DisplayName("ReplaceBasketWithSingleItemAPI")
+    void replaceBasketWithSingleItemAPI() throws IOException {
+        Gson gson = new Gson();
+        createBasketWithOneItem(5, 1);
+        String outputGetBasket = getBasket(getUser());
+        Order order = gson.fromJson(outputGetBasket, Order.class);
+
+        Assertions.assertNotNull(order, "Draft order must not be null");
+        Assertions.assertEquals(1, order.getOrderItems().size(), "Exactly 1 item should be present in the basket");
+        OrderItem item = order.getOrderItems().get(0);
+        Assertions.assertAll(
+                () -> Assertions.assertEquals(getUser(), order.getBuyer(), "Buyer ID should match the authenticated user"),
+                () -> Assertions.assertEquals(5, item.getProductId(), "Product ID should be 5"),
+                () -> Assertions.assertEquals("Roslyn Red Pin", item.getProductName(), "Product name should be Roslyn Red Pin"),
+                () -> Assertions.assertEquals(1, item.getUnits(), "Item quantity should be 1"),
+                () -> Assertions.assertEquals(8.5, item.getUnitPrice(), 0.001, "Unit price of Roslyn Red Pin should be 8.5")
+        );
+    }
+
+    @AccessMode(resID = "identity-api", concurrency = 50, sharing = true, accessMode = "READONLY")
+    @AccessMode(resID = "basket-api", concurrency = 30, sharing = true, accessMode = "READWRITE")
+    @AccessMode(resID = "eshopUser", concurrency = 1, accessMode = "READWRITE")
+    @Test
+    @DisplayName("BasketDraftHasNoOrderNumberAPI")
+    void basketDraftHasNoOrderNumberAPI() throws IOException {
+        Gson gson = new Gson();
+        createBasketWithTwoItems();
+        String outputGetBasket = getBasket(getUser());
+        Order order = gson.fromJson(outputGetBasket, Order.class);
+
+        // The BFF /Order/draft endpoint returns a draft representation: no order number is assigned yet
+        Assertions.assertNull(order.getOrderNumber(), "A draft basket should not have an order number assigned");
+        Assertions.assertFalse(order.getOrderItems().isEmpty(), "Draft order must contain the basket items");
+    }
+
+    @AccessMode(resID = "identity-api", concurrency = 50, sharing = true, accessMode = "READONLY")
+    @AccessMode(resID = "basket-api", concurrency = 30, sharing = true, accessMode = "READWRITE")
+    @AccessMode(resID = "eshopUser", concurrency = 1, accessMode = "READWRITE")
+    @Test
+    @DisplayName("ReplaceBasketWithSpecificQuantityAPI")
+    void replaceBasketWithSpecificQuantityAPI() throws IOException {
+        Gson gson = new Gson();
+        createBasketWithOneItem(3, 3);
+        String outputGetBasket = getBasket(getUser());
+        Order order = gson.fromJson(outputGetBasket, Order.class);
+
+        Assertions.assertEquals(1, order.getOrderItems().size(), "Exactly 1 item type should be in the basket");
+        OrderItem item = order.getOrderItems().get(0);
+        Assertions.assertAll(
+                () -> Assertions.assertEquals(3, item.getProductId(), "Product ID should be 3"),
+                () -> Assertions.assertEquals("Prism White T-Shirt", item.getProductName(), "Product name should be Prism White T-Shirt"),
+                () -> Assertions.assertEquals(3, item.getUnits(), "Quantity should be 3"),
+                () -> Assertions.assertEquals(12.0, item.getUnitPrice(), 0.001, "Unit price of Prism White T-Shirt should be 12.0")
+        );
+    }
+
+    /**
+     * Creates basket with two items inside.
+     */
     public String createBasketWithTwoItems() throws IOException {
         log.debug("Creating the connection with URL: {}", this.getDesktopBFFURLBasket());
         HttpPost httpPost = new HttpPost(this.getDesktopBFFURLBasket());
@@ -133,6 +196,32 @@ class BasketAPITests extends BaseAPIClass {
         return httpClient.execute(httpPost, new BasicResponseHandler());
     }
 
+    /**
+     * Creates basket with one two items inside.
+     */
+    private String createBasketWithOneItem(int productId, int quantity) throws IOException {
+        log.debug("Creating basket with productId={} quantity={} via BFF at: {}", productId, quantity, this.getDesktopBFFURLBasket());
+        HttpPost httpPost = new HttpPost(this.getDesktopBFFURLBasket());
+        addBasketHeaders(httpPost);
+
+        JsonObject item = new JsonObject();
+        item.addProperty("id", "testproductid1");
+        item.addProperty("productId", String.valueOf(productId));
+        item.addProperty("quantity", String.valueOf(quantity));
+
+        JsonArray items = new JsonArray();
+        items.add(item);
+
+        JsonObject basket = new JsonObject();
+        basket.addProperty("buyerId", getUser());
+        basket.add("items", items);
+
+        httpPost.setEntity(new StringEntity(basket.toString(), StandardCharsets.UTF_8));
+        return httpClient.execute(httpPost, new BasicResponseHandler());
+    }
+    /**
+     * Support method that is employed to add a certain quantity of one item to the specified basket.
+     */
     public String addItemToBasket(String basketId, int catalogItemId, int quantity) throws IOException {
         log.debug("Adding item {} (qty={}) to basket {}", catalogItemId, quantity, basketId);
         HttpPost httpPost = new HttpPost(this.getDesktopBFFURLBasketItems());
@@ -145,6 +234,10 @@ class BasketAPITests extends BaseAPIClass {
         return httpClient.execute(httpPost, new BasicResponseHandler());
     }
 
+    /**
+     * Support method that is used to  update two item quantity, providing the new quantities and the
+     * product id for both items.
+     */
     public String updateBasketItemQuantities(String basketId,
                                              String item1Id, int newQty1,
                                              String item2Id, int newQty2) throws IOException {
@@ -170,6 +263,9 @@ class BasketAPITests extends BaseAPIClass {
         return httpClient.execute(httpPut, new BasicResponseHandler());
     }
 
+    /**
+     * Makes a request against the BFF to get the current basket with their items
+     */
     public String getBasket(String basketId) throws IOException {
         HttpGet request = new HttpGet(this.getDesktopBFFURLOrders() + basketId);
         addBasketHeaders(request);
