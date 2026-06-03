@@ -9,7 +9,7 @@
 
 <div class="text-center">
     <p>&nbsp;</p>
-    <img class="esh-app-footer-brand" src="~/images/brand.png" />
+    <img class="esh-app-footer-brand" src="~/images/brand.png" alt="eShopOnContainers" />
     <h2>eShopOnContainers - Order Management</h2>
     <p>
         This is a <bold>sample</bold> web client that uses the Webhooks API to show you all orders that reached the "paid" status. This is accomplished by creating a Webhook
@@ -26,6 +26,14 @@
     <h3>Current webhooks received (orders paid)</h3>
     <p>(Data since last time web started up). <strong>Note: </strong>Must manually refresh this page.<p>
     <table class="table">
+        <thead>
+            <tr>
+                <th>Date/Time</th>
+                <th>Data</th>
+                <th>Token</th>
+            </tr>
+        </thead>
+        <tbody>
         @foreach (var webhook in Model.WebHooksReceived)
         {
             <tr>
@@ -34,6 +42,7 @@
                 <td>@(webhook.Token ?? "--None--")</td>
             </tr>
         }
+        </tbody>
     </table>
 </div>
 

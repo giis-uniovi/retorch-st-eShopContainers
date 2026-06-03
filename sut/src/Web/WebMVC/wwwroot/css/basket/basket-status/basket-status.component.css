@@ -19,7 +19,7 @@
 .esh-basketstatus-badge {
   background-color: #83D01B;
   border-radius: 50%;
-  color: #FFFFFF;
+  color: #1a1a1a;
   display: block;
   height: 1.5rem;
   left: 50%;
@@ -32,7 +32,7 @@
 }
 
 .esh-basketstatus-badge-inoperative {
-  background-color: #ff0000;
+  background-color: #cc0000;
   border-radius: 50%;
   color: #FFFFFF;
   display: block;

@@ -13,4 +13,4 @@ COPY . .
 WORKDIR "/src/src/ApiGateways/Mobile.Bff.Shopping/aggregator"
 RUN dotnet build -c $BUILD_CONFIGURATION
 
-CMD ["dotnet", "run", "--no-build", "--no-launch-profile", "-c", "$BUILD_CONFIGURATION", "--"]]
+CMD ["/bin/sh", "-c", "dotnet run --no-build --no-launch-profile -c $BUILD_CONFIGURATION --"]
