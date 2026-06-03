@@ -3,13 +3,15 @@ import { HttpClient, HttpHeaders, HttpErrorResponse } from "@angular/common/http
 import { IConfiguration }   from '../models/configuration.model';
 import { StorageService }   from './storage.service';
 
-import { Observable, Subject } from 'rxjs';
+import { Observable, ReplaySubject } from 'rxjs';
 
 @Injectable()
 export class ConfigurationService {
     serverSettings: IConfiguration;
-    // observable that is fired when settings are loaded from server
-    private settingsLoadedSource = new Subject<void>();
+    // ReplaySubject(1) replays the last emission to late subscribers,
+    // preventing the race condition where services instantiated after the
+    // config HTTP call completes never receive settingsLoaded$.
+    private settingsLoadedSource = new ReplaySubject<void>(1);
     settingsLoaded$ = this.settingsLoadedSource.asObservable();
     isReady: boolean = false;
 

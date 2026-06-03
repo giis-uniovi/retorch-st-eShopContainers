@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 
 import { Observable } from 'rxjs';
@@ -9,6 +9,7 @@ import { IBasketItem } from '../shared/models/basketItem.model';
 import { BasketWrapperService } from '../shared/services/basket.wrapper.service';
 
 @Component({
+  standalone: false,
     selector: 'esh-basket .esh-basket .mb-5',
     styleUrls: ['./basket.component.scss'],
     templateUrl: './basket.component.html'
@@ -18,12 +19,18 @@ export class BasketComponent implements OnInit {
     basket: IBasket;
     totalPrice: number = 0;
 
-    constructor(private basketSerive: BasketService, private router: Router, private basketWrapperService: BasketWrapperService) { }
+    constructor(
+        private basketSerive: BasketService,
+        private router: Router,
+        private basketWrapperService: BasketWrapperService,
+        private cdr: ChangeDetectorRef
+    ) { }
 
     ngOnInit() {
         this.basketSerive.getBasket().subscribe(basket => {
             this.basket = basket;
             this.calculateTotalPrice();
+            this.cdr.detectChanges();
         });
     }
 

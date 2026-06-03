@@ -3,6 +3,7 @@ import { Component, OnInit, OnChanges, Output, Input, EventEmitter } from '@angu
 import { IPager } from '../../models/pager.model';
 
 @Component({
+  standalone: false,
     selector: 'esh-pager',
     templateUrl: './pager.html',
     styleUrls: ['./pager.scss']

@@ -11,6 +11,7 @@ import { UntypedFormGroup, UntypedFormBuilder, Validators  }      from '@angular
 import { Router }                                   from '@angular/router';
 
 @Component({
+  standalone: false,
     selector: 'esh-orders_new .esh-orders_new .mb-5',
     styleUrls: ['./orders-new.component.scss'],
     templateUrl: './orders-new.component.html'

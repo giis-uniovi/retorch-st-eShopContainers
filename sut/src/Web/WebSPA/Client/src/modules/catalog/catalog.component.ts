@@ -1,4 +1,4 @@
-import { Component, OnInit }    from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { Observable, Subscription, throwError } from 'rxjs';
 import { catchError }           from 'rxjs/operators';
 
@@ -13,6 +13,7 @@ import { BasketWrapperService}  from '../shared/services/basket.wrapper.service'
 import { SecurityService }      from '../shared/services/security.service';
 
 @Component({
+  standalone: false,
     selector: 'esh-catalog .esh-catalog .mb-5',
     styleUrls: ['./catalog.component.scss'],
     templateUrl: './catalog.component.html'
@@ -28,7 +29,13 @@ export class CatalogComponent implements OnInit {
     authSubscription: Subscription;
     errorReceived: boolean;
 
-    constructor(private service: CatalogService, private basketService: BasketWrapperService, private configurationService: ConfigurationService, private securityService: SecurityService) {
+    constructor(
+        private service: CatalogService,
+        private basketService: BasketWrapperService,
+        private configurationService: ConfigurationService,
+        private securityService: SecurityService,
+        private cdr: ChangeDetectorRef
+    ) {
         this.authenticated = securityService.IsAuthorized;
     }
 
@@ -100,6 +107,7 @@ export class CatalogComponent implements OnInit {
                     totalPages: Math.ceil(catalog.count / catalog.pageSize),
                     items: catalog.pageSize
                 };
+                this.cdr.detectChanges();
         });
     }
 
@@ -108,6 +116,7 @@ export class CatalogComponent implements OnInit {
             this.types = types;
             let alltypes = { id: null, type: 'All' };
             this.types.unshift(alltypes);
+            this.cdr.detectChanges();
         });
     }
 
@@ -116,6 +125,7 @@ export class CatalogComponent implements OnInit {
             this.brands = brands;
             let allBrands = { id: null, brand: 'All' };
             this.brands.unshift(allBrands);
+            this.cdr.detectChanges();
         });
     }
 
