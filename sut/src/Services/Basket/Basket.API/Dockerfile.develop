@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/dotnet/sdk:9.0
+FROM mcr.microsoft.com/dotnet/sdk:10.0
 ARG BUILD_CONFIGURATION=Debug
 ENV ASPNETCORE_ENVIRONMENT=Development
 ENV DOTNET_USE_POLLING_FILE_WATCHER=true
@@ -17,4 +17,4 @@ COPY . .
 WORKDIR /src/Services/Basket/Basket.API
 RUN dotnet build -c $BUILD_CONFIGURATION
 
-ENTRYPOINT ["dotnet", "run", "--no-build", "--no-launch-profile", "-c", "$BUILD_CONFIGURATION", "--"]
+ENTRYPOINT ["/bin/sh", "-c", "dotnet run --no-build --no-launch-profile -c $BUILD_CONFIGURATION --"]

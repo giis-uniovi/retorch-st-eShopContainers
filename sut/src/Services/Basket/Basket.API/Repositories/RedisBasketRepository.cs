@@ -35,7 +35,7 @@ public class RedisBasketRepository : IBasketRepository
             return null;
         }
 
-        return JsonSerializer.Deserialize<CustomerBasket>(data, JsonDefaults.CaseInsensitiveOptions);
+        return JsonSerializer.Deserialize<CustomerBasket>((string)data, JsonDefaults.CaseInsensitiveOptions);
     }
 
     public async Task<CustomerBasket> UpdateBasketAsync(CustomerBasket basket)

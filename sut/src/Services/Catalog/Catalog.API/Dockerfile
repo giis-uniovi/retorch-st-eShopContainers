@@ -1,9 +1,9 @@
-FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS base
+FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS base
 WORKDIR /app
 EXPOSE 80
 EXPOSE 443
 
-FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /src
 
 # It's important to keep lines from here down to "COPY . ." identical in all Dockerfiles
@@ -52,10 +52,10 @@ COPY . .
 WORKDIR /src/Services/Catalog/Catalog.API
 RUN dotnet publish --no-restore -c Release -o /app
 
-FROM build as unittest
+FROM build AS unittest
 WORKDIR /src/Services/Catalog/Catalog.UnitTests
 
-FROM build as functionaltest
+FROM build AS functionaltest
 WORKDIR /src/Services/Catalog/Catalog.FunctionalTests
 
 FROM build AS publish

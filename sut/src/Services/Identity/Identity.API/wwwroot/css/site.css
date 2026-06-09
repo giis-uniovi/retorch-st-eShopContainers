@@ -1,7 +1,4 @@
-﻿body {
-  margin-top: 65px;
-}
-.navbar-header {
+﻿.navbar-header {
   position: relative;
   top: -4px;
 }
@@ -54,6 +51,7 @@
 body {
     font-family: Montserrat,sans-serif;
     min-width:480px;
+    margin-top: 65px;
 }
 
 .mt-15 {
@@ -143,7 +141,7 @@ select::-ms-expand {
     margin-left: 14px;
     background-color: #83d01b;
     padding: 1px;
-    color: white;
+    color: #1a1a1a;
     border-radius: 50%;
     width: 18px;
     height: 18px;
@@ -168,7 +166,7 @@ select::-ms-expand {
 
 .btn-brand {
     background-color: #83D01B;
-    color: white;
+    color: #1a1a1a;
     padding: 10px 20px 10px 20px;
     border-radius: 0px;
     border: none;
@@ -229,7 +227,7 @@ select::-ms-expand {
 }
 
 .btn-brand:hover {
-    color: white;
+    color: #1a1a1a;
     background-color: #83D01B;
     text-decoration:none;
 }
@@ -283,24 +281,17 @@ select::-ms-expand {
     border-color: #FFF;
 }
 
-    /*.navbar-inverse li {
-        margin-top: 10px;
-    }*/
-
 .btn-login {
     border: 1px solid #00A69C;
     height: 36px!important;
     margin-right: 10px;
     margin-top: 10px;
     background-color: white;
-    color: #00a69c;
+    color: #007870;
     text-transform:uppercase;
     max-width: 140px;
     width: 140px;
     padding-top:8px!important;
-}
-
-.btn-login {
     font-weight:normal!important;
 }
 
@@ -401,13 +392,12 @@ select::-ms-expand {
 .home-catalog-item-image {
     width: 100%;
     object-fit: cover;
-    /* max-width: 320px; */
     text-align: center;
 }
 
 .home-catalog-item-image-addCart {
     background-color: #83D01B;
-    color: white;
+    color: #1a1a1a;
     display: inline-block;
     height: 43px;
     padding: 10px 20px 10px 20px;
@@ -417,7 +407,6 @@ select::-ms-expand {
     margin-left: 60px;
     margin-right: 60px;
     font-size: 16px;
-    font-weight: normal;
 }
 
     .home-catalog-item-image-addCart:hover {
@@ -502,7 +491,6 @@ form .col-md-4 {
         opacity: 0.5;
         margin-top: 25px;
         margin-left: 10px;
-        /*float: right;*/
         cursor: pointer;
         color: white;
     }
@@ -622,7 +610,6 @@ form .col-md-4 {
 }
 
 .cart-refresh-button {
-   margin-top:0;
    background-image: url('../images/refresh.svg');
    color: white;
    font-size: 8px;
@@ -703,10 +690,6 @@ form .col-md-4 {
     width: 102%;
 }
 
-.order-detail-button {
-    
-}
-
     .order-detail-button a {
         color: #83d01b;
     }
@@ -785,7 +768,6 @@ form .col-md-4 {
     background-color: #FFFFFF;
     min-width: 160px;
     box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-    /*left: 100px;*/
     right: 0px;
 }
 
