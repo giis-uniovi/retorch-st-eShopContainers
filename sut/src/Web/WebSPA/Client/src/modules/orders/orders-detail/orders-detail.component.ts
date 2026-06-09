@@ -1,9 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { OrdersService } from '../orders.service';
 import { IOrderDetail } from '../../shared/models/order-detail.model';
 import { ActivatedRoute } from '@angular/router';
 
 @Component({
+  standalone: false,
     selector: 'esh-orders_detail .esh-orders_detail .mb-5',
     styleUrls: ['./orders-detail.component.scss'],
     templateUrl: './orders-detail.component.html'
@@ -11,7 +12,7 @@ import { ActivatedRoute } from '@angular/router';
 export class OrdersDetailComponent implements OnInit {
     public order: IOrderDetail = <IOrderDetail>{};
 
-    constructor(private service: OrdersService, private route: ActivatedRoute) { }
+    constructor(private service: OrdersService, private route: ActivatedRoute, private cdr: ChangeDetectorRef) { }
 
     ngOnInit() {
         this.route.params.subscribe(params => {
@@ -25,6 +26,7 @@ export class OrdersDetailComponent implements OnInit {
             this.order = order;
             console.log('order retrieved: ' + order.ordernumber);
             console.log(this.order);
+            this.cdr.detectChanges();
         });
     }
 }

@@ -440,7 +440,7 @@ services:
       context: .
       dockerfile: Web/WebSPA/Dockerfile
       args:
-        NODE_IMAGE: ${NODE_IMAGE:-node:16-bullseye}
+        NODE_IMAGE: ${NODE_IMAGE:-node:22-bullseye}
     depends_on:
       - webshoppingagg
     environment:

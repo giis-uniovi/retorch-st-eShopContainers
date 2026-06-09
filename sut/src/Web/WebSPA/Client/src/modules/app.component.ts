@@ -13,6 +13,7 @@ import { ToastrService } from 'ngx-toastr';
  * Top Level Component
  */
 @Component({
+  standalone: false,
     selector: 'esh-app',
     styleUrls: ['./app.component.scss'],
     templateUrl: './app.component.html'

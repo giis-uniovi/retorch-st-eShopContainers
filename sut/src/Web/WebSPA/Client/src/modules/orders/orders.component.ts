@@ -1,4 +1,4 @@
-import { Component, OnInit }    from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { OrdersService }        from './orders.service';
 import { IOrder }               from '../shared/models/order.model';
 import { ConfigurationService } from '../shared/services/configuration.service';
@@ -7,6 +7,7 @@ import { catchError } from 'rxjs/operators';
 import { SignalrService } from '../shared/services/signalr.service';
 
 @Component({
+  standalone: false,
     selector: 'esh-orders .esh-orders .mb-5',
     styleUrls: ['./orders.component.scss'],
     templateUrl: './orders.component.html'
@@ -18,7 +19,12 @@ export class OrdersComponent implements OnInit {
 
     orders: IOrder[];
 
-    constructor(private service: OrdersService, private configurationService: ConfigurationService, private signalrService: SignalrService) { }
+    constructor(
+        private service: OrdersService,
+        private configurationService: ConfigurationService,
+        private signalrService: SignalrService,
+        private cdr: ChangeDetectorRef
+    ) { }
 
     ngOnInit() {
         if (this.configurationService.isReady) {
@@ -41,6 +47,7 @@ export class OrdersComponent implements OnInit {
                 this.orders = orders;
                 this.oldOrders = this.orders;
                 console.log('orders items retrieved: ' + orders.length);
+                this.cdr.detectChanges();
         });
     }
 

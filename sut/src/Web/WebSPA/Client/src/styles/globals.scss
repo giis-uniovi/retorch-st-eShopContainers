@@ -1,12 +1,11 @@
 /* You can add global styles to this file, and also import other style files */
-@import 'variables';
-@import './bootstrap-overrides';
-@import 'bootstrap/scss/bootstrap';
-@import 'button';
-@import 'form';
-@import 'toastr';
-@import 'utilities';
-@import 'node_modules/ngx-toastr/toastr';
+@use 'variables' as *;
+@use 'bootstrap/scss/bootstrap';
+@use 'button' as *;
+@use 'form' as *;
+@use 'toastr' as *;
+@use 'utilities' as *;
+@use 'node_modules/ngx-toastr/toastr' as *;
 
 @font-face {
     font-family: 'Oswald';
