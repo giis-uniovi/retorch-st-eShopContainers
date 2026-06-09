@@ -1,7 +1,7 @@
-﻿import { Injectable } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { SecurityService } from './security.service';
 import { ConfigurationService } from './configuration.service';
-import { HubConnection, HubConnectionBuilder, LogLevel, HttpTransportType } from '@microsoft/signalr';
+import { HubConnection, HubConnectionBuilder, LogLevel } from '@microsoft/signalr';
 import { ToastrService } from 'ngx-toastr';
 import { Subject } from 'rxjs';
 
@@ -9,18 +9,18 @@ import { Subject } from 'rxjs';
 export class SignalrService {
     private _hubConnection: HubConnection;
     private SignalrHubUrl: string = '';
-    private msgSignalrSource = new Subject<void>();
-    msgReceived$ = this.msgSignalrSource.asObservable();
+    private readonly msgSignalrSource = new Subject<void>();
+    readonly msgReceived$ = this.msgSignalrSource.asObservable();
 
     constructor(
-        private securityService: SecurityService,
-        private configurationService: ConfigurationService, private toastr: ToastrService,
+        private readonly securityService: SecurityService,
+        private readonly configurationService: ConfigurationService,
+        private readonly toastr: ToastrService,
     ) {
         if (this.configurationService.isReady) {
             this.SignalrHubUrl = this.configurationService.serverSettings.signalrHubUrl;
             this.init();
-        }
-        else {
+        } else {
             this.configurationService.settingsLoaded$.subscribe(x => {
                 this.SignalrHubUrl = this.configurationService.serverSettings.signalrHubUrl;
                 this.init();
@@ -33,7 +33,7 @@ export class SignalrService {
     }
 
     private init() {
-        if (this.securityService.IsAuthorized == true) {
+        if (this.securityService.IsAuthorized) {
             this.register();
             this.stablishConnection();
             this.registerHandlers();
@@ -53,10 +53,10 @@ export class SignalrService {
     private stablishConnection() {
         this._hubConnection.start()
             .then(() => {
-                console.log('Hub connection started')
+                console.log('Hub connection started');
             })
             .catch(() => {
-                console.log('Error while establishing connection')
+                console.log('Error while establishing connection');
             });
     }
 

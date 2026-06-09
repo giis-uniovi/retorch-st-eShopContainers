@@ -20,11 +20,11 @@ export class BasketStatusComponent implements OnInit {
     badge: number = 0;
 
     constructor(
-        private basketService: BasketService,
-        private basketWrapperService: BasketWrapperService,
-        private authService: SecurityService,
-        private configurationService: ConfigurationService,
-        private cdr: ChangeDetectorRef
+        private readonly basketService: BasketService,
+        private readonly basketWrapperService: BasketWrapperService,
+        private readonly authService: SecurityService,
+        private readonly configurationService: ConfigurationService,
+        private readonly cdr: ChangeDetectorRef
     ) { }
 
     ngOnInit() {

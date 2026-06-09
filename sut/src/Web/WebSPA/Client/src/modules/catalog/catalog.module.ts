@@ -4,7 +4,6 @@ import { CommonModule }         from '@angular/common'
 import { SharedModule }         from '../shared/shared.module';
 import { CatalogComponent }     from './catalog.component';
 import { CatalogService }       from './catalog.service';
-import { Pager }                from '../shared/components/pager/pager';
 
 @NgModule({
     imports: [BrowserModule, SharedModule, CommonModule],

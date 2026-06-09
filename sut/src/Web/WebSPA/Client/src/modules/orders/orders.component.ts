@@ -2,7 +2,7 @@ import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { OrdersService }        from './orders.service';
 import { IOrder }               from '../shared/models/order.model';
 import { ConfigurationService } from '../shared/services/configuration.service';
-import { Observable, throwError } from 'rxjs';
+import { throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { SignalrService } from '../shared/services/signalr.service';
 
@@ -14,16 +14,16 @@ import { SignalrService } from '../shared/services/signalr.service';
 })
 export class OrdersComponent implements OnInit {
     private oldOrders: IOrder[];
-    private interval = null;
+    private readonly interval = null;
     errorReceived: boolean;
 
     orders: IOrder[];
 
     constructor(
-        private service: OrdersService,
-        private configurationService: ConfigurationService,
-        private signalrService: SignalrService,
-        private cdr: ChangeDetectorRef
+        private readonly service: OrdersService,
+        private readonly configurationService: ConfigurationService,
+        private readonly signalrService: SignalrService,
+        private readonly cdr: ChangeDetectorRef
     ) { }
 
     ngOnInit() {

@@ -1,7 +1,6 @@
-import { Component, OnInit, OnChanges, Output, Input, EventEmitter } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Subscription } from 'rxjs';
 
-import { IIdentity } from '../../models/identity.model';
 import { SecurityService } from '../../services/security.service';
 import { SignalrService } from '../../services/signalr.service';
 
@@ -11,14 +10,12 @@ import { SignalrService } from '../../services/signalr.service';
     templateUrl: './identity.html',
     styleUrls: ['./identity.scss']
 })
-export class Identity implements OnInit  {
+export class Identity implements OnInit {
     authenticated: boolean = false;
     private subscription: Subscription;
     private userName: string = '';
 
-    constructor(private service: SecurityService, private signalrService: SignalrService) {
-
-    }
+    constructor(private readonly service: SecurityService, private readonly signalrService: SignalrService) { }
 
     ngOnInit() {
         this.subscription = this.service.authenticationChallenge$.subscribe(res => {
@@ -26,7 +23,7 @@ export class Identity implements OnInit  {
             this.userName = this.service.UserData.email;
         });
 
-        if (window.location.hash) {
+        if (globalThis.location.hash) {
             this.service.AuthorizedCallback();
         }
 

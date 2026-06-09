@@ -9,29 +9,29 @@
             <div class="row">
                 <div class="col-6">
                     <div class="form-group" [ngClass]="{'has-error':!newOrderForm.controls['street'].valid && newOrderForm.controls['street'].touched}">
-                        <label>Address</label>
-                        <input class="form-control form-input w-100 u-maxwidth-unset" type="text" placeholder="Street" [formControl]="newOrderForm.controls['street']">
+                        <label for="street">Address</label>
+                        <input id="street" class="form-control form-input w-100 u-maxwidth-unset" type="text" placeholder="Street" [formControl]="newOrderForm.controls['street']">
                         <div *ngIf="newOrderForm.controls['street'].hasError('required') && newOrderForm.controls['street'].touched" class="alert alert-danger">Required field.</div>
                     </div>
                 </div>
                 <div class="col-6">
                     <div class="form-group" [ngClass]="{'has-error':!newOrderForm.controls['city'].valid && newOrderForm.controls['city'].touched}">
-                        <label>City</label>
-                        <input class="form-control form-input w-100 u-maxwidth-unset" type="text" placeholder="City" [formControl]="newOrderForm.controls['city']">
+                        <label for="city">City</label>
+                        <input id="city" class="form-control form-input w-100 u-maxwidth-unset" type="text" placeholder="City" [formControl]="newOrderForm.controls['city']">
                         <div *ngIf="newOrderForm.controls['city'].hasError('required') && newOrderForm.controls['city'].touched" class="alert alert-danger">Required field.</div>
                     </div>
                 </div>
                 <div class="col-6">
                     <div class="form-group" [ngClass]="{'has-error':!newOrderForm.controls['state'].valid && newOrderForm.controls['state'].touched}">
-                        <label>State</label>
-                        <input class="form-control form-input w-100 u-maxwidth-unset" type="text" placeholder="state" [formControl]="newOrderForm.controls['state']">
+                        <label for="state">State</label>
+                        <input id="state" class="form-control form-input w-100 u-maxwidth-unset" type="text" placeholder="state" [formControl]="newOrderForm.controls['state']">
                         <div *ngIf="newOrderForm.controls['state'].hasError('required') && newOrderForm.controls['state'].touched" class="alert alert-danger">Required field.</div>
                     </div>
                 </div>
                 <div class="col-6">
                     <div class="form-group" [ngClass]="{'has-error':!newOrderForm.controls['country'].valid && newOrderForm.controls['country'].touched}">
-                        <label>Country</label>
-                        <input class="form-control form-input w-100 u-maxwidth-unset" type="text" placeholder="country" [formControl]="newOrderForm.controls['country']">
+                        <label for="country">Country</label>
+                        <input id="country" class="form-control form-input w-100 u-maxwidth-unset" type="text" placeholder="country" [formControl]="newOrderForm.controls['country']">
                         <div *ngIf="newOrderForm.controls['country'].hasError('required') && newOrderForm.controls['country'].touched" class="alert alert-danger">Required field.</div>
                     </div>
                 </div>
@@ -40,29 +40,29 @@
             <div class="row">
                 <div class="col-md-6">
                     <div class="form-group" [ngClass]="{'has-error':!newOrderForm.controls['cardnumber'].valid && newOrderForm.controls['cardnumber'].touched}">
-                        <label>Card number</label>
-                        <input class="form-control form-input w-100 u-maxwidth-unset" type="text" placeholder="000000000000000" [formControl]="newOrderForm.controls['cardnumber']">
+                        <label for="cardnumber">Card number</label>
+                        <input id="cardnumber" class="form-control form-input w-100 u-maxwidth-unset" type="text" placeholder="000000000000000" [formControl]="newOrderForm.controls['cardnumber']">
                         <div *ngIf="newOrderForm.controls['cardnumber'].hasError('required') && newOrderForm.controls['cardnumber'].touched" class="alert alert-danger">Required field.</div>
                     </div>
                 </div>
                 <div class="col-md-6">
                     <div class="form-group" [ngClass]="{'has-error':!newOrderForm.controls['cardholdername'].valid && newOrderForm.controls['cardholdername'].touched}">
-                        <label>Cardholder name</label>
-                        <input class="form-control form-input w-100 u-maxwidth-unset" type="text" placeholder="Card holder" [formControl]="newOrderForm.controls['cardholdername']">
+                        <label for="cardholdername">Cardholder name</label>
+                        <input id="cardholdername" class="form-control form-input w-100 u-maxwidth-unset" type="text" placeholder="Card holder" [formControl]="newOrderForm.controls['cardholdername']">
                         <div *ngIf="newOrderForm.controls['cardholdername'].hasError('required') && newOrderForm.controls['cardholdername'].touched" class="alert alert-danger">Required field.</div>
                     </div>
                 </div>
                 <div class="col-md-6">
                     <div class="form-group" [ngClass]="{'has-error':!newOrderForm.controls['expirationdate'].valid && newOrderForm.controls['expirationdate'].touched}">
-                        <label>Expiration date</label>
-                        <input class="form-control form-input w-50 u-maxwidth-unset" type="text" placeholder="MM/YY" [formControl]="newOrderForm.controls['expirationdate']">
+                        <label for="expirationdate">Expiration date</label>
+                        <input id="expirationdate" class="form-control form-input w-50 u-maxwidth-unset" type="text" placeholder="MM/YY" [formControl]="newOrderForm.controls['expirationdate']">
                         <div *ngIf="newOrderForm.controls['expirationdate'].hasError('required') && newOrderForm.controls['expirationdate'].touched" class="alert alert-danger">Required field.</div>
                     </div>
                 </div>
                 <div class="col-md-6">
                     <div class="form-group" [ngClass]="{'has-error':!newOrderForm.controls['securitycode'].valid && newOrderForm.controls['securitycode'].touched}">
-                        <label class="esh-orders_new-title">Security code</label>
-                        <input class="form-control form-input w-50 u-maxwidth-unset" type="text" placeholder="000" [formControl]="newOrderForm.controls['securitycode']">
+                        <label for="securitycode" class="esh-orders_new-title">Security code</label>
+                        <input id="securitycode" class="form-control form-input w-50 u-maxwidth-unset" type="text" placeholder="000" [formControl]="newOrderForm.controls['securitycode']">
                         <div *ngIf="newOrderForm.controls['securitycode'].hasError('required') && newOrderForm.controls['securitycode'].touched" class="alert alert-danger">Required field.</div>
                     </div>
                 </div>
@@ -73,7 +73,7 @@
                      *ngFor="let item of order.orderItems">
                 <div class="esh-orders_new-thumbnail-container">
                     <div class="esh-orders_new-thumbnail-wrapper">
-                        <img class="esh-orders_new-thumbnail" src="{{item.pictureurl}}">
+                        <img class="esh-orders_new-thumbnail" src="{{item.pictureurl}}" alt="{{item.productname}}">
                     </div>
                 </div>
                 <div class="row w-100 ml-3">

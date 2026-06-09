@@ -1,30 +1,30 @@
-﻿import { Injectable } from '@angular/core';
+import { Injectable } from '@angular/core';
 
-import { HttpClient, HttpHeaders }      from '@angular/common/http';
-import { Observable, Subject }          from 'rxjs';
-import { Router }                       from '@angular/router';
-import { ActivatedRoute }               from '@angular/router';
-import { ConfigurationService }         from './configuration.service';
-import { StorageService }               from './storage.service';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { Observable, Subject } from 'rxjs';
+import { Router, ActivatedRoute } from '@angular/router';
+import { ConfigurationService } from './configuration.service';
+import { StorageService } from './storage.service';
 
 @Injectable()
 export class SecurityService {
 
-    private actionUrl: string;
-    private headers: HttpHeaders;
-    private storage: StorageService;
-    private authenticationSource = new Subject<boolean>();
-    authenticationChallenge$ = this.authenticationSource.asObservable();
+    private readonly storage: StorageService;
+    private readonly authenticationSource = new Subject<boolean>();
+    readonly authenticationChallenge$ = this.authenticationSource.asObservable();
     private authorityUrl = '';
 
-    constructor(private _http: HttpClient, private _router: Router, private route: ActivatedRoute, private _configurationService: ConfigurationService, private _storageService: StorageService) {
-        this.headers = new HttpHeaders();
-        this.headers.append('Content-Type', 'application/json');
-        this.headers.append('Accept', 'application/json');
+    constructor(
+        private readonly _http: HttpClient,
+        private readonly _router: Router,
+        private readonly route: ActivatedRoute,
+        private readonly _configurationService: ConfigurationService,
+        private readonly _storageService: StorageService
+    ) {
         this.storage = _storageService;
 
         this._configurationService.settingsLoaded$.subscribe(x => {
-            this.authorityUrl = this._configurationService.serverSettings.identityUrl
+            this.authorityUrl = this._configurationService.serverSettings.identityUrl;
             this.storage.store('IdentityUrl', this.authorityUrl);
         });
 
@@ -62,34 +62,33 @@ export class SecurityService {
         this.storage.store('IsAuthorized', true);
 
         this.getUserData()
-            .subscribe(data => {
-                this.UserData = data;
-                this.storage.store('userData', data);
-                // emit observable
-                this.authenticationSource.next(true);
-                window.location.href = location.origin;
-            },
-            error => this.HandleError(error),
-            () => {
-                console.log(this.UserData);
+            .subscribe({
+                next: data => {
+                    this.UserData = data;
+                    this.storage.store('userData', data);
+                    this.authenticationSource.next(true);
+                    globalThis.location.href = location.origin;
+                },
+                error: error => this.HandleError(error),
+                complete: () => { console.log(this.UserData); }
             });
     }
 
     public Authorize() {
         this.ResetAuthorizationData();
 
-        let authorizationUrl = this.authorityUrl + '/connect/authorize';
-        let client_id = 'js';
-        let redirect_uri = location.origin + '/';
-        let response_type = 'id_token token';
-        let scope = 'openid profile orders basket webshoppingagg orders.signalrhub';
-        let nonce = 'N' + Math.random() + '' + Date.now();
-        let state = Date.now() + '' + Math.random();
+        const authorizationUrl = this.authorityUrl + '/connect/authorize';
+        const client_id = 'js';
+        const redirect_uri = location.origin + '/';
+        const response_type = 'id_token token';
+        const scope = 'openid profile orders basket webshoppingagg orders.signalrhub';
+        const nonce = 'N' + Math.random() + '' + Date.now();
+        const state = Date.now() + '' + Math.random();
 
         this.storage.store('authStateControl', state);
         this.storage.store('authNonce', nonce);
 
-        let url =
+        const url =
             authorizationUrl + '?' +
             'response_type=' + encodeURI(response_type) + '&' +
             'client_id=' + encodeURI(client_id) + '&' +
@@ -98,16 +97,16 @@ export class SecurityService {
             'nonce=' + encodeURI(nonce) + '&' +
             'state=' + encodeURI(state);
 
-        window.location.href = url;
+        globalThis.location.href = url;
     }
 
     public AuthorizedCallback() {
         this.ResetAuthorizationData();
 
-        let hash = window.location.hash.substr(1);
+        const hash = globalThis.location.hash.slice(1);
 
-        let result: any = hash.split('&').reduce(function (result: any, item: string) {
-            let parts = item.split('=');
+        const result: any = hash.split('&').reduce(function (result: any, item: string) {
+            const parts = item.split('=');
             result[parts[0]] = parts[1];
             return result;
         }, {});
@@ -118,28 +117,27 @@ export class SecurityService {
         let id_token = '';
         let authResponseIsValid = false;
 
-        if (!result.error) {
+        if (result.error) {
+            return;
+        }
 
-            if (result.state !== this.storage.retrieve('authStateControl')) {
-                console.log('AuthorizedCallback incorrect state');
+        if (result.state === this.storage.retrieve('authStateControl')) {
+            token = result.access_token;
+            id_token = result.id_token;
+
+            const dataIdToken: any = this.getDataFromToken(id_token);
+
+            if (dataIdToken.nonce === this.storage.retrieve('authNonce')) {
+                this.storage.store('authNonce', '');
+                this.storage.store('authStateControl', '');
+
+                authResponseIsValid = true;
+                console.log('AuthorizedCallback state and nonce validated, returning access token');
             } else {
-
-                token = result.access_token;
-                id_token = result.id_token;
-
-                let dataIdToken: any = this.getDataFromToken(id_token);
-
-                // validate nonce
-                if (dataIdToken.nonce !== this.storage.retrieve('authNonce')) {
-                    console.log('AuthorizedCallback incorrect nonce');
-                } else {
-                    this.storage.store('authNonce', '');
-                    this.storage.store('authStateControl', '');
-
-                    authResponseIsValid = true;
-                    console.log('AuthorizedCallback state and nonce validated, returning access token');
-                }
+                console.log('AuthorizedCallback incorrect nonce');
             }
+        } else {
+            console.log('AuthorizedCallback incorrect state');
         }
 
         if (authResponseIsValid) {
@@ -148,29 +146,26 @@ export class SecurityService {
     }
 
     public Logoff() {
-        let authorizationUrl = this.authorityUrl + '/connect/endsession';
-        let id_token_hint = this.storage.retrieve('authorizationDataIdToken');
-        let post_logout_redirect_uri = location.origin + '/';
+        const authorizationUrl = this.authorityUrl + '/connect/endsession';
+        const id_token_hint = this.storage.retrieve('authorizationDataIdToken');
+        const post_logout_redirect_uri = location.origin + '/';
 
-        let url =
+        const url =
             authorizationUrl + '?' +
             'id_token_hint=' + encodeURI(id_token_hint) + '&' +
             'post_logout_redirect_uri=' + encodeURI(post_logout_redirect_uri);
 
         this.ResetAuthorizationData();
 
-        // emit observable
         this.authenticationSource.next(false);
-        window.location.href = url;
+        globalThis.location.href = url;
     }
 
     public HandleError(error: any) {
         console.log(error);
         if (error.status == 403) {
             this._router.navigate(['/Forbidden']);
-        }
-        else if (error.status == 401) {
-            // this.ResetAuthorizationData();
+        } else if (error.status == 401) {
             this._router.navigate(['/Unauthorized']);
         }
     }
@@ -187,47 +182,31 @@ export class SecurityService {
                 output += '=';
                 break;
             default:
-                throw 'Illegal base64url string!';
+                throw new Error('Illegal base64url string!');
         }
 
-        return window.atob(output);
+        return globalThis.atob(output);
     }
 
     private getDataFromToken(token: any) {
         let data = {};
 
-        if (typeof token !== 'undefined') {
-            let encoded = token.split('.')[1];
-            
+        if (token !== undefined) {
+            const encoded = token.split('.')[1];
             data = JSON.parse(this.urlBase64Decode(encoded));
         }
 
         return data;
     }
 
-    //private retrieve(key: string): any {
-    //    let item = this.storage.getItem(key);
-
-    //    if (item && item !== 'undefined') {
-    //        return JSON.parse(this.storage.getItem(key));
-    //    }
-
-    //    return;
-    //}
-
-    //private store(key: string, value: any) {
-    //    this.storage.setItem(key, JSON.stringify(value));
-    //}
-
-    private getUserData = (): Observable<string[]> => {
+    private readonly getUserData = (): Observable<string[]> => {
         if (this.authorityUrl === '') {
             this.authorityUrl = this.storage.retrieve('IdentityUrl');
         }
 
         const options = this.setHeaders();
 
-        return this._http.get<string[]>(`${this.authorityUrl}/connect/userinfo`, options)
-            .pipe<string[]>((info: any) => info);
+        return this._http.get<string[]>(`${this.authorityUrl}/connect/userinfo`, options) as unknown as Observable<string[]>;
     }
 
     private setHeaders(): any {
