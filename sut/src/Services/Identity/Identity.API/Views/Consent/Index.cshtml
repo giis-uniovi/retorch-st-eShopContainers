@@ -4,7 +4,7 @@
     <div class="lead">
         @if (Model.ClientLogoUrl != null)
         {
-            <div class="client-logo"><img src="@Model.ClientLogoUrl" alt="@Model.ClientName"></div>
+            <div class="client-logo"><img src="@Model.ClientLogoUrl"></div>
         }
         <h1>
             @Model.ClientName
@@ -31,12 +31,12 @@
                                 <span class="glyphicon glyphicon-user"></span>
                                 Personal Information
                             </div>
-                            <div class="list-group list-group-flush">
+                            <ul class="list-group list-group-flush">
                                 @foreach (var scope in Model.IdentityScopes)
                                 {
                                     <partial name="_ScopeListItem" model="@scope" />
                                 }
-                            </div>
+                            </ul>
                         </div>
                     </div>
                 }
@@ -49,12 +49,12 @@
                                 <span class="glyphicon glyphicon-tasks"></span>
                                 Application Access
                             </div>
-                            <div class="list-group list-group-flush">
+                            <ul class="list-group list-group-flush">
                                 @foreach (var scope in Model.ApiScopes)
                                 {
                                     <partial name="_ScopeListItem" model="scope" />
                                 }
-                            </div>
+                            </ul>
                         </div>
                     </div>
                 }

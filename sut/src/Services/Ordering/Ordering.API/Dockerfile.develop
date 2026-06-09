@@ -20,4 +20,4 @@ COPY . .
 WORKDIR /src/Services/Ordering/Ordering.API
 RUN dotnet build -c $BUILD_CONFIGURATION
 
-ENTRYPOINT ["/bin/sh", "-c", "dotnet run --no-build --no-launch-profile -c $BUILD_CONFIGURATION --"]
+ENTRYPOINT ["dotnet", "run", "--no-build", "--no-launch-profile", "-c", "$BUILD_CONFIGURATION", "--"]
