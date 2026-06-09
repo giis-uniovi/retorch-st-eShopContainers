@@ -51,10 +51,10 @@ COPY . .
 WORKDIR /src/Services/Basket/Basket.API
 RUN dotnet publish --no-restore -c Release -o /app
 
-FROM build as unittest
+FROM build AS unittest
 WORKDIR /src/Services/Basket/Basket.UnitTests
 
-FROM build as functionaltest
+FROM build AS functionaltest
 WORKDIR /src/Services/Basket/Basket.FunctionalTests
 
 FROM build AS publish

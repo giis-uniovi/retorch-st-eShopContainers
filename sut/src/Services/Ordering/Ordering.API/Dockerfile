@@ -2,8 +2,7 @@ FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS base
 WORKDIR /app
 EXPOSE 80
 ##RETORCH: Install curl to create custom healthecheck
-RUN apt-get update \
-    && apt-get install -y curl
+RUN ["/bin/sh", "-c", "apt-get update && apt-get install -y curl"]
 
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /src

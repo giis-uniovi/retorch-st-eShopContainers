@@ -52,10 +52,10 @@ COPY . .
 WORKDIR /src/Services/Catalog/Catalog.API
 RUN dotnet publish --no-restore -c Release -o /app
 
-FROM build as unittest
+FROM build AS unittest
 WORKDIR /src/Services/Catalog/Catalog.UnitTests
 
-FROM build as functionaltest
+FROM build AS functionaltest
 WORKDIR /src/Services/Catalog/Catalog.FunctionalTests
 
 FROM build AS publish
