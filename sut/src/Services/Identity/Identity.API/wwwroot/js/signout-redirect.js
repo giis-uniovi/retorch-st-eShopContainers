@@ -1,6 +1,6 @@
-globalThis.addEventListener("load", function () {
-    const a = document.querySelector("a.PostLogoutRedirectUri");
+window.addEventListener("load", function () {
+    var a = document.querySelector("a.PostLogoutRedirectUri");
     if (a) {
-        globalThis.location = a.href;
+        window.location = a.href;
     }
 });

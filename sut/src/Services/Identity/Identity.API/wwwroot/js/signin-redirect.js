@@ -1,1 +1,1 @@
-globalThis.location.href = document.getElementById("redirect-url").dataset.url;
+window.location.href = document.querySelector("meta[http-equiv=refresh]").getAttribute("data-url");
