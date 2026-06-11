@@ -1,14 +1,13 @@
-import { Component, OnInit } from '@angular/core';
-import { Observable, throwError } from 'rxjs';
+import { Component } from '@angular/core';
+import { throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 
 import { OrdersService } from '../orders.service';
 import { BasketService } from '../../basket/basket.service';
-import { IOrder }                                   from '../../shared/models/order.model';
-import { BasketWrapperService }                     from '../../shared/services/basket.wrapper.service';
+import { IOrder } from '../../shared/models/order.model';
 
-import { UntypedFormGroup, UntypedFormBuilder, Validators  }      from '@angular/forms';
-import { Router }                                   from '@angular/router';
+import { UntypedFormGroup, UntypedFormBuilder, Validators } from '@angular/forms';
+import { Router } from '@angular/router';
 
 @Component({
   standalone: false,
@@ -16,14 +15,18 @@ import { Router }                                   from '@angular/router';
     styleUrls: ['./orders-new.component.scss'],
     templateUrl: './orders-new.component.html'
 })
-export class OrdersNewComponent implements OnInit {
-    newOrderForm: UntypedFormGroup;  // new order form
+export class OrdersNewComponent {
+    newOrderForm: UntypedFormGroup;
     isOrderProcessing: boolean;
     errorReceived: boolean;
     order: IOrder;
 
-    constructor(private orderService: OrdersService, private basketService: BasketService, fb: UntypedFormBuilder, private router: Router) {
-        // Obtain user profile information
+    constructor(
+        private readonly orderService: OrdersService,
+        private readonly basketService: BasketService,
+        fb: UntypedFormBuilder,
+        private readonly router: Router
+    ) {
         this.order = orderService.mapOrderAndIdentityInfoNewOrder();
         this.newOrderForm = fb.group({
             'street': [this.order.street, Validators.required],
@@ -37,9 +40,6 @@ export class OrdersNewComponent implements OnInit {
         });
     }
 
-    ngOnInit() {
-    }
-
     submitForm(value: any) {
         this.order.street = this.newOrderForm.controls['street'].value;
         this.order.city = this.newOrderForm.controls['city'].value;
@@ -50,12 +50,12 @@ export class OrdersNewComponent implements OnInit {
         this.order.cardholdername = this.newOrderForm.controls['cardholdername'].value;
         this.order.cardexpiration = new Date(20 + this.newOrderForm.controls['expirationdate'].value.split('/')[1], this.newOrderForm.controls['expirationdate'].value.split('/')[0]);
         this.order.cardsecuritynumber = this.newOrderForm.controls['securitycode'].value;
-        let basketCheckout = this.basketService.mapBasketInfoCheckout(this.order);
+        const basketCheckout = this.basketService.mapBasketInfoCheckout(this.order);
         this.basketService.setBasketCheckout(basketCheckout)
             .pipe(catchError((error) => {
                 this.errorReceived = true;
                 this.isOrderProcessing = false;
-                return throwError(() => error); 
+                return throwError(() => error);
             }))
             .subscribe(res => {
                 this.router.navigate(['orders']);
@@ -64,4 +64,3 @@ export class OrdersNewComponent implements OnInit {
         this.isOrderProcessing = true;
     }
 }
-

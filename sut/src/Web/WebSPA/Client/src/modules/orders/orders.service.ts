@@ -9,22 +9,26 @@ import { ConfigurationService } from '../shared/services/configuration.service';
 import { BasketWrapperService } from '../shared/services/basket.wrapper.service';
 
 import { Observable } from 'rxjs';
-import { tap, map } from 'rxjs/operators';
+import { tap } from 'rxjs/operators';
 
 @Injectable()
 export class OrdersService {
     private ordersUrl: string = '';
 
-    constructor(private service: DataService, private basketService: BasketWrapperService, private identityService: SecurityService, private configurationService: ConfigurationService) {
+    constructor(
+        private readonly service: DataService,
+        private readonly basketService: BasketWrapperService,
+        private readonly identityService: SecurityService,
+        private readonly configurationService: ConfigurationService
+    ) {
         if (this.configurationService.isReady)
             this.ordersUrl = this.configurationService.serverSettings.purchaseUrl;
         else
             this.configurationService.settingsLoaded$.subscribe(x => this.ordersUrl = this.configurationService.serverSettings.purchaseUrl);
-
     }
 
     getOrders(): Observable<IOrder[]> {
-        let url = this.ordersUrl + '/o/api/v1/orders';
+        const url = this.ordersUrl + '/o/api/v1/orders';
 
         return this.service.get(url).pipe<IOrder[]>(tap((response: any) => {
             return response;
@@ -32,16 +36,14 @@ export class OrdersService {
     }
 
     cancelOrder(orderNumber: number): Observable<any> {
-        let url = this.ordersUrl + '/o/api/v1/orders/cancel';
-        let data = { OrderNumber: orderNumber };
+        const url = this.ordersUrl + '/o/api/v1/orders/cancel';
+        const data = { OrderNumber: orderNumber };
 
-        return this.service.putWithId(url, data).pipe<any>(tap(() => {
-            return;
-        }));
+        return this.service.putWithId(url, data).pipe<any>(tap(() => { }));
     }
 
     getOrder(id: number): Observable<IOrderDetail> {
-        let url = this.ordersUrl + '/o/api/v1/orders/' + id;
+        const url = this.ordersUrl + '/o/api/v1/orders/' + id;
 
         return this.service.get(url).pipe<IOrderDetail>(tap((response: any) => {
             return response;
@@ -49,14 +51,13 @@ export class OrdersService {
     }
 
     mapOrderAndIdentityInfoNewOrder(): IOrder {
-        let order = <IOrder>{};
-        let basket = this.basketService.basket;
-        let identityInfo = this.identityService.UserData;
+        const order = <IOrder>{};
+        const basket = this.basketService.basket;
+        const identityInfo = this.identityService.UserData;
 
         console.log(basket);
         console.log(identityInfo);
 
-        // Identity data mapping:
         order.street = identityInfo.address_street;
         order.city = identityInfo.address_city;
         order.country = identityInfo.address_country;
@@ -70,12 +71,11 @@ export class OrdersService {
         order.total = 0;
         order.expiration = identityInfo.card_expiration;
 
-        // basket data mapping:
         order.orderItems = new Array<IOrderItem>();
         basket.items.forEach(x => {
-            let item: IOrderItem = <IOrderItem>{};
+            const item: IOrderItem = <IOrderItem>{};
             item.pictureurl = x.pictureUrl;
-            item.productId =  +x.productId;
+            item.productId = +x.productId;
             item.productname = x.productName;
             item.unitprice = x.unitPrice;
             item.units = x.quantity;
@@ -89,6 +89,4 @@ export class OrdersService {
 
         return order;
     }
-
 }
-

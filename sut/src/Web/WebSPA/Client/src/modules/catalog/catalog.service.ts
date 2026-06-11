@@ -14,8 +14,8 @@ export class CatalogService {
     private catalogUrl: string = '';
     private brandUrl: string = '';
     private typesUrl: string = '';
-  
-    constructor(private service: DataService, private configurationService: ConfigurationService) {
+
+    constructor(private readonly service: DataService, private readonly configurationService: ConfigurationService) {
         this.configurationService.settingsLoaded$.subscribe(x => {
             this.catalogUrl = this.configurationService.serverSettings.purchaseUrl + '/c/api/v1/catalog/items';
             this.brandUrl = this.configurationService.serverSettings.purchaseUrl + '/c/api/v1/catalog/catalogbrands';
@@ -28,11 +28,10 @@ export class CatalogService {
 
         if (type) {
             url = this.catalogUrl + '/type/' + type.toString() + '/brand/' + ((brand) ? brand.toString() : '');
-        }
-        else if (brand) {
+        } else if (brand) {
             url = this.catalogUrl + '/type/all' + '/brand/' + ((brand) ? brand.toString() : '');
         }
-      
+
         url = url + '?pageIndex=' + pageIndex + '&pageSize=' + pageSize;
 
         return this.service.get(url).pipe<ICatalog>(tap((response: any) => {
@@ -50,5 +49,5 @@ export class CatalogService {
         return this.service.get(this.typesUrl).pipe<ICatalogType[]>(tap((response: any) => {
             return response;
         }));
-    };
+    }
 }
