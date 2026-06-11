@@ -1,4 +1,4 @@
-import { Component, OnInit, OnChanges, Output, Input, EventEmitter } from '@angular/core';
+import { Component, OnChanges, Output, Input, EventEmitter } from '@angular/core';
 
 import { IPager } from '../../models/pager.model';
 
@@ -8,7 +8,7 @@ import { IPager } from '../../models/pager.model';
     templateUrl: './pager.html',
     styleUrls: ['./pager.scss']
 })
-export class Pager implements OnInit, OnChanges  {
+export class Pager implements OnChanges {
 
     @Output()
     changed: EventEmitter<number> = new EventEmitter<number>();
@@ -21,12 +21,9 @@ export class Pager implements OnInit, OnChanges  {
         previousDisabled: true,
     };
 
-    ngOnInit() {
-    }
-
     ngOnChanges() {
         if (this.model) {
-            this.model.items = (this.model.itemsPage > this.model.totalItems) ? this.model.totalItems : this.model.itemsPage;
+            this.model.items = Math.min(this.model.itemsPage, this.model.totalItems);
 
             this.buttonStates.previousDisabled = (this.model.actualPage == 0);
             this.buttonStates.nextDisabled = (this.model.actualPage + 1 >= this.model.totalPages);
@@ -44,5 +41,4 @@ export class Pager implements OnInit, OnChanges  {
         console.log('Pager previous clicked');
         this.changed.emit(this.model.actualPage - 1);
     }
-
 }

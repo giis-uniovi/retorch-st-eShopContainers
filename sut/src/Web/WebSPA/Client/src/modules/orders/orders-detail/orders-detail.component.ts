@@ -12,7 +12,7 @@ import { ActivatedRoute } from '@angular/router';
 export class OrdersDetailComponent implements OnInit {
     public order: IOrderDetail = <IOrderDetail>{};
 
-    constructor(private service: OrdersService, private route: ActivatedRoute, private cdr: ChangeDetectorRef) { }
+    constructor(private readonly service: OrdersService, private readonly route: ActivatedRoute, private readonly cdr: ChangeDetectorRef) { }
 
     ngOnInit() {
         this.route.params.subscribe(params => {
