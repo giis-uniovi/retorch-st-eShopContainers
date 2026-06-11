@@ -11,8 +11,6 @@ a.navbar-brand {
 -------------------------------------------------- */
 html {
   font-size: 14px;
-  position: relative;
-  min-height: 100%;
 }
 @media (min-width: 768px) {
   html {
@@ -34,6 +32,13 @@ html {
 button.accept-policy {
   font-size: 1rem;
   line-height: inherit;
+}
+
+/* Sticky footer styles
+-------------------------------------------------- */
+html {
+  position: relative;
+  min-height: 100%;
 }
 
 body {
