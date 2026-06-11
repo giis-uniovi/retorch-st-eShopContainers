@@ -1,21 +1,19 @@
-﻿import { Injectable } from '@angular/core';
+import { Injectable } from '@angular/core';
 
 @Injectable()
 export class StorageService {
-    private storage: any;
+    private readonly storage: any;
 
     constructor() {
-        this.storage = sessionStorage; // localStorage;
+        this.storage = sessionStorage;
     }
 
     public retrieve(key: string): any {
-        let item = this.storage.getItem(key);
+        const item = this.storage.getItem(key);
 
         if (item && item !== 'undefined') {
             return JSON.parse(this.storage.getItem(key));
         }
-
-        return;
     }
 
     public store(key: string, value: any) {

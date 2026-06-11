@@ -1,5 +1,5 @@
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
-import { Observable, Subscription, throwError } from 'rxjs';
+import { Subscription, throwError } from 'rxjs';
 import { catchError }           from 'rxjs/operators';
 
 import { CatalogService }       from './catalog.service';
@@ -30,11 +30,11 @@ export class CatalogComponent implements OnInit {
     errorReceived: boolean;
 
     constructor(
-        private service: CatalogService,
-        private basketService: BasketWrapperService,
-        private configurationService: ConfigurationService,
-        private securityService: SecurityService,
-        private cdr: ChangeDetectorRef
+        private readonly service: CatalogService,
+        private readonly basketService: BasketWrapperService,
+        private readonly configurationService: ConfigurationService,
+        private readonly securityService: SecurityService,
+        private readonly cdr: ChangeDetectorRef
     ) {
         this.authenticated = securityService.IsAuthorized;
     }
@@ -82,7 +82,6 @@ export class CatalogComponent implements OnInit {
 
     onPageChanged(value: any) {
         console.log('catalog pager event fired' + value);
-        event.preventDefault();
         this.paginationInfo.actualPage = value;
         this.getCatalog(this.paginationInfo.itemsPage, value);
     }

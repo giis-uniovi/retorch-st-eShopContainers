@@ -1,8 +1,6 @@
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 
-import { Observable } from 'rxjs';
-
 import { BasketService } from './basket.service';
 import { IBasket } from '../shared/models/basket.model';
 import { IBasketItem } from '../shared/models/basketItem.model';
@@ -20,10 +18,10 @@ export class BasketComponent implements OnInit {
     totalPrice: number = 0;
 
     constructor(
-        private basketSerive: BasketService,
-        private router: Router,
-        private basketWrapperService: BasketWrapperService,
-        private cdr: ChangeDetectorRef
+        private readonly basketSerive: BasketService,
+        private readonly router: Router,
+        private readonly basketWrapperService: BasketWrapperService,
+        private readonly cdr: ChangeDetectorRef
     ) { }
 
     ngOnInit() {
@@ -34,7 +32,7 @@ export class BasketComponent implements OnInit {
         });
     }
 
-    deleteItem(id: String) {
+    deleteItem(id: string) {
         this.basket.items = this.basket.items.filter(item => item.id !== id);
         this.calculateTotalPrice();
         
@@ -47,20 +45,20 @@ export class BasketComponent implements OnInit {
     }
 
     itemQuantityChanged(item: IBasketItem, quantity: number) {
-        item.quantity = quantity > 0 ? quantity : 1;
+        item.quantity = Math.max(quantity, 1);
         this.calculateTotalPrice();
         this.basketSerive.setBasket(this.basket).subscribe(x => console.log('basket updated: ' + x));
     }
 
-    update(event: any): Observable<boolean> {
-        let setBasketObservable = this.basketSerive.setBasket(this.basket);
-        setBasketObservable
-            .subscribe(
-            x => {
+    update(event: any) {
+        const setBasketObservable = this.basketSerive.setBasket(this.basket);
+        setBasketObservable.subscribe({
+            next: x => {
                 this.errorMessages = [];
                 console.log('basket updated: ' + x);
             },
-            errMessage => this.errorMessages = errMessage.messages);
+            error: errMessage => this.errorMessages = errMessage.messages
+        });
         return setBasketObservable;
     }
 

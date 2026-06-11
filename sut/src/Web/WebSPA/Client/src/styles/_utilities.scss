@@ -5,6 +5,18 @@
     &-uppercase {
       text-transform: uppercase;
     }
+
+    &-sm {
+      font-size: $font-size-s;
+    }
+
+    &-lg {
+      font-size: $font-size-l;
+    }
+
+    &-xl {
+      font-size: $font-size-xl;
+    }
   }
 
   &-cursor {
@@ -52,20 +64,6 @@
   &-background {
     &-brightest {
       background-color: $color-brightest;
-    }
-  }
-
-  &-text{
-    &-sm {
-      font-size: $font-size-s;
-    }
-
-    &-lg {
-      font-size: $font-size-l;
-    }
-
-    &-xl {
-      font-size: $font-size-xl;
     }
   }
 }

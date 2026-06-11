@@ -1,5 +1,4 @@
 import { Injectable } from '@angular/core';
-import { HttpResponse } from '@angular/common/http';
 import { Router } from '@angular/router';
 
 import { DataService } from '../shared/services/data.service';
@@ -11,10 +10,10 @@ import { BasketWrapperService } from '../shared/services/basket.wrapper.service'
 import { ConfigurationService } from '../shared/services/configuration.service';
 import { StorageService } from '../shared/services/storage.service';
 
-import { Observable, Observer, Subject } from 'rxjs';
-import { map, catchError, tap } from 'rxjs/operators';
+import { Observable, Subject } from 'rxjs';
+import { tap } from 'rxjs/operators';
 
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class BasketService {
     private basketUrl: string = '';
     private purchaseUrl: string = '';
@@ -23,14 +22,19 @@ export class BasketService {
         items: []
     };
 
-    //observable that is fired when item is removed from basket
-    private basketUpdateSource = new Subject<void>();
-    basketUpdate$ = this.basketUpdateSource.asObservable();
+    private readonly basketUpdateSource = new Subject<void>();
+    readonly basketUpdate$ = this.basketUpdateSource.asObservable();
 
-    constructor(private service: DataService, private authService: SecurityService, private basketWrapperService: BasketWrapperService, private router: Router, private configurationService: ConfigurationService, private storageService: StorageService) {
+    constructor(
+        private readonly service: DataService,
+        private readonly authService: SecurityService,
+        private readonly basketWrapperService: BasketWrapperService,
+        private readonly router: Router,
+        private readonly configurationService: ConfigurationService,
+        private readonly storageService: StorageService
+    ) {
         this.basket.items = [];
 
-        // Init:
         if (this.authService.IsAuthorized) {
             if (this.authService.UserData) {
                 this.basket.buyerId = this.authService.UserData.sub;
@@ -38,8 +42,7 @@ export class BasketService {
                     this.basketUrl = this.configurationService.serverSettings.purchaseUrl;
                     this.purchaseUrl = this.configurationService.serverSettings.purchaseUrl;
                     this.loadData();
-                }
-                else {
+                } else {
                     this.configurationService.settingsLoaded$.subscribe(x => {
                         this.basketUrl = this.configurationService.serverSettings.purchaseUrl;
                         this.purchaseUrl = this.configurationService.serverSettings.purchaseUrl;
@@ -55,7 +58,7 @@ export class BasketService {
     }
 
     addItemToBasket(item): Observable<boolean> {
-        let basketItem = this.basket.items.find(value => value.productId == item.productId);
+        const basketItem = this.basket.items.find(value => value.productId == item.productId);
 
         if (basketItem) {
             basketItem.quantity++;
@@ -67,7 +70,7 @@ export class BasketService {
     }
 
     setBasket(basket): Observable<boolean> {
-        let url = this.purchaseUrl + '/b/api/v1/basket/';
+        const url = this.purchaseUrl + '/b/api/v1/basket/';
 
         this.basket = basket;
 
@@ -75,7 +78,7 @@ export class BasketService {
     }
 
     setBasketCheckout(basketCheckout): Observable<boolean> {
-        let url = this.basketUrl + '/b/api/v1/basket/checkout';
+        const url = this.basketUrl + '/b/api/v1/basket/checkout';
 
         return this.service.postWithId(url, basketCheckout).pipe<boolean>(tap((response: any) => {
             this.basketWrapperService.orderCreated();
@@ -84,7 +87,7 @@ export class BasketService {
     }
 
     getBasket(): Observable<IBasket> {
-        let url = this.basketUrl + '/b/api/v1/basket/' + this.basket.buyerId;
+        const url = this.basketUrl + '/b/api/v1/basket/' + this.basket.buyerId;
 
         return this.service.get(url).pipe<IBasket>(tap((response: any) => {
             if (response.status === 204) {
@@ -96,9 +99,9 @@ export class BasketService {
     }
 
     mapBasketInfoCheckout(order: IOrder): IBasketCheckout {
-        let basketCheckout = <IBasketCheckout>{};
+        const basketCheckout = <IBasketCheckout>{};
 
-        basketCheckout.street = order.street
+        basketCheckout.street = order.street;
         basketCheckout.city = order.city;
         basketCheckout.country = order.country;
         basketCheckout.state = order.state;

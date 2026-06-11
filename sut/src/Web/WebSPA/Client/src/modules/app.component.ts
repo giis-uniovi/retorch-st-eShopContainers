@@ -1,19 +1,18 @@
 import { Title } from '@angular/platform-browser';
 import { Router } from '@angular/router';
-import { Component, OnInit, ViewContainerRef } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Subscription } from 'rxjs';
 
 import { SecurityService } from './shared/services/security.service';
 import { ConfigurationService } from './shared/services/configuration.service';
 import { SignalrService } from './shared/services/signalr.service';
 import { ToastrService } from 'ngx-toastr';
+import { SharedModule } from './shared/shared.module';
+import { BasketModule } from './basket/basket.module';
 
-/*
- * App Component
- * Top Level Component
- */
 @Component({
-  standalone: false,
+  standalone: true,
+  imports: [SharedModule, BasketModule],
     selector: 'esh-app',
     styleUrls: ['./app.component.scss'],
     templateUrl: './app.component.html'
@@ -22,16 +21,14 @@ export class AppComponent implements OnInit {
     Authenticated: boolean = false;
     subscription: Subscription;
 
-    constructor(private titleService: Title,
+    constructor(
+        private readonly titleService: Title,
         public router: Router,
-        private securityService: SecurityService,
-        private configurationService: ConfigurationService,
-        private signalrService: SignalrService,
-        private toastr: ToastrService,
-        vcr: ViewContainerRef
+        private readonly securityService: SecurityService,
+        private readonly configurationService: ConfigurationService,
+        private readonly signalrService: SignalrService,
+        private readonly toastr: ToastrService
     ) {
-        // TODO: Set Taster Root (Overlay) container
-        //this.toastr.setRootViewContainerRef(vcr);
         this.Authenticated = this.securityService.IsAuthorized;
     }
 
@@ -39,7 +36,6 @@ export class AppComponent implements OnInit {
         console.log('app on init');
         this.subscription = this.securityService.authenticationChallenge$.subscribe(res => this.Authenticated = res);
 
-        //Get configuration from server environment variables:
         console.log('configuration');
         this.configurationService.load();
     }

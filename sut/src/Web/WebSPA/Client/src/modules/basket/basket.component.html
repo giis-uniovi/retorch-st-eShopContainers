@@ -13,29 +13,32 @@
                     <div *ngFor="let item of basket?.items" class="col-12 col-md-6 col-lg-4">
                         <article class="esh-basket-item">
                             <div class="esh-basket-thumbnail-wrapper">
-                                <div class="esh-basket-delete" (click)="deleteItem(item.id)">
-                                    <img class="esh-basket-delete-svg" src="assets/images/delete.svg" />
-                                </div>
-                                <img class="esh-basket-thumbnail" src="{{item.pictureUrl}}"/>
+                                <button class="esh-basket-delete" (click)="deleteItem(item.id)">
+                                    <img class="esh-basket-delete-svg" src="assets/images/delete.svg" alt="Delete" />
+                                </button>
+                                <img class="esh-basket-thumbnail" src="{{item.pictureUrl}}" alt="{{item.productName}}" />
                             </div>
                             <div class="esh-basket-title">{{item.productName}}</div>
                             <div class="esh-basket-description divider d-flex align-items-center justify-content-between">
                                 <div class="">$ {{item.unitPrice | number:'.2-2'}}</div>
                                 <div class="esh-basket-buttons d-flex justify-content-center">
-                                    <button 
-                                        [ngClass]="{'esh-basket-button': true, 'is-disabled': item.quantity === 1}" 
+                                    <button
+                                        class="esh-basket-button"
+                                        [ngClass]="{'is-disabled': item.quantity === 1}"
                                         (click)="itemQuantityChanged(item, item.quantity-1)">
-                                            <img 
-                                            class="esh-basket-button-svg" 
-                                            src="assets/images/minus.svg" />
+                                            <img
+                                            class="esh-basket-button-svg"
+                                            src="assets/images/minus.svg"
+                                            alt="Decrease quantity" />
                                     </button>
                                     <div class="esh-basket-quantity">{{item.quantity}}</div>
                                     <button 
                                         class="esh-basket-button" 
                                         (click)="itemQuantityChanged(item, item.quantity+1)">
-                                            <img 
-                                            class="esh-basket-button-svg" 
-                                            src="assets/images/plus.svg" />
+                                            <img
+                                            class="esh-basket-button-svg"
+                                            src="assets/images/plus.svg"
+                                            alt="Increase quantity" />
                                     </button>
                                 </div>
                                 <div class="esh-basket-price text-right">$ {{(item.unitPrice * item.quantity) | number:'.2-2'}}</div>

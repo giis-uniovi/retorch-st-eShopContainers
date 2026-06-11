@@ -5,7 +5,7 @@ FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS base
 WORKDIR /app
 EXPOSE 80
 
-FROM ${NODE_IMAGE} as node-build
+FROM ${NODE_IMAGE} AS node-build
 WORKDIR /web/src
 COPY Web/WebSPA/Client/package.json .
 COPY Web/WebSPA/Client/package-lock.json .

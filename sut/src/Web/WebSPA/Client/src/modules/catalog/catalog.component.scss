@@ -70,12 +70,8 @@
                 color: $color-brightest;
             }
 
-            &:current {
-                background-color: $color-primary;
-                color: $color-brightest;
-            }
-
-            &:selected {
+            &:current,
+            &:checked {
                 background-color: $color-primary;
                 color: $color-brightest;
             }
@@ -88,17 +84,6 @@
         margin-bottom: 0;
         position: relative;
         z-index: 0;
-
-        // &:before {
-        //     color: $color-primary;
-        //     content: attr(data-title);
-        //     font-size: $font-size-s;
-        //     left: .7rem;
-        //     top: .2rem;
-        //     position: absolute;
-        //     text-transform: uppercase;
-        //     z-index: 1;
-        // }
     }
 
     &-items {
@@ -106,6 +91,11 @@
     }
 
     &-item {
+        background: none;
+        border: none;
+        padding: 0;
+        text-align: left;
+        display: block;
         cursor: pointer;
         margin-bottom: 1.5rem;
         width: 100%;
