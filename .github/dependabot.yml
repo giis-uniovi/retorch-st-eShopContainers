@@ -23,3 +23,50 @@ updates:
       - "ClaudiodelaRiva"
     rebase-strategy: "disabled"
     open-pull-requests-limit: 20
+# SUT UPDATES
+  - package-ecosystem: "nuget"
+    directories:
+      - "/sut/**/*"
+    schedule:
+      interval: weekly
+      day: "friday"
+      time: "00:40"
+      timezone: "Europe/Madrid"
+    assignees:
+      - "ClaudiodelaRiva"
+    rebase-strategy: "disabled"
+    open-pull-requests-limit: 30
+    ignore:
+      # Block ALL .NET major-version bumps (runtime, ASP.NET Core, EF Core, etc.)
+      - dependency-name: "Microsoft.AspNetCore.*"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "Microsoft.EntityFrameworkCore.*"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "Microsoft.Extensions.*"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "Microsoft.NET.*"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "System.*"
+        update-types: ["version-update:semver-major"]
+
+  - package-ecosystem: "npm"
+    directory: "/sut/src/Web/WebSPA/Client"
+    schedule:
+      interval: weekly
+      day: "friday"
+      time: "00:40"
+      timezone: "Europe/Madrid"
+    assignees:
+      - "ClaudiodelaRiva"
+    rebase-strategy: "disabled"
+    ignore:
+      # Angular 21 LTS fixed in order to avoid accidental updates to the major version
+      - dependency-name: "@angular/*"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "@angular-devkit/*"
+        update-types: ["version-update:semver-major"]
+      # @angular-devkit/build-angular 21.2.x requires typescript >=5.9 <6.0;
+      # only allow patch bumps within that supported range
+      - dependency-name: "typescript"
+        update-types: ["version-update:semver-major", "version-update:semver-minor"]
+    open-pull-requests-limit: 20
