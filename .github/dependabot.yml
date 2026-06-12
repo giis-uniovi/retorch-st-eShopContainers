@@ -23,3 +23,78 @@ updates:
       - "ClaudiodelaRiva"
     rebase-strategy: "disabled"
     open-pull-requests-limit: 20
+
+  # SUT UPDATES
+  - package-ecosystem: "nuget"
+    directories:
+      - "/sut/**/*"
+    schedule:
+      interval: weekly
+      day: "friday"
+      time: "00:40"
+      timezone: "Europe/Madrid"
+    assignees:
+      - "ClaudiodelaRiva"
+    rebase-strategy: "disabled"
+    open-pull-requests-limit: 30
+    groups:
+      # Keep the whole Duende.IdentityServer family on the same major/minor
+      # version. Updating only Duende.IdentityServer.EntityFramework(.Storage)
+      # / Duende.IdentityServer.Storage while leaving Duende.IdentityServer
+      # and Duende.IdentityServer.AspNetIdentity behind causes NU1109
+      # "Detected package downgrade" errors with central package management.
+      # System.IdentityModel.Tokens.Jwt / Microsoft.IdentityModel.* are
+      # included too: Duende.IdentityServer depends transitively on
+      # Duende.Private.Licensing, which pins a minimum
+      # System.IdentityModel.Tokens.Jwt version that can outrun the
+      # centrally-defined one if updated separately.
+      duende-identityserver:
+        patterns:
+          - "Duende.IdentityServer*"
+          - "System.IdentityModel.Tokens.Jwt"
+          - "Microsoft.IdentityModel.*"
+      # RabbitMQ.Client major versions (e.g. 6.x -> 7.x) replace the IModel-based
+      # API with the async IChannel API. AspNetCore.HealthChecks.Rabbitmq must be
+      # on a major version compiled against the matching RabbitMQ.Client major
+      # (9.x requires RabbitMQ.Client >= 7.0.0), otherwise the health check throws
+      # System.TypeLoadException: Could not load type 'RabbitMQ.Client.IModel' at
+      # runtime. Bump both together and update CommonExtensions.cs/EventBusRabbitMQ
+      # for any AddRabbitMQ/IChannel API changes.
+      rabbitmq-client:
+        patterns:
+          - "RabbitMQ.Client"
+          - "AspNetCore.HealthChecks.Rabbitmq"
+    ignore:
+      # Block ALL .NET major-version bumps (runtime, ASP.NET Core, EF Core, etc.)
+      - dependency-name: "Microsoft.AspNetCore.*"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "Microsoft.EntityFrameworkCore.*"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "Microsoft.Extensions.*"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "Microsoft.NET.*"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "System.*"
+        update-types: ["version-update:semver-major"]
+
+  - package-ecosystem: "npm"
+    directory: "/sut/src/Web/WebSPA/Client"
+    schedule:
+      interval: weekly
+      day: "friday"
+      time: "00:40"
+      timezone: "Europe/Madrid"
+    assignees:
+      - "ClaudiodelaRiva"
+    rebase-strategy: "disabled"
+    ignore:
+      # Angular 21 LTS fixed in order to avoid accidental updates to the major version
+      - dependency-name: "@angular/*"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "@angular-devkit/*"
+        update-types: ["version-update:semver-major"]
+      # @angular-devkit/build-angular 21.2.x requires typescript >=5.9 <6.0;
+      # only allow patch bumps within that supported range
+      - dependency-name: "typescript"
+        update-types: ["version-update:semver-major", "version-update:semver-minor"]
+    open-pull-requests-limit: 20
