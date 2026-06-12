@@ -1,6 +1,6 @@
 # CLAUDE.md — eShopContainers E2E Test Suite
 
-> **Maintenance rule:** Every time a file in this repository is created, modified, or deleted in a conversation with Claude, update this file to reflect the change before closing the task. Keep the sections below accurate and concise.
+> **Maintenance rule:** Every time a file in this repository is created, modified, or deleted in a conversation with Claude, update this file to reflect the change before closing the task. Keep the sections below accurate and concise. Prefer recording *current state* and *non-obvious gotchas*; the change history itself lives in `git log`.
 
 ---
 
@@ -31,12 +31,12 @@ The project integrates with **Retorch** for parallel test orchestration and uses
 |---|---|
 | Runtime | **.NET 10 LTS** (all 30 projects target `net10.0`) |
 | SDK / runtime images | `mcr.microsoft.com/dotnet/sdk:10.0`, `mcr.microsoft.com/dotnet/aspnet:10.0` |
-| Identity | Duende IdentityServer 7.0.0 |
-| ORM | Entity Framework Core 10.0.0 |
+| Identity | Duende IdentityServer 8.0.1 |
+| ORM | Entity Framework Core 10.0.9 |
 | Reverse proxy / BFF | YARP 2.0.0 |
 | gRPC | Grpc.AspNetCore 2.51.0 |
-| Frontend (SPA) | **Angular 21 LTS** built with Node.js 22 (node:22-bullseye) |
-| Message broker | RabbitMQ 3 (`rabbitmq:3-management-alpine`) |
+| Frontend (SPA) | **Angular 21 LTS** built with Node.js 22 (`node:22-bullseye`) |
+| Message broker | RabbitMQ 3 (`rabbitmq:3-management-alpine`); client `RabbitMQ.Client` 7.2.1 (async `IChannel` API) |
 | Databases | SQL Server 2019, MongoDB 8, Redis (alpine) |
 | Logging | Seq (`datalust/seq:2025.2`) |
 | API gateway | Envoy (`envoyproxy/envoy:v1.11.1`) |
@@ -151,76 +151,20 @@ Localhost endpoints after `redeploy-local.ps1`:
 
 ## Local resource monitoring
 
-The `monitoring/` folder contains a standalone tool that records CPU and memory
-consumption of every running Docker container (SUT microservices + Selenoid browsers)
-and produces an Excel report.
-
-### All-in-one local runner (recommended)
+`monitoring/` records per-container CPU/Mem (SUT + Selenoid browsers) and produces an Excel report at `monitoring/data/resource-report.xlsx` (git-ignored). Python venv (`monitoring\.venv`) is created automatically on first run.
 
 ```powershell
-# Full cycle: venv setup → deploy SUT → monitor → run tests → Excel report
+# Recommended: full cycle (deploy SUT -> monitor -> run tests -> Excel report)
 .\monitoring\run-local-suite.ps1
-
-# Skip docker image rebuild if SUT images are already current
-.\monitoring\run-local-suite.ps1 -NoBuild
-
-# Run only a specific test class with a 10 s sampling interval
 .\monitoring\run-local-suite.ps1 -NoBuild -Interval 10 -Test "WebSPACatalogTests"
-```
 
-The Python venv (`monitoring\.venv`) is created automatically on first run.
-`redeploy-local.ps1` is called internally; its interactive `Read-Host` prompt was removed so it can be driven non-interactively.
-Maven runs from the project root (not `monitoring/`), and `monitoring\run-local-suite.ps1` does NOT pass `-DSUT_URL` so API tests use localhost URLs.
-
-### Manual one-shot wrapper
-
-```powershell
-# Install dependency once
-pip install -r monitoring\requirements.txt
-
-# Run the whole test suite with monitoring (PowerShell — Windows)
-.\monitoring\run-with-monitoring.ps1 -Command "mvn test -DTJOB_NAME=local"
-
-# Custom sampling interval (10 s instead of the default 5 s)
-.\monitoring\run-with-monitoring.ps1 -Interval 10 -Command "mvn test -DTJOB_NAME=local -Dtest=WebSPACatalogTests"
-```
-
-```bash
-# Bash equivalent (Git Bash / WSL / Linux)
-bash monitoring/run-with-monitoring.sh "mvn test -DTJOB_NAME=local"
-bash monitoring/run-with-monitoring.sh 10 "mvn test -DTJOB_NAME=local -Dtest=WebSPACatalogTests"
-```
-
-The Excel report is written to `monitoring/data/resource-report.xlsx`.
-
-### Manual start / stop
-
-```powershell
-# PowerShell
-.\monitoring\start-monitoring.ps1          # default 5 s interval
-# … run tests …
-.\monitoring\stop-monitoring.ps1
+# Manual control
+.\monitoring\start-monitoring.ps1   # ... run tests ...   .\monitoring\stop-monitoring.ps1
 python monitoring\generate-excel.py
 ```
 
-```bash
-# Bash
-bash monitoring/start-monitoring.sh
-# … run tests …
-bash monitoring/stop-monitoring.sh
-python3 monitoring/generate-excel.py
-```
-
-### Excel sheets
-
-| Sheet | Content |
-|---|---|
-| Summary | Avg / Max / Min / P95 CPU % and Mem (MiB) for every container |
-| SUT Containers | Same, filtered to non-browser containers |
-| Browsers | `chrome-node`, `chrome-video`, `selenium-hub` |
-| Raw Data | Every measurement row (auto-filter enabled) |
-
-`monitoring/data/` is git-ignored.
+Bash equivalents: `monitoring/run-with-monitoring.sh`, `start-monitoring.sh`, `stop-monitoring.sh`.
+Report sheets: **Summary** (Avg/Max/Min/P95 CPU+Mem per container), **SUT Containers**, **Browsers**, **Raw Data**.
 
 ---
 
@@ -246,99 +190,17 @@ python3 monitoring/generate-excel.py
 - **JWT guards** — `jwtParts.length != 3` and `!payloadObj.has("sub")` checks must precede JWT indexing.
 - **`set -e`** is active in all lifecycle shell scripts; new scripts follow the same convention.
 - Prefer editing existing files; avoid new abstractions unless the same logic appears in three or more places.
-- **`-DSUT_URL` must not be passed** for local test runs — it switches `BaseAPIClass` to Docker-internal hostnames.
+- **`-DSUT_URL` must not be passed** for local test runs (see "Running tests locally" above).
 
 ---
 
-## Recent significant changes
+## Gotchas & non-obvious constraints
 
-### Branch `ft-updating-SUT-last-LTS-version-dot-net-and-security`
-
-**SUT migrated to .NET 10 LTS** (from .NET 9):
-- All 30 `.csproj` files, all 27 Dockerfiles, `Directory.Packages.props`.
-- `Duende.IdentityServer` 6.2.3 → 7.0.0 (targets net8.0+, forward-compatible with .NET 10).
-- `AspNetCore.HealthChecks.*` kept at 6.x (8.x had transitive `Azure.Identity` conflicts under `CentralPackageTransitivePinningEnabled`).
-- `Swashbuckle.AspNetCore` 6.5.0 → 6.9.0; `Microsoft.AspNetCore.OpenApi` removed from `Services.Common.csproj` (Swashbuckle 6.x and Microsoft.OpenApi 2.x conflict — CS7069).
-- `Microsoft.NET.Test.Sdk` 17.5.0 → 17.12.0; `Newtonsoft.Json` 13.0.2 → 13.0.3; `Microsoft.Build.Utilities.Core` 17.4.0 → 17.14.28 (transitive requirements from EFCore.Design 10.0.0).
-- `Azure.Identity` 1.11.4 → 1.14.2 (EFCore.SqlServer 10.0.0 → Microsoft.Data.SqlClient 6.1.1 chain).
-- `RedisBasketRepository.cs` line 38: added explicit `(string)data` cast on `JsonSerializer.Deserialize` call (.NET 10 added `ReadOnlySpan<byte>` overload causing CS0121 ambiguity with `RedisValue` implicit conversions).
-- Node.js 16 → 22 in WebSPA Dockerfile; removed pinned `npm@9.5.1`.
-- **`sut/src/docker-compose.yml` line 443**: `NODE_IMAGE` default updated `node:16-bullseye` → `node:22-bullseye` (this compose arg overrides the Dockerfile's own ARG default, so updating only the Dockerfile was insufficient).
-
-**WebSPA Angular 21 security upgrade** (60+ Dependabot CVEs addressed):
-- `package.json`: Angular 15.2.0 → ^21.0.0; zone.js ~0.11.4 → ~0.15.0; TypeScript 4.9.5 → ~5.9.0 (Angular 21.2.x requires >=5.9); rxjs → ^7.8.0; `@ng-bootstrap/ng-bootstrap` 14.0.1 → ^20.0.0 (ng-bootstrap 20 = Angular 21).
-- `@angular/platform-server` removed (SPA — no SSR; eliminates all `@angular/platform-server` SSRF alerts).
-- Removed deprecated devDependencies: `handlebars`, `lodash`, `eslint`, `rxjs-compat`, `protractor`, `codelyzer`, `tslint`, `rxjs-tslint`, `sass-lint`, `acorn`, `acorn-dynamic-import`, `file-loader`, `url-loader`, `webpack` (managed by Angular CLI internally).
-- Added comprehensive `overrides` block for all vulnerable transitive packages (form-data, tar, node-forge, minimatch, immutable, flatted, semver, serialize-javascript, path-to-regexp, picomatch, brace-expansion, qs, uuid, fast-xml-parser, postcss, ajv, follow-redirects, tmp, nth-check, xml2js, js-yaml, ws, http-proxy-middleware, on-headers, @tootallnate/once, webpack).
-- `angular.json`: migrated from `@angular-devkit/build-angular:browser` to `:application` builder; `polyfills` → `["zone.js"]`; `main` → `browser`; `browserTarget` → `buildTarget`; added `stylePreprocessorOptions.includePaths: ["."]`.
-- `tsconfig.json`: removed `"enableIvy": false` (invalid since Angular 13); `moduleResolution` → `"bundler"`.
-- `tsconfig.app.json`: removed `polyfills.ts` from `files` (zone.js now in angular.json).
-- All 12 Angular components/directives/pipes: added `standalone: false` (Angular 19+ defaults to `standalone: true`; NgModule apps must opt out).
-- All 12 SCSS files: `@import` → `@use ... as *` (Dart Sass 3.x removed global `@import`).
-- `_button.scss`, `_form.scss`, `_toastr.scss`, `_utilities.scss`: added `@use 'variables' as *` (Dart Sass scopes variables per-module).
-- `_toastr.scss`: migrated deprecated global Sass builtins → `sass:string` and `sass:list` modules.
-- `globals.scss`: Bootstrap imported without `as *` (eliminated `$font-weight-normal` name clash); `_bootstrap-overrides.scss` removed (Bootstrap variable overrides require `with` config in `@use`, not a separate file).
-- `yarn.lock` deleted; `package-lock.json` regenerated via clean `npm install` in `node:22-bullseye`.
-- **Angular 21 runtime fixes for ES module (`type="module"`) deferred loading**:
-  - `configuration.service.ts`: `Subject` → `ReplaySubject(1)` so late subscribers (DI-constructed after HTTP response arrives) still receive the `settingsLoaded$` event.
-  - `catalog.component.ts`: injected `ChangeDetectorRef`; added `cdr.detectChanges()` in `getCatalog`, `getBrands`, `getTypes` subscribe callbacks.
-  - `basket-status.component.ts`: injected `ChangeDetectorRef`; added `cdr.detectChanges()` in all `this.badge = ...` assignments inside subscribe callbacks.
-  - `basket.component.ts`: injected `ChangeDetectorRef`; added `cdr.detectChanges()` in `ngOnInit` basket load subscribe callback.
-  - `orders.component.ts`: injected `ChangeDetectorRef`; added `cdr.detectChanges()` in `getOrders` subscribe callback.
-  - `orders-detail.component.ts`: injected `ChangeDetectorRef`; added `cdr.detectChanges()` in `getOrder` subscribe callback.
-  - Root cause: Angular 21 uses `type="module"` (ES deferred execution) for script loading. HTTP callbacks triggered during Angular's initialization phase run outside Zone.js's change detection context; `detectChanges()` forces the template to re-render after each response.
-- `angular.json` `outputPath` changed from `"../wwwroot"` (string) to `{"base":"../wwwroot","browser":""}` object — with the `application` builder, a string outputPath puts browser files in `wwwroot/browser/` (breaking .NET static file serving), but the object form puts them directly in `wwwroot/`.
-- **Remaining known vulnerability (no upstream fix)**: `webpack-dev-server <=5.2.3` (GHSA-79cf-xcqc-c78w, Moderate, dev-only).
-- Full CVE backlog tracked in `SECURITY_TODO.md` (project root).
-
-**`run-local-suite.ps1` bug fixes**:
-- Removed `-DSUT_URL` from Maven args (API tests must use `LOCALHOST_*` properties, not Docker-internal hostnames).
-- Wrapped `mvn` with `Push-Location $ProjectRoot` / `Pop-Location` (CWD fix when invoked from `monitoring/`).
-- Added `Start-Sleep -Seconds 2` after stopping monitor (lets background job release `stats.csv` before Python opens it).
-
-**Em dash encoding fix** in three `.ps1` files: replaced `—` inside double-quoted strings with `--` (PowerShell 5.1 misreads UTF-8 em-dash bytes as string terminators on Windows-1252 codepages).
-
-**`redeploy-local.ps1`**: removed final `Read-Host -Prompt "Press Enter to exit"` (blocked non-interactive callers on this branch).
-
-**WebSPA Angular 21 code smell fixes** (`code_smeells.md` backlog resolved):
-- All injectable constructor parameters marked `private readonly` across all service and component files.
-- Unused imports removed: `Observer`, `HttpResponse`, `HttpHeaders`, `HttpErrorResponse`, `map`, `HttpTransportType`, `FormBuilder`, `Observable`, `OnInit`, `OnChanges`, `Header`, `Pager`.
-- `var` → `const`/`let` in `guid.ts`; `| 0` → `Math.trunc()`.
-- `Math.min()` in `pager.ts`; `Math.max()` in `basket.component.ts` to replace ternary expressions.
-- Empty lifecycle hooks removed: `ngOnInit()` from `orders-new.component.ts`, `pager.ts`, `page-not-found.component.ts`.
-- `window.` → `globalThis.` in `security.service.ts` and `identity.ts`; `typeof x !== 'undefined'` → `x !== undefined`.
-- Commented-out code removed from `security.service.ts`, `app.component.ts`, `polyfills.ts`.
-- Negated conditions inverted in `security.service.ts` (`AuthorizedCallback`).
-- `throw 'string'` → `throw new Error('string')` in `security.service.ts`.
-- `subscribe(next, error, complete)` → observer-object form in `security.service.ts` and `basket.component.ts`.
-- Duplicate `Router`/`ActivatedRoute` import merged in `security.service.ts`.
-- `String` wrapper type → primitive `string` in `basket.component.ts`.
-- `deleteItem(id: String)` → `deleteItem(id: string)`.
-- All `Subject` streams that are written-once → `readonly`; `settingsLoaded$` from `Subject` → `ReplaySubject(1)` (config race-condition fix).
-- Redundant `return;` statements removed (storage.service.ts, orders.service.ts).
-- Duplicate CSS `&-text` selector merged in `_utilities.scss`.
-- Invalid CSS `:selected` pseudo-class replaced with `:checked` in `catalog.component.scss`.
-- All `<img>` elements across HTML templates given meaningful `alt` attributes.
-- `lang="en"` added to `<html>` in `index.html`.
-- Form `<label>` elements in `orders-new.component.html` associated with `for`/`id` pairs.
-- Clickable `<div>`/`<span>` elements converted to semantic `<button>` elements: catalog item, basket delete, pager Previous/Next, identity login/logout.
-- Redundant `true` boolean literals removed from `[ngClass]` in `app.component.html`, `catalog.component.html`, `basket.component.html`.
-- CSS button reset added to `.esh-catalog-item` for the `<button>` element conversion.
-- Docker `FROM ... as` → `FROM ... AS` in 3 Dockerfiles (S6476).
-- Deprecated global `event.preventDefault()` removed from `CatalogComponent.onPageChanged()`.
-- **Intentionally NOT migrated**: `standalone: false` (kept — NgModule architecture for all child components/modules).
-- **Deprecated API migrations completed**:
-  - `BrowserAnimationsModule` → `provideAnimations()` (provider in `main.ts`).
-  - `HttpClientModule` / `HttpClientJsonpModule` removed from `SharedModule`; `provideHttpClient()` added to `main.ts`.
-  - `platformBrowserDynamic` → `bootstrapApplication`: `AppComponent` converted to `standalone: true` (imports `SharedModule`, `BasketModule`); `app.module.ts` deleted; all providers moved to `main.ts`.
-  - `BrowserDynamicTestingModule` / `platformBrowserDynamicTesting` → `BrowserTestingModule` / `platformBrowserTesting` from `@angular/platform-browser/testing` in `test.ts`.
-
-### Branch `ft-monitoring-resource-consuption`
-
-- Added `monitoring/` folder with local Docker stats monitoring tool.
-- `BaseLoggedClass.clearUserBasket()`: added HTTP status logging, JWT part-count guard, `sub` claim guard, `mod==1` Base64 padding branch, narrowed catch to `IOException | JsonParseException`.
-- `BasketWebSPA`: extracted `PAGER_INFO_LOCATOR` constant and `waitForPagerUpdate()` helper; refactored `selectFilter` and `numberCatalogDisplayedItems` to use them.
-- `WebSPACatalogTests.testCatalogPaginationSPA`: uses `waitForPagerUpdate()` via typed cast.
-- `WebMVCCatalogTests.testCatalogPagination`: replaced `numberOfElementsToBeMoreThan` post-click waits with `stalenessOf()`.
-- Spacing, blank-line, and stale-Javadoc fixes across several test files.
-
+- **RabbitMQ.Client / healthcheck coupling**: `RabbitMQ.Client` 7.x removed the sync `IModel` API in favor of async `IChannel`. `AspNetCore.HealthChecks.Rabbitmq` must be >= 9.0 (built against `RabbitMQ.Client` >= 7.0) or the RabbitMQ healthcheck throws `TypeLoadException: Could not load type 'RabbitMQ.Client.IModel'` at *runtime* (builds fine, deploy fails). Bump both together; see `CommonExtensions.AddDefaultHealthChecks` (uses `ConnectionFactory.CreateConnectionAsync()`) and `BuildingBlocks/EventBus/EventBusRabbitMQ/*`.
+- **Duende.IdentityServer major bumps**: add a required `CancellationToken` param to most `IIdentityServerInteractionService`/`IDeviceFlowInteractionService`/`IEventService.RaiseAsync`/`IProfileService`/`IClientStoreExtensions`/`IResourceStore` methods, and rename `AuthorizationError` → `InteractionError`. Check every controller under `Services/Identity/Identity.API/Quickstart/` when bumping (pass `HttpContext.RequestAborted`).
+- **WebSPA Node image**: `docker-compose.yml`'s `NODE_IMAGE` build arg (currently `node:22-bullseye`) overrides the WebSPA Dockerfile's own `ARG` default — update both when bumping Node.
+- **Angular 21 `type="module"` deferred loading**: HTTP responses arriving during app init run outside Zone.js's change-detection zone. Components that mutate state in `ngOnInit`/subscribe callbacks need an injected `ChangeDetectorRef` + `detectChanges()` (see `catalog`, `basket`, `basket-status`, `orders`, `orders-detail` components).
+- **`angular.json` `outputPath`** must be the object form `{"base":"../wwwroot","browser":""}`, not a string — with the `application` builder a string path nests output under `wwwroot/browser/` and breaks .NET static file serving.
+- **WebSPA `package-lock.json`**: if `npm install` fails with `ERESOLVE` on `@angular/*` peer deps (lockfile drift vs. `^21.x` ranges), delete `Client/package-lock.json` and regenerate with a clean `npm install` inside `node:22-bullseye`.
+- **Known unfixed CVE**: `webpack-dev-server <=5.2.3` (GHSA-79cf-xcqc-c78w, Moderate, dev-only). Full CVE backlog in `SECURITY_TODO.md` (project root).
+- **Dependabot** (`.github/dependabot.yml`): nuget `ignore` rules block semver-major bumps for `Microsoft.AspNetCore.*`/`Microsoft.EntityFrameworkCore.*`/`Microsoft.Extensions.*`/`Microsoft.NET.*`/`System.*`/`@angular/*` — these require coordinated manual upgrades (see gotchas above). `groups` keep `Duende.IdentityServer*`+`Microsoft.IdentityModel.*` and `RabbitMQ.Client`+`AspNetCore.HealthChecks.Rabbitmq` bumped together.

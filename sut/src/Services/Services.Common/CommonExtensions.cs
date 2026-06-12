@@ -328,7 +328,15 @@ public static class CommonExtensions
                     tags: new string[] { "ready" }),
 
             _ => hcBuilder.AddRabbitMQ(
-                    _ => $"amqp://{configuration.GetRequiredConnectionString("EventBus")}",
+                    _ =>
+                    {
+                        var factory = new ConnectionFactory
+                        {
+                            Uri = new Uri($"amqp://{configuration.GetRequiredConnectionString("EventBus")}")
+                        };
+
+                        return factory.CreateConnectionAsync();
+                    },
                     name: "rabbitmq",
                     tags: new string[] { "ready" })
         };
@@ -400,8 +408,7 @@ public static class CommonExtensions
 
                 var factory = new ConnectionFactory()
                 {
-                    HostName = configuration.GetRequiredConnectionString("EventBus"),
-                    DispatchConsumersAsync = true
+                    HostName = configuration.GetRequiredConnectionString("EventBus")
                 };
 
                 if (!string.IsNullOrEmpty(eventBusSection["UserName"]))
