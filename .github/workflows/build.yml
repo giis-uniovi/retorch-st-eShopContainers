@@ -13,16 +13,24 @@ jobs:
   build:
     runs-on: ubuntu-latest
     #if: ${{ false }}  # disable for now
-    permissions: 
+    permissions:
       statuses: write
     steps:
       - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0  # full history required for SonarCloud blame data
+
       - name: Select Java Version
         uses: actions/setup-java@v5
         with:
           distribution: 'temurin'
           java-version: '17'
           cache: 'maven'
+
+      - name: Set up .NET 10
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.x'
 
       - name: Init jenkins commit status (optional)
         run: |
@@ -34,3 +42,46 @@ jobs:
 
       - name: Build only, tests run in on-premises Jenkins
         run: mvn test -DskipTests -U --no-transfer-progress
+
+      # ── SonarCloud analysis (SUT only — scoped to ./sut via sonar.projectBaseDir) ─
+      # C# requires dotnet-sonarscanner (begin → build → end) so that Roslyn
+      # analyzers are invoked during the build. C# + TypeScript (WebSPA) are the
+      # only languages analyzed; settings come from sonar.properties.
+
+      - name: Install SonarScanner for .NET
+        run: dotnet tool install --global dotnet-sonarscanner
+
+      - name: SonarCloud begin  (C# instrumentation — must precede dotnet build)
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: |
+          # Load sonar.properties as /d: flags. The token is read from the
+          # SONAR_TOKEN env var by the scanner (never expanded into this script).
+          # NOTE: the file is NOT named sonar-project.properties on purpose — the
+          # SonarScanner for .NET rejects a file with that reserved name in the repo.
+          # projectKey/projectName/organization use dedicated flags per v11 requirements.
+          PROPS=()
+          while IFS= read -r line || [[ -n "$line" ]]; do
+            line="${line%$'\r'}"                      # strip CR if file is CRLF
+            [[ "$line" =~ ^[[:space:]]*# ]] && continue
+            [[ -z "${line// }" ]] && continue
+            PROPS+=("/d:$line")
+          done < sonar.properties
+          dotnet sonarscanner begin \
+            /k:"my:retorch-st-eShopContainers" \
+            /n:"retorch-st-eShopContainers" \
+            /o:"giis" \
+            /d:sonar.projectBaseDir="$GITHUB_WORKSPACE/sut" \
+            "${PROPS[@]}"
+
+      - name: Restore SUT NuGet packages
+        run: dotnet restore sut/src/eShopOnContainers-ServicesAndWebApps.sln
+
+      - name: Build SUT (.NET)
+        run: dotnet build sut/src/eShopOnContainers-ServicesAndWebApps.sln --no-restore
+
+      - name: SonarCloud analysis
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: dotnet sonarscanner end
