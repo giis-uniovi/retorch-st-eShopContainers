@@ -89,6 +89,16 @@ docker compose -f sut\src\docker-compose.yml -f sut\src\docker-compose.local-ove
 - `set -e` is active in all lifecycle shell scripts.
 - Prefer editing existing files; no new abstractions unless logic repeats 3+ times.
 
+## CI / SonarCloud
+
+- Workflow: `.github/workflows/build.yml`, job `build`. Triggers on `push` only — the `pull_request` trigger is commented out, so there is currently no PR decoration, only branch analysis.
+- Properties file is `sonar.properties` at repo root, **not** `sonar-project.properties` — the SonarScanner for .NET rejects a file with that reserved name in the repo. The workflow parses it line-by-line into `/d:` flags for `dotnet sonarscanner begin`.
+- Project: org `giis`, project key `my:retorch-st-eShopContainers`, public on sonarcloud.io. README badge references the same key.
+- Analysis is scoped to `sut/` only, via `/d:sonar.projectBaseDir="$GITHUB_WORKSPACE/sut"` in the `begin` step. The root-level Java/Maven E2E test suite is **not** analyzed by this workflow.
+- C# requires the begin → build → end sequence (Roslyn analyzers run during `dotnet build`): `dotnet sonarscanner begin` → `dotnet restore`/`dotnet build` on `sut/src/eShopOnContainers-ServicesAndWebApps.sln` → `dotnet sonarscanner end`.
+- `sonar.exclusions` in `sonar.properties` excludes `node_modules/bin/obj/Migrations/.angular`, `**/wwwroot/lib/**` (LibMan-restored vendor JS/CSS, e.g. bootstrap/jquery), `**/*.min.css`/`**/*.min.js` (BuildBundlerMinifier output), and binary asset extensions (`png/jpg/ico/zip/pfx/woff/woff2/ttf/eot`) — without the latter, the scanner sniffs these binary files (e.g. `Catalog.API/Pics/*.png`, `Catalog.API/eshop.pfx`) as text and raises "Invalid character encountered ... for encoding UTF-8" warnings. Hand-authored files under `wwwroot` (`site.css`, `site.js`, `signin-redirect.js`, `signout-redirect.js`) are deliberately **not** excluded and are analyzed. WebSPA's Angular output (`wwwroot/dist/**` per its `GeneratedItemPatterns`) isn't produced by this workflow today (no `ng build` step) — add it to exclusions if a build step is ever added.
+- TypeScript analysis for WebSPA is enabled via `sonar.typescript.tsconfigPaths` (relative to the `sut` projectBaseDir).
+
 ## Gotchas & version constraints
 
 - **RabbitMQ.Client / healthcheck coupling**: `RabbitMQ.Client` 7.x replaced sync `IModel` with async `IChannel`. `AspNetCore.HealthChecks.Rabbitmq` must stay >= 9.0 or the healthcheck throws `TypeLoadException: ...IModel` at *runtime* (build passes, deploy fails). Bump together (Dependabot group). See `CommonExtensions.AddDefaultHealthChecks` and `BuildingBlocks/EventBus/EventBusRabbitMQ/*`.
