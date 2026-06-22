@@ -1,4 +1,4 @@
-﻿namespace Microsoft.eShopOnContainers.BuildingBlocks.EventBusRabbitMQ;
+namespace Microsoft.eShopOnContainers.BuildingBlocks.EventBusRabbitMQ;
 using Microsoft.Extensions.DependencyInjection;
 
 public class EventBusRabbitMQ : IEventBus, IDisposable
@@ -14,7 +14,7 @@ public class EventBusRabbitMQ : IEventBus, IDisposable
     private readonly IServiceProvider _serviceProvider;
     private readonly int _retryCount;
 
-    private IModel _consumerChannel;
+    private IChannel _consumerChannel;
     private string _queueName;
 
     public EventBusRabbitMQ(IRabbitMQPersistentConnection persistentConnection, ILogger<EventBusRabbitMQ> logger,
@@ -24,7 +24,7 @@ public class EventBusRabbitMQ : IEventBus, IDisposable
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _subsManager = subsManager ?? new InMemoryEventBusSubscriptionsManager();
         _queueName = queueName;
-        _consumerChannel = CreateConsumerChannel();
+        _consumerChannel = CreateConsumerChannelAsync().GetAwaiter().GetResult();
         _serviceProvider = serviceProvider;
         _retryCount = retryCount;
         _subsManager.OnEventRemoved += SubsManager_OnEventRemoved;
@@ -34,18 +34,18 @@ public class EventBusRabbitMQ : IEventBus, IDisposable
     {
         if (!_persistentConnection.IsConnected)
         {
-            _persistentConnection.TryConnect();
+            _persistentConnection.TryConnectAsync().GetAwaiter().GetResult();
         }
 
-        using var channel = _persistentConnection.CreateModel();
-        channel.QueueUnbind(queue: _queueName,
+        using var channel = _persistentConnection.CreateChannelAsync().GetAwaiter().GetResult();
+        channel.QueueUnbindAsync(queue: _queueName,
             exchange: BROKER_NAME,
-            routingKey: eventName);
+            routingKey: eventName).GetAwaiter().GetResult();
 
         if (_subsManager.IsEmpty)
         {
             _queueName = string.Empty;
-            _consumerChannel.Close();
+            _consumerChannel.CloseAsync().GetAwaiter().GetResult();
         }
     }
 
@@ -53,7 +53,7 @@ public class EventBusRabbitMQ : IEventBus, IDisposable
     {
         if (!_persistentConnection.IsConnected)
         {
-            _persistentConnection.TryConnect();
+            _persistentConnection.TryConnectAsync().GetAwaiter().GetResult();
         }
 
         var policy = RetryPolicy.Handle<BrokerUnreachableException>()
@@ -67,26 +67,28 @@ public class EventBusRabbitMQ : IEventBus, IDisposable
 
         _logger.LogTrace("Creating RabbitMQ channel to publish event: {EventId} ({EventName})", @event.Id, eventName);
 
-        using var channel = _persistentConnection.CreateModel();
+        using var channel = _persistentConnection.CreateChannelAsync().GetAwaiter().GetResult();
         _logger.LogTrace("Declaring RabbitMQ exchange to publish event: {EventId}", @event.Id);
 
-        channel.ExchangeDeclare(exchange: BROKER_NAME, type: "direct");
+        channel.ExchangeDeclareAsync(exchange: BROKER_NAME, type: "direct").GetAwaiter().GetResult();
 
         var body = JsonSerializer.SerializeToUtf8Bytes(@event, @event.GetType(), s_indentedOptions);
 
         policy.Execute(() =>
         {
-            var properties = channel.CreateBasicProperties();
-            properties.DeliveryMode = 2; // persistent
+            var properties = new BasicProperties
+            {
+                DeliveryMode = DeliveryModes.Persistent
+            };
 
             _logger.LogTrace("Publishing event to RabbitMQ: {EventId}", @event.Id);
 
-            channel.BasicPublish(
+            channel.BasicPublishAsync(
                 exchange: BROKER_NAME,
                 routingKey: eventName,
                 mandatory: true,
                 basicProperties: properties,
-                body: body);
+                body: body).GetAwaiter().GetResult();
         });
     }
 
@@ -120,12 +122,12 @@ public class EventBusRabbitMQ : IEventBus, IDisposable
         {
             if (!_persistentConnection.IsConnected)
             {
-                _persistentConnection.TryConnect();
+                _persistentConnection.TryConnectAsync().GetAwaiter().GetResult();
             }
 
-            _consumerChannel.QueueBind(queue: _queueName,
+            _consumerChannel.QueueBindAsync(queue: _queueName,
                                 exchange: BROKER_NAME,
-                                routingKey: eventName);
+                                routingKey: eventName).GetAwaiter().GetResult();
         }
     }
 
@@ -164,12 +166,12 @@ public class EventBusRabbitMQ : IEventBus, IDisposable
         {
             var consumer = new AsyncEventingBasicConsumer(_consumerChannel);
 
-            consumer.Received += Consumer_Received;
+            consumer.ReceivedAsync += Consumer_Received;
 
-            _consumerChannel.BasicConsume(
+            _consumerChannel.BasicConsumeAsync(
                 queue: _queueName,
                 autoAck: false,
-                consumer: consumer);
+                consumer: consumer).GetAwaiter().GetResult();
         }
         else
         {
@@ -197,37 +199,37 @@ public class EventBusRabbitMQ : IEventBus, IDisposable
         }
 
         // Even on exception we take the message off the queue.
-        // in a REAL WORLD app this should be handled with a Dead Letter Exchange (DLX). 
+        // in a REAL WORLD app this should be handled with a Dead Letter Exchange (DLX).
         // For more information see: https://www.rabbitmq.com/dlx.html
-        _consumerChannel.BasicAck(eventArgs.DeliveryTag, multiple: false);
+        await _consumerChannel.BasicAckAsync(eventArgs.DeliveryTag, multiple: false);
     }
 
-    private IModel CreateConsumerChannel()
+    private async Task<IChannel> CreateConsumerChannelAsync()
     {
         if (!_persistentConnection.IsConnected)
         {
-            _persistentConnection.TryConnect();
+            await _persistentConnection.TryConnectAsync();
         }
 
         _logger.LogTrace("Creating RabbitMQ consumer channel");
 
-        var channel = _persistentConnection.CreateModel();
+        var channel = await _persistentConnection.CreateChannelAsync();
 
-        channel.ExchangeDeclare(exchange: BROKER_NAME,
+        await channel.ExchangeDeclareAsync(exchange: BROKER_NAME,
                                 type: "direct");
 
-        channel.QueueDeclare(queue: _queueName,
+        await channel.QueueDeclareAsync(queue: _queueName,
                                 durable: true,
                                 exclusive: false,
                                 autoDelete: false,
                                 arguments: null);
 
-        channel.CallbackException += (sender, ea) =>
+        channel.CallbackExceptionAsync += async (sender, ea) =>
         {
             _logger.LogWarning(ea.Exception, "Recreating RabbitMQ consumer channel");
 
             _consumerChannel.Dispose();
-            _consumerChannel = CreateConsumerChannel();
+            _consumerChannel = await CreateConsumerChannelAsync();
             StartBasicConsume();
         };
 
