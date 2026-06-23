@@ -20,7 +20,7 @@
     <PackageVersion Include="Dapper" Version="2.1.79" />
     <PackageVersion Include="Duende.IdentityServer" Version="8.0.1" />
     <PackageVersion Include="Duende.IdentityServer.AspNetIdentity" Version="8.0.1" />
-    <PackageVersion Include="Duende.IdentityServer.EntityFramework" Version="8.0.1" />
+    <PackageVersion Include="Duende.IdentityServer.EntityFramework" Version="8.0.2" />
     <PackageVersion Include="Duende.IdentityServer.EntityFramework.Storage" Version="8.0.1" />
     <PackageVersion Include="Duende.IdentityServer.Storage" Version="8.0.1" />
     <PackageVersion Include="FluentValidation.AspNetCore" Version="11.3.1" />
