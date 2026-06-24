@@ -29,7 +29,7 @@
 
         <junit-jupiter-api.version>6.1.0</junit-jupiter-api.version>
 
-        <selenium-java.version>4.44.0</selenium-java.version>
+        <selenium-java.version>4.45.0</selenium-java.version>
 
 		<selema.version>4.1.0</selema.version>
 
@@ -134,7 +134,7 @@
 				<plugin>
 					<groupId>org.jacoco</groupId>
 					<artifactId>jacoco-maven-plugin</artifactId>
-					<version>0.8.14</version>
+					<version>0.8.15</version>
 					<executions>
 						<execution>
 							<id>pre-unit-test</id>
