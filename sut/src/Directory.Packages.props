@@ -18,11 +18,11 @@
     <PackageVersion Include="Azure.Messaging.ServiceBus" Version="7.20.1" />
     <PackageVersion Include="BuildBundlerMinifier" Version="3.2.449" />
     <PackageVersion Include="Dapper" Version="2.1.79" />
-    <PackageVersion Include="Duende.IdentityServer" Version="8.0.1" />
-    <PackageVersion Include="Duende.IdentityServer.AspNetIdentity" Version="8.0.1" />
+    <PackageVersion Include="Duende.IdentityServer" Version="8.0.2" />
+    <PackageVersion Include="Duende.IdentityServer.AspNetIdentity" Version="8.0.2" />
     <PackageVersion Include="Duende.IdentityServer.EntityFramework" Version="8.0.2" />
-    <PackageVersion Include="Duende.IdentityServer.EntityFramework.Storage" Version="8.0.1" />
-    <PackageVersion Include="Duende.IdentityServer.Storage" Version="8.0.1" />
+    <PackageVersion Include="Duende.IdentityServer.EntityFramework.Storage" Version="8.0.2" />
+    <PackageVersion Include="Duende.IdentityServer.Storage" Version="8.0.2" />
     <PackageVersion Include="FluentValidation.AspNetCore" Version="11.3.1" />
     <PackageVersion Include="Google.Protobuf" Version="3.35.1" />
     <PackageVersion Include="Grpc.AspNetCore.Server" Version="2.51.0" />
