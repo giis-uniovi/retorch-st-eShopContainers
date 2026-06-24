@@ -16,10 +16,9 @@ jobs:
     permissions:
       statuses: write
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0  # full history required for SonarCloud blame data
-
       - name: Select Java Version
         uses: actions/setup-java@v5
         with:
