@@ -48,6 +48,12 @@ updates:
         update-types: ["version-update:semver-major"]
       - dependency-name: "System.*"
         update-types: ["version-update:semver-major"]
+      # Swashbuckle.AspNetCore 7.x+ depends on Microsoft.OpenApi 2.x, whose
+      # OpenApiSecurityScheme/OpenApiReference/OpenApiResponse API breaks the
+      # Swagger setup in Services.Common (AuthorizeCheckOperationFilter.cs,
+      # CommonExtensions.cs). Stay on 6.x until that code is migrated.
+      - dependency-name: "Swashbuckle.AspNetCore*"
+        update-types: ["version-update:semver-major"]
 
   - package-ecosystem: "npm"
     directory: "/sut/src/Web/WebSPA/Client"
