@@ -1,206 +1,103 @@
 # CLAUDE.md — eShopContainers E2E Test Suite
 
-> **Maintenance rule:** Every time a file in this repository is created, modified, or deleted in a conversation with Claude, update this file to reflect the change before closing the task. Keep the sections below accurate and concise. Prefer recording *current state* and *non-obvious gotchas*; the change history itself lives in `git log`.
-
----
+> **Maintenance rule:** whenever a file in this repo is created, modified, or deleted in a conversation with Claude, update this file before closing the task. Record *current state* and *non-obvious gotchas* only — change history lives in `git log`.
 
 ## Project overview
 
-End-to-end test suite for the [eShopOnContainers](https://github.com/dotnet-architecture/eShopOnContainers) microservices reference application.
-Tests cover the WebMVC and WebSPA frontends plus the REST APIs (Basket, Catalog, Ordering, Identity, Payment).
-The project integrates with **Retorch** for parallel test orchestration and uses **Selenoid** for browser automation.
-
----
+E2E test suite for the [eShopOnContainers](https://github.com/dotnet-architecture/eShopOnContainers) microservices app, covering the WebMVC and WebSPA frontends and the REST APIs (Basket, Catalog, Ordering, Identity, Payment). Uses **Retorch** for parallel test orchestration (Jenkins) and **Selenoid** for browser automation.
 
 ## Technology stack
 
-### Test suite (Java — project root)
+**Test suite (Java, project root):** JUnit 5 + Selenium 4, Maven 3 (Surefire 3.5.5), Selenoid (`chrome-node`/`chrome-video`/`selenium-hub`), `giis-uniovi/selema`, Jenkins + Retorch, SonarLint/SpotBugs.
+
+**SUT (`sut/src/`):**
 
 | Layer | Technology |
 |---|---|
-| Test framework | JUnit 5 (Jupiter) + Selenium 4 |
-| Build | Maven 3 (Surefire 3.5.5) |
-| Browser orchestration | Selenoid (`chrome-node`, `chrome-video`, `selenium-hub`) |
-| Selema integration | `giis-uniovi/selema` (session/grid lifecycle) |
-| CI / orchestration | Jenkins + Retorch (parallel TJob model) |
-| Code quality | SonarLint, SpotBugs |
-
-### SUT — eShopOnContainers microservices (`sut/src/`)
-
-| Layer | Technology |
-|---|---|
-| Runtime | **.NET 10 LTS** (all 30 projects target `net10.0`) |
-| SDK / runtime images | `mcr.microsoft.com/dotnet/sdk:10.0`, `mcr.microsoft.com/dotnet/aspnet:10.0` |
-| Identity | Duende IdentityServer 8.0.1 |
-| ORM | Entity Framework Core 10.0.9 |
-| Reverse proxy / BFF | YARP 2.0.0 |
+| Runtime | **.NET 10 LTS** (`net10.0`); images `mcr.microsoft.com/dotnet/{sdk,aspnet}:10.0` |
+| Identity | Duende IdentityServer 8.0.2 |
+| ORM | EF Core 10.0.9 |
+| BFF / gateway | YARP 2.3.0; Envoy `v1.11.1` |
 | gRPC | Grpc.AspNetCore 2.51.0 |
-| Frontend (SPA) | **Angular 21 LTS** built with Node.js 22 (`node:22-bullseye`) |
-| Message broker | RabbitMQ 3 (`rabbitmq:3-management-alpine`); client `RabbitMQ.Client` 7.2.1 (async `IChannel` API) |
-| Databases | SQL Server 2019, MongoDB 8, Redis (alpine) |
+| SPA | **Angular 21 LTS** (21.2.x), Node 22 (`node:22-bullseye`), TypeScript ~5.9, ng-bootstrap 20 (pinned) |
+| Messaging | RabbitMQ 3 (`rabbitmq:3-management-alpine`); `RabbitMQ.Client` 7.2.1 (async `IChannel` API) + `AspNetCore.HealthChecks.*` 9.0.0 |
+| Data | SQL Server 2019, MongoDB 8, Redis (alpine) |
 | Logging | Seq (`datalust/seq:2025.2`) |
-| API gateway | Envoy (`envoyproxy/envoy:v1.11.1`) |
-| Package management | Central version management via `Directory.Packages.props` |
-
----
+| OpenAPI | Swashbuckle 6.9.0 (pinned, see gotchas) |
+| NuGet | Central version management: `sut/src/Directory.Packages.props` (transitive pinning enabled) |
 
 ## Repository structure
 
 ```
 .retorch/
   configurations/   resource model JSON
-  envfiles/         one .env per TJob (tjoba.env … tjobp.env)
-  scripts/
-    coilifecycles/  coi-setup.sh, coi-teardown.sh
-    tjoblifecycles/ tjob-setup.sh, tjob-testexecution.sh, tjob-teardown.sh
-    monitoring/     (reserved — not yet wired into CI)
-    printLog.sh, writetime.sh, storeContainerLogs.sh,
-    savetjoblifecycledata.sh, waitforSUT.sh
-monitoring/         standalone local resource-monitoring tool (see below)
+  envfiles/         one .env per TJob (tjoba.env … tjobp.env, local.env)
+  scripts/          coilifecycles/, tjoblifecycles/, waitforSUT.sh, printLog.sh, …
 src/test/java/giis/eshopcontainers/e2e/functional/
   common/           BaseLoggedClass, BaseWebSPALoggedClass, BaseAPIClass …
-  tests/
-    webmvc/         WebMVC*Tests
-    webspa/         WebSPA*Tests
+  tests/            webmvc/ (WebMVC*Tests), webspa/ (WebSPA*Tests)
   utils/            Navigation*, Basket*, Orders*, Click, Waiter …
-sut/src/            docker-compose.yml + microservice source (git submodule)
+sut/src/            docker-compose.yml + microservice source
   Services/         Basket, Catalog, Identity, Ordering, Payment, Webhooks
   Web/              WebMVC, WebSPA, WebStatus, WebhookClient
-  ApiGateways/      Envoy (mobile/web), Mobile.Bff.Shopping, Web.Bff.Shopping
+  ApiGateways/      Envoy configs, Mobile.Bff.Shopping, Web.Bff.Shopping
   BuildingBlocks/   EventBus, EventBusRabbitMQ, IntegrationEventLogEF …
-  Directory.Packages.props   central NuGet version management
 Jenkinsfile         16 parallel TJobs across 3 stages
+redeploy-local.ps1 / .sh   local SUT deployment helpers
 ```
 
----
+## SUT microservices (21 compose services)
 
-## SUT microservices
+Host-mapped ports (local deploy): `webmvc` 5100, `webspa` 5104, `identity-api` 5105 (Duende), `webstatus` 5107 (healthcheck dashboard), `payment-api` 5108, `webshoppingagg` 5121 (web BFF), `seq` 5340, `sqldata` 5433 (sa/Pass@word), `rabbitmq` 15672 (guest/guest).
 
-21 Docker services defined in `docker-compose.yml`:
-
-| Service | Description | Port |
-|---|---|---|
-| `webmvc` | MVC web frontend | 5100 |
-| `webspa` | Angular SPA | 5104 |
-| `identity-api` | OAuth2 / OpenID Connect (Duende IS) | 5105 |
-| `webshoppingagg` | Web BFF (YARP reverse proxy) | 5121 |
-| `mobileshoppingagg` | Mobile BFF | — |
-| `basket-api` | Shopping basket (Redis + gRPC) | — |
-| `catalog-api` | Product catalog (SQL + gRPC) | — |
-| `ordering-api` | Order management (SQL + gRPC) | — |
-| `ordering-backgroundtasks` | Order background job | — |
-| `ordering-signalrhub` | Real-time order updates (SignalR) | — |
-| `payment-api` | Payment processing | 5108 |
-| `webhooks-api` | Webhook management | — |
-| `webhooks-client` | Webhook consumer test client | — |
-| `webshoppingapigw` | Envoy API gateway (web) | — |
-| `mobileshoppingapigw` | Envoy API gateway (mobile) | — |
-| `webstatus` | Health check dashboard | 5107 |
-| `seq` | Structured logging | 5340 |
-| `sqldata` | SQL Server 2019 | 5433 |
-| `nosqldata` | MongoDB 8 | — |
-| `basketdata` | Redis | — |
-| `rabbitmq` | RabbitMQ message broker | 15672 |
-
----
+Internal-only: `mobileshoppingagg`, `basket-api` (Redis+gRPC), `catalog-api` (SQL+gRPC), `ordering-api` (SQL+gRPC), `ordering-backgroundtasks`, `ordering-signalrhub`, `webhooks-api`, `webhooks-client`, `webshoppingapigw`/`mobileshoppingapigw` (Envoy), `nosqldata` (Mongo), `basketdata` (Redis).
 
 ## Container / TJob naming
 
-- In CI every Docker service is named `{service}_{tjobName}` (e.g. `webmvc_tjoba`).
-- The `TJOB_NAME` env var is set by the `.retorch/envfiles/{tjob}.env` file and passed to Docker Compose via `${TJOB_NAME:-default}`.
-- Locally the project name `-p local` names containers `{service}_local`.
-- 16 TJobs total: `tjoba` … `tjobp`, spread across Stage 0 (a–f), Stage 1 (g–k), Stage 2 (l–p).
-
----
+- CI names every service `{service}_{tjobName}` (e.g. `webmvc_tjoba`) via `TJOB_NAME` from `.retorch/envfiles/{tjob}.env`; locally `-p local` yields `{service}_local`.
+- 16 TJobs `tjoba`…`tjobp`: Stage 0 (a–f), Stage 1 (g–k), Stage 2 (l–p).
 
 ## Running tests locally (sequential)
 
-> **Do NOT pass `-DSUT_URL`** when running locally. `BaseAPIClass` uses the presence of `SUT_URL` to switch to Docker-internal hostnames (`identity_api_local:80`) which are unreachable from the host. Without it, both browser tests and API tests fall back to the `LOCALHOST_*` URLs in `src/test/resources/test.properties`.
-
-```bash
-# 1. Start SUT (use redeploy-local.ps1 for the local docker-compose override)
-.\redeploy-local.ps1          # full build
-.\redeploy-local.ps1 -NoBuild # skip image rebuild
-
-# 2. Run tests (all, or a subset)
-mvn test -DTJOB_NAME=local
-mvn test -DTJOB_NAME=local -Dtest=WebSPACatalogTests
-
-# 3. Tear down
-docker compose -f sut\src\docker-compose.yml `
-  -f sut\src\docker-compose.local-override.yml `
-  --env-file .retorch\envfiles\local.env `
-  -p local down --volumes
-```
-
-Localhost endpoints after `redeploy-local.ps1`:
-
-| Service | URL |
-|---|---|
-| WebMVC | http://localhost:5100 |
-| WebSPA | http://localhost:5104 |
-| Identity | http://localhost:5105 |
-| BFF (webshoppingagg) | http://localhost:5121 |
-| Payment | http://localhost:5108 |
-| WebStatus | http://localhost:5107 |
-| Seq (logs) | http://localhost:5340 |
-| RabbitMQ | http://localhost:15672 (guest/guest) |
-| SQL Server | localhost:5433 (sa/Pass@word) |
-
----
-
-## Local resource monitoring
-
-`monitoring/` records per-container CPU/Mem (SUT + Selenoid browsers) and produces an Excel report at `monitoring/data/resource-report.xlsx` (git-ignored). Python venv (`monitoring\.venv`) is created automatically on first run.
+> **Do NOT pass `-DSUT_URL`** locally. Its presence makes `BaseAPIClass` use Docker-internal hostnames (`identity_api_local:80`), unreachable from the host. Without it, tests use the `LOCALHOST_*` URLs from `src/test/resources/test.properties`.
 
 ```powershell
-# Recommended: full cycle (deploy SUT -> monitor -> run tests -> Excel report)
-.\monitoring\run-local-suite.ps1
-.\monitoring\run-local-suite.ps1 -NoBuild -Interval 10 -Test "WebSPACatalogTests"
-
-# Manual control
-.\monitoring\start-monitoring.ps1   # ... run tests ...   .\monitoring\stop-monitoring.ps1
-python monitoring\generate-excel.py
+.\redeploy-local.ps1            # build images + deploy (add -NoBuild to skip rebuild)
+mvn test -DTJOB_NAME=local      # all tests, or add -Dtest=WebSPACatalogTests
+# teardown:
+docker compose -f sut\src\docker-compose.yml -f sut\src\docker-compose.local-override.yml `
+  --env-file .retorch\envfiles\local.env -p local down --volumes
 ```
-
-Bash equivalents: `monitoring/run-with-monitoring.sh`, `start-monitoring.sh`, `stop-monitoring.sh`.
-Report sheets: **Summary** (Avg/Max/Min/P95 CPU+Mem per container), **SUT Containers**, **Browsers**, **Raw Data**.
-
----
 
 ## Key classes (test suite)
 
 | Class | Purpose |
 |---|---|
-| `BaseLoggedClass` | Base for all tests: browser lifecycle, login/logout, `clearUserBasket()` |
-| `BaseWebSPALoggedClass` | Overrides URLs and helpers for the Angular SPA |
-| `BaseAPIClass` | OAuth2 token acquisition and HTTP client setup for API tests |
-| `BasketWebSPA` | SPA-specific basket helpers; owns `PAGER_INFO_LOCATOR` and `waitForPagerUpdate()` |
+| `BaseLoggedClass` | Browser lifecycle, login/logout, `clearUserBasket()` |
+| `BaseWebSPALoggedClass` | SPA URL/helper overrides |
+| `BaseAPIClass` | OAuth2 token + HTTP client for API tests |
+| `BasketWebSPA` | SPA basket helpers; `PAGER_INFO_LOCATOR`, `waitForPagerUpdate()` |
 | `NavigationWebSPA` | SPA navigation (basket, orders, hover menus) |
-| `Waiter` | `waitUntil()` wrapper with friendly timeout messages |
-| `Click` | Safe click with implicit wait and stale-element retry |
-
----
+| `Waiter` / `Click` | `waitUntil()` with friendly timeouts / safe click with stale-element retry |
 
 ## Development conventions
 
-- **No comments** unless the _why_ is non-obvious (hidden constraint, bug workaround, subtle invariant).
-- **Catch only checked exceptions** — `catch (IOException | JsonParseException e)` not `catch (Exception e)`.
-- **CSS class names** used as Selenium locators must have a comment referencing the template file and element.
-- **JWT guards** — `jwtParts.length != 3` and `!payloadObj.has("sub")` checks must precede JWT indexing.
-- **`set -e`** is active in all lifecycle shell scripts; new scripts follow the same convention.
-- Prefer editing existing files; avoid new abstractions unless the same logic appears in three or more places.
-- **`-DSUT_URL` must not be passed** for local test runs (see "Running tests locally" above).
+- No comments unless the *why* is non-obvious (hidden constraint, workaround, invariant).
+- Catch only checked exceptions — `catch (IOException | JsonParseException e)`, never `catch (Exception e)`.
+- CSS-class Selenium locators need a comment referencing the template file/element.
+- JWT guards (`jwtParts.length != 3`, `!payloadObj.has("sub")`) must precede JWT indexing.
+- `set -e` is active in all lifecycle shell scripts.
+- Prefer editing existing files; no new abstractions unless logic repeats 3+ times.
 
----
+## Gotchas & version constraints
 
-## Gotchas & non-obvious constraints
-
-- **RabbitMQ.Client / healthcheck coupling**: `RabbitMQ.Client` 7.x removed the sync `IModel` API in favor of async `IChannel`. `AspNetCore.HealthChecks.Rabbitmq` must be >= 9.0 (built against `RabbitMQ.Client` >= 7.0) or the RabbitMQ healthcheck throws `TypeLoadException: Could not load type 'RabbitMQ.Client.IModel'` at *runtime* (builds fine, deploy fails). Bump both together; see `CommonExtensions.AddDefaultHealthChecks` (uses `ConnectionFactory.CreateConnectionAsync()`) and `BuildingBlocks/EventBus/EventBusRabbitMQ/*`.
-- **Duende.IdentityServer major bumps**: add a required `CancellationToken` param to most `IIdentityServerInteractionService`/`IDeviceFlowInteractionService`/`IEventService.RaiseAsync`/`IProfileService`/`IClientStoreExtensions`/`IResourceStore` methods, and rename `AuthorizationError` → `InteractionError`. Check every controller under `Services/Identity/Identity.API/Quickstart/` when bumping (pass `HttpContext.RequestAborted`).
-- **WebSPA Node image**: `docker-compose.yml`'s `NODE_IMAGE` build arg (currently `node:22-bullseye`) overrides the WebSPA Dockerfile's own `ARG` default — update both when bumping Node.
-- **Angular 21 `type="module"` deferred loading**: HTTP responses arriving during app init run outside Zone.js's change-detection zone. Components that mutate state in `ngOnInit`/subscribe callbacks need an injected `ChangeDetectorRef` + `detectChanges()` (see `catalog`, `basket`, `basket-status`, `orders`, `orders-detail` components).
-- **`angular.json` `outputPath`** must be the object form `{"base":"../wwwroot","browser":""}`, not a string — with the `application` builder a string path nests output under `wwwroot/browser/` and breaks .NET static file serving.
-- **WebSPA `package-lock.json`**: if `npm install` fails with `ERESOLVE` on `@angular/*` peer deps (lockfile drift vs. `^21.x` ranges), delete `Client/package-lock.json` and regenerate with a clean `npm install` inside `node:22-bullseye`.
-- **Known unfixed CVE**: `webpack-dev-server <=5.2.3` (GHSA-79cf-xcqc-c78w, Moderate, dev-only). Full CVE backlog in `SECURITY_TODO.md` (project root).
-- **Dependabot** (`.github/dependabot.yml`): nuget `ignore` rules block semver-major bumps for `Microsoft.AspNetCore.*`/`Microsoft.EntityFrameworkCore.*`/`Microsoft.Extensions.*`/`Microsoft.NET.*`/`System.*`/`@angular/*` — these require coordinated manual upgrades (see gotchas above). `groups` keep `Duende.IdentityServer*`+`Microsoft.IdentityModel.*` and `RabbitMQ.Client`+`AspNetCore.HealthChecks.Rabbitmq` bumped together.
+- **RabbitMQ.Client / healthcheck coupling**: `RabbitMQ.Client` 7.x replaced sync `IModel` with async `IChannel`. `AspNetCore.HealthChecks.Rabbitmq` must stay >= 9.0 or the healthcheck throws `TypeLoadException: ...IModel` at *runtime* (build passes, deploy fails). Bump together (Dependabot group). See `CommonExtensions.AddDefaultHealthChecks` and `BuildingBlocks/EventBus/EventBusRabbitMQ/*`.
+- **Swashbuckle pinned at 6.x**: 7+ pulls Microsoft.OpenApi 2.x whose `OpenApiSecurityScheme`/`OpenApiReference`/`OpenApiResponse` API breaks `Services.Common` (`AuthorizeCheckOperationFilter.cs`, `CommonExtensions.cs`). Semver-major blocked in Dependabot; keep `Swashbuckle.AspNetCore` + `.Newtonsoft` on the same version.
+- **ng-bootstrap pinned at 20.x**: v21 requires Angular 22 peer, but Angular is pinned to 21 LTS. Semver-major blocked in Dependabot; unlock only when Angular moves to 22.
+- **Duende.IdentityServer major bumps** add required `CancellationToken` params to interaction/event/store service methods and renamed `AuthorizationError` → `InteractionError`; touch every controller under `Identity.API/Quickstart/` (pass `HttpContext.RequestAborted`).
+- **WebSPA Node image**: `docker-compose.yml`'s `NODE_IMAGE` build arg overrides the WebSPA Dockerfile `ARG` default — update both when bumping Node.
+- **Angular 21 `type="module"` loading**: HTTP responses during app init run outside Zone.js; components mutating state in `ngOnInit`/subscribe callbacks need `ChangeDetectorRef.detectChanges()` (`catalog`, `basket`, `basket-status`, `orders`, `orders-detail`).
+- **`angular.json` `outputPath`** must be the object form `{"base":"../wwwroot","browser":""}` — a plain string nests output under `wwwroot/browser/` and breaks .NET static file serving.
+- **npm CVE handling**: the `overrides` block in `Client/package.json` pins vulnerable transitives (incl. `esbuild >=0.28.1`, `webpack-dev-server >=5.2.4`, `@babel/core >=7.29.6 <8`); `npm audit` is currently clean. On `ERESOLVE` failures from lockfile drift, delete `package-lock.json` and regenerate with a clean `npm install` (Node 22).
+- **No `yarn.lock`**: deliberately deleted (build uses npm only). Do not reintroduce — GitHub scans any lockfile and a stale one generated ~80 phantom Dependabot alerts.
+- **Dependabot** (`.github/dependabot.yml`): semver-major blocked for `Microsoft.AspNetCore/EntityFrameworkCore/Extensions/NET.*`, `System.*`, `Swashbuckle.AspNetCore*`, `@angular/*`, `@angular-devkit/*`, `@ng-bootstrap/ng-bootstrap` (+ typescript minor); groups keep Duende+IdentityModel and RabbitMQ.Client+HealthChecks.Rabbitmq in lock-step.
