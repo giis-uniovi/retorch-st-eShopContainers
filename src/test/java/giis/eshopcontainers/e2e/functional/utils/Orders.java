@@ -125,12 +125,15 @@ public class Orders extends Shopping {
     /**
      * Navigates to the orders menu and press the Cancellation button of the last order. Checks that the order state
      * evolves as expected.
+     * Waits for the orders list to be non-empty before accessing it to guard against transient empty-list responses.
      *
      * @param driver {@code WebDriver} on which the operations are performed.
      * @param waiter {@code Waiter} to perform the necessary async waits.
      */
     public void cancelLastOrder(WebDriver driver, Waiter waiter) throws ElementNotFoundException {
         navUtils.toOrdersPage(driver, waiter);
+        waiter.waitUntil(ExpectedConditions.numberOfElementsToBeMoreThan(By.className("esh-orders-items"), 0),
+                "Orders list did not appear after navigation to orders page");
         List<WebElement> listOrders = driver.findElements(By.className("esh-orders-items"));
         WebElement lastOrder = listOrders.get(listOrders.size() - 1);
         WebElement cancelButton = lastOrder.findElement(By.linkText("Cancel"));
