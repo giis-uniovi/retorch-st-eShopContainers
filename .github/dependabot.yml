@@ -36,6 +36,15 @@ updates:
       - "ClaudiodelaRiva"
     rebase-strategy: "disabled"
     open-pull-requests-limit: 30
+    groups:
+      # AspNetCore/DependencyCollector/Kubernetes cross-depend on the core
+      # Microsoft.ApplicationInsights package version range, so bumping one
+      # without the others can produce an unresolvable NuGet graph (e.g.
+      # Kubernetes 8.0.1 requires core [2.23.0, 3.0.0), but AspNetCore 3.1.2
+      # requires core >=3.1.2). Update them together in a single PR.
+      application-insights:
+        patterns:
+          - "Microsoft.ApplicationInsights*"
     ignore:
       # Block ALL .NET major-version bumps (runtime, ASP.NET Core, EF Core, etc.)
       - dependency-name: "Microsoft.AspNetCore.*"
