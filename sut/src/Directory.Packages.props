@@ -32,7 +32,7 @@
     <PackageVersion Include="Grpc.Core" Version="2.46.6" />
     <PackageVersion Include="Grpc.Net.Client" Version="2.51.0" />
     <PackageVersion Include="Grpc.Net.ClientFactory" Version="2.51.0" />
-    <PackageVersion Include="Grpc.Tools" Version="2.81.1" PrivateAssets="All" />
+    <PackageVersion Include="Grpc.Tools" Version="2.82.0" PrivateAssets="All" />
     <PackageVersion Include="MediatR" Version="14.1.0" />
     <PackageVersion Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.23.0" />
     <PackageVersion Include="Microsoft.ApplicationInsights.DependencyCollector" Version="2.23.0" />
