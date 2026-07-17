@@ -36,6 +36,15 @@ updates:
       - "ClaudiodelaRiva"
     rebase-strategy: "disabled"
     open-pull-requests-limit: 30
+    groups:
+      # AspNetCore/DependencyCollector/Kubernetes cross-depend on the core
+      # Microsoft.ApplicationInsights package version range, so bumping one
+      # without the others can produce an unresolvable NuGet graph (e.g.
+      # Kubernetes 8.0.1 requires core [2.23.0, 3.0.0), but AspNetCore 3.1.2
+      # requires core >=3.1.2). Update them together in a single PR.
+      application-insights:
+        patterns:
+          - "Microsoft.ApplicationInsights*"
     ignore:
       # Block ALL .NET major-version bumps (runtime, ASP.NET Core, EF Core, etc.)
       - dependency-name: "Microsoft.AspNetCore.*"
@@ -65,6 +74,14 @@ updates:
     assignees:
       - "ClaudiodelaRiva"
     rebase-strategy: "disabled"
+    groups:
+      # All Angular packages must move together: core packages require exact sibling
+      # peer versions (e.g. @angular/animations@21.2.18 requires @angular/core@"21.2.18"),
+      # so a partial update causes ERESOLVE during npm install.
+      angular:
+        patterns:
+          - "@angular/*"
+          - "@angular-devkit/*"
     ignore:
       # Angular 21 LTS fixed in order to avoid accidental updates to the major version
       - dependency-name: "@angular/*"

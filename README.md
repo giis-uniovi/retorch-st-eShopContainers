@@ -1,4 +1,5 @@
 [![Build Status](https://github.com/giis-uniovi/retorch-st-eShopContainers/actions/workflows/build.yml/badge.svg)](https://github.com/giis-uniovi/retorch-st-eShopContainers/actions)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=my%3Aretorch-st-eShopContainers&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=my%3Aretorch-st-eShopContainers)
 
 # RETORCH eShopContainers End-to-End Test Suite
 
