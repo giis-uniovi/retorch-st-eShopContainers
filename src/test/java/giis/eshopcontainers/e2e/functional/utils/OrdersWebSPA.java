@@ -130,6 +130,8 @@ public class OrdersWebSPA extends Orders {
 
     /**
      * Cancels the last order in the WebSPA frontend (SPA version).
+     * Waits for the orders list to be non-empty before accessing it: the SPA fetches
+     * orders asynchronously so the list can be transiently empty after navigation.
      *
      * @param driver {@code WebDriver} on which the operations are performed.
      * @param waiter {@code Waiter} to perform the necessary async waits.
@@ -137,6 +139,8 @@ public class OrdersWebSPA extends Orders {
     @Override
     public void cancelLastOrder(WebDriver driver, Waiter waiter) throws ElementNotFoundException {
         navUtils.toOrdersPage(driver, waiter);
+        waiter.waitUntil(ExpectedConditions.numberOfElementsToBeMoreThan(By.className("esh-orders-item"), 0),
+                "Orders list did not appear after navigation to orders page");
         List<WebElement> listOrders = driver.findElements(By.className("esh-orders-item"));
         WebElement lastOrder = listOrders.get(listOrders.size() - 1);
         WebElement cancelLink = lastOrder.findElement(By.linkText("Cancel"));
