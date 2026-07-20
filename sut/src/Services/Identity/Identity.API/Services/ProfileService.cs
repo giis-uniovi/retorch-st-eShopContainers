@@ -9,7 +9,7 @@
             _userManager = userManager;
         }
 
-        async public Task GetProfileDataAsync(ProfileDataRequestContext context, CancellationToken cancellationToken = default)
+        async public Task GetProfileDataAsync(ProfileDataRequestContext context, CancellationToken ct)
         {
             var subject = context.Subject ?? throw new ArgumentNullException(nameof(context.Subject));
 
@@ -23,7 +23,7 @@
             context.IssuedClaims = claims.ToList();
         }
 
-        async public Task IsActiveAsync(IsActiveContext context, CancellationToken cancellationToken = default)
+        async public Task IsActiveAsync(IsActiveContext context, CancellationToken ct)
         {
             var subject = context.Subject ?? throw new ArgumentNullException(nameof(context.Subject));
 
