@@ -54,6 +54,8 @@ updates:
           - "Microsoft.AspNetCore.*"
           - "Microsoft.EntityFrameworkCore.*"
           - "Microsoft.Extensions.*"
+          - "Microsoft.IdentityModel.*"
+          - "System.IdentityModel.*"
     ignore:
       # Block ALL .NET major-version bumps (runtime, ASP.NET Core, EF Core, etc.)
       - dependency-name: "Microsoft.AspNetCore.*"
