@@ -7,21 +7,19 @@ namespace IdentityServerHost.Quickstart.UI;
 [SecurityHeaders]
 public class DeviceController : Controller
 {
+    private const string ErrorView = "Error";
     private readonly IDeviceFlowInteractionService _interaction;
     private readonly IEventService _events;
     private readonly IOptions<IdentityServerOptions> _options;
-    private readonly ILogger<DeviceController> _logger;
 
     public DeviceController(
         IDeviceFlowInteractionService interaction,
         IEventService eventService,
-        IOptions<IdentityServerOptions> options,
-        ILogger<DeviceController> logger)
+        IOptions<IdentityServerOptions> options)
     {
         _interaction = interaction;
         _events = eventService;
         _options = options;
-        _logger = logger;
     }
 
     [HttpGet]
@@ -32,7 +30,7 @@ public class DeviceController : Controller
         if (string.IsNullOrWhiteSpace(userCode)) return View("UserCodeCapture");
 
         var vm = await BuildViewModelAsync(userCode);
-        if (vm == null) return View("Error");
+        if (vm == null) return View(ErrorView);
 
         vm.ConfirmUserCode = true;
         return View("UserCodeConfirmation", vm);
@@ -43,7 +41,7 @@ public class DeviceController : Controller
     public async Task<IActionResult> UserCodeCapture(string userCode)
     {
         var vm = await BuildViewModelAsync(userCode);
-        if (vm == null) return View("Error");
+        if (vm == null) return View(ErrorView);
 
         return View("UserCodeConfirmation", vm);
     }
@@ -52,10 +50,10 @@ public class DeviceController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Callback(DeviceAuthorizationInputModel model)
     {
-        if (model == null) throw new ArgumentNullException(nameof(model));
+        ArgumentNullException.ThrowIfNull(model);
 
         var result = await ProcessConsent(model);
-        if (result.HasValidationError) return View("Error");
+        if (result.HasValidationError) return View(ErrorView);
 
         return View("Success");
     }
@@ -84,14 +82,10 @@ public class DeviceController : Controller
             if (model.ScopesConsented != null && model.ScopesConsented.Any())
             {
                 var scopes = model.ScopesConsented;
-                if (ConsentOptions.EnableOfflineAccess == false)
-                {
-                    scopes = scopes.Where(x => x != IdentityServerConstants.StandardScopes.OfflineAccess);
-                }
 
                 grantedConsent = new ConsentResponse
                 {
-                    RememberConsent = model.RememberConsent,
+                    RememberConsent = model.RememberConsent ?? false,
                     ScopesValuesConsented = scopes.ToArray(),
                     Description = model.Description
                 };
@@ -138,7 +132,7 @@ public class DeviceController : Controller
         return null;
     }
 
-    private DeviceAuthorizationViewModel CreateConsentViewModel(string userCode, DeviceAuthorizationInputModel model, DeviceFlowAuthorizationRequest request)
+    private static DeviceAuthorizationViewModel CreateConsentViewModel(string userCode, DeviceAuthorizationInputModel model, DeviceFlowAuthorizationRequest request)
     {
         var vm = new DeviceAuthorizationViewModel
         {
@@ -175,7 +169,7 @@ public class DeviceController : Controller
         return vm;
     }
 
-    private ScopeViewModel CreateScopeViewModel(IdentityResource identity, bool check)
+    private static ScopeViewModel CreateScopeViewModel(IdentityResource identity, bool check)
     {
         return new ScopeViewModel
         {
@@ -188,7 +182,7 @@ public class DeviceController : Controller
         };
     }
 
-    public ScopeViewModel CreateScopeViewModel(ParsedScopeValue parsedScopeValue, ApiScope apiScope, bool check)
+    public static ScopeViewModel CreateScopeViewModel(ParsedScopeValue parsedScopeValue, ApiScope apiScope, bool check)
     {
         return new ScopeViewModel
         {
@@ -200,7 +194,7 @@ public class DeviceController : Controller
             Checked = check || apiScope.Required
         };
     }
-    private ScopeViewModel GetOfflineAccessScope(bool check)
+    private static ScopeViewModel GetOfflineAccessScope(bool check)
     {
         return new ScopeViewModel
         {

@@ -2,10 +2,10 @@
 
 [ApiController]
 [Route("webhook-received")]
-public class WebhooksReceivedController : Controller
+public class WebhooksReceivedController : ControllerBase
 {
     private readonly WebhookClientOptions _options;
-    private readonly ILogger _logger;
+    private readonly ILogger<WebhooksReceivedController> _logger;
     private readonly IHooksRepository _hooksRepository;
 
     public WebhooksReceivedController(IOptions<WebhookClientOptions> options, ILogger<WebhooksReceivedController> logger, IHooksRepository hooksRepository)
@@ -16,11 +16,10 @@ public class WebhooksReceivedController : Controller
     }
 
     [HttpPost]
-    public async Task<IActionResult> NewWebhook(WebhookData hook)
+    public async Task<IActionResult> NewWebhook(WebhookData hook, [FromHeader(Name = HeaderNames.WebHookCheckHeader)] string token)
     {
-        string token = Request.Headers[HeaderNames.WebHookCheckHeader];
-
-        _logger.LogInformation("Received hook with token {Token}. My token is {MyToken}. Token validation is set to {ValidateToken}", token, _options.Token, _options.ValidateToken);
+        if (_logger.IsEnabled(LogLevel.Information))
+            _logger.LogInformation("Received hook with token {Token}. My token is {MyToken}. Token validation is set to {ValidateToken}", token, _options.Token, _options.ValidateToken);
 
         if (!_options.ValidateToken || _options.Token == token)
         {
@@ -28,7 +27,7 @@ public class WebhooksReceivedController : Controller
             var newHook = new WebHookReceived()
             {
                 Data = hook.Payload,
-                When = hook.When,
+                When = hook.When ?? DateTime.MinValue,
                 Token = token
             };
             await _hooksRepository.AddNew(newHook);

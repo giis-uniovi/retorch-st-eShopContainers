@@ -1,6 +1,6 @@
 ﻿namespace Microsoft.eShopOnContainers.BuildingBlocks.IntegrationEventLogEF;
 
-public enum EventStateEnum
+public enum EventState
 {
     NotPublished = 0,
     InProgress = 1,

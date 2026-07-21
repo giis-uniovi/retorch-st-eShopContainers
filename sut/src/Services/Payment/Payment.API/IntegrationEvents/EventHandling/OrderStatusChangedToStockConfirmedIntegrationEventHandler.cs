@@ -18,14 +18,16 @@ public class OrderStatusChangedToStockConfirmedIntegrationEventHandler :
         _settings = settings.Value;
         _logger = logger ?? throw new System.ArgumentNullException(nameof(logger));
 
-        _logger.LogTrace("PaymentSettings: {@PaymentSettings}", _settings);
+        if (_logger.IsEnabled(LogLevel.Trace))
+            _logger.LogTrace("PaymentSettings: {@PaymentSettings}", _settings);
     }
 
     public async Task Handle(OrderStatusChangedToStockConfirmedIntegrationEvent @event)
     {
         using (_logger.BeginScope(new List<KeyValuePair<string, object>> { new ("IntegrationEventContext", @event.Id) }))
         {
-            _logger.LogInformation("Handling integration event: {IntegrationEventId} - ({@IntegrationEvent})", @event.Id, @event);
+            if (_logger.IsEnabled(LogLevel.Information))
+                _logger.LogInformation("Handling integration event: {IntegrationEventId} - ({@IntegrationEvent})", @event.Id, @event);
 
             IntegrationEvent orderPaymentIntegrationEvent;
 
@@ -44,7 +46,8 @@ public class OrderStatusChangedToStockConfirmedIntegrationEventHandler :
                 orderPaymentIntegrationEvent = new OrderPaymentFailedIntegrationEvent(@event.OrderId);
             }
 
-            _logger.LogInformation("Publishing integration event: {IntegrationEventId} - ({@IntegrationEvent})", orderPaymentIntegrationEvent.Id, orderPaymentIntegrationEvent);
+            if (_logger.IsEnabled(LogLevel.Information))
+                _logger.LogInformation("Publishing integration event: {IntegrationEventId} - ({@IntegrationEvent})", orderPaymentIntegrationEvent.Id, orderPaymentIntegrationEvent);
 
             _eventBus.Publish(orderPaymentIntegrationEvent);
 

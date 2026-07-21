@@ -7,7 +7,7 @@ public class CatalogService : CatalogBase
 {
     private readonly CatalogContext _catalogContext;
     private readonly CatalogSettings _settings;
-    private readonly ILogger _logger;
+    private readonly ILogger<CatalogService> _logger;
 
     public CatalogService(CatalogContext dbContext, IOptions<CatalogSettings> settings, ILogger<CatalogService> logger)
     {
@@ -18,7 +18,8 @@ public class CatalogService : CatalogBase
 
     public override async Task<CatalogItemResponse> GetItemById(CatalogItemRequest request, ServerCallContext context)
     {
-        _logger.LogInformation("Begin grpc call CatalogService.GetItemById for product id {Id}", request.Id);
+        if (_logger.IsEnabled(LogLevel.Information))
+            _logger.LogInformation("Begin grpc call CatalogService.GetItemById for product id {Id}", request.Id);
         if (request.Id <= 0)
         {
             context.Status = new Status(StatusCode.FailedPrecondition, $"Id must be > 0 (received {request.Id})");
@@ -57,11 +58,11 @@ public class CatalogService : CatalogBase
         {
             var items = await GetItemsByIdsAsync(request.Ids);
 
-            context.Status = !items.Any() ?
+            context.Status = items.Count == 0 ?
                 new Status(StatusCode.NotFound, $"ids value invalid. Must be comma-separated list of numbers") :
                 new Status(StatusCode.OK, string.Empty);
 
-            return this.MapToResponse(items);
+            return MapToResponse(items);
         }
 
         var totalItems = await _catalogContext.CatalogItems
@@ -75,18 +76,18 @@ public class CatalogService : CatalogBase
 
         itemsOnPage = ChangeUriPlaceholder(itemsOnPage);
 
-        var model = this.MapToResponse(itemsOnPage, totalItems, request.PageIndex, request.PageSize);
+        var model = MapToResponse(itemsOnPage, totalItems, request.PageIndex, request.PageSize);
         context.Status = new Status(StatusCode.OK, string.Empty);
 
         return model;
     }
 
-    private PaginatedItemsResponse MapToResponse(List<CatalogItem> items)
+    private static PaginatedItemsResponse MapToResponse(List<CatalogItem> items)
     {
-        return this.MapToResponse(items, items.Count, 1, items.Count);
+        return MapToResponse(items, items.Count, 1, items.Count);
     }
 
-    private PaginatedItemsResponse MapToResponse(List<CatalogItem> items, long count, int pageIndex, int pageSize)
+    private static PaginatedItemsResponse MapToResponse(List<CatalogItem> items, long count, int pageIndex, int pageSize)
     {
         var result = new PaginatedItemsResponse()
         {

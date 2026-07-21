@@ -56,6 +56,6 @@ public class RedisBasketRepository : IBasketRepository
     private IServer GetServer()
     {
         var endpoint = _redis.GetEndPoints();
-        return _redis.GetServer(endpoint.First());
+        return _redis.GetServer(endpoint[0]);
     }
 }

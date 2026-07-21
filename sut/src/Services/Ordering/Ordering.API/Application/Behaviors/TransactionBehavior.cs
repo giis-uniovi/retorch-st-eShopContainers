@@ -12,9 +12,9 @@ public class TransactionBehavior<TRequest, TResponse> : IPipelineBehavior<TReque
         IOrderingIntegrationEventService orderingIntegrationEventService,
         ILogger<TransactionBehavior<TRequest, TResponse>> logger)
     {
-        _dbContext = dbContext ?? throw new ArgumentException(nameof(OrderingContext));
-        _orderingIntegrationEventService = orderingIntegrationEventService ?? throw new ArgumentException(nameof(orderingIntegrationEventService));
-        _logger = logger ?? throw new ArgumentException(nameof(ILogger));
+        _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
+        _orderingIntegrationEventService = orderingIntegrationEventService ?? throw new ArgumentNullException(nameof(orderingIntegrationEventService));
+        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
     public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
@@ -26,7 +26,7 @@ public class TransactionBehavior<TRequest, TResponse> : IPipelineBehavior<TReque
         {
             if (_dbContext.HasActiveTransaction)
             {
-                return await next();
+                return await next(cancellationToken);
             }
 
             var strategy = _dbContext.Database.CreateExecutionStrategy();
@@ -38,11 +38,13 @@ public class TransactionBehavior<TRequest, TResponse> : IPipelineBehavior<TReque
                 await using var transaction = await _dbContext.BeginTransactionAsync();
                 using (_logger.BeginScope(new List<KeyValuePair<string, object>> { new ("TransactionContext", transaction.TransactionId) }))
                 {
-                    _logger.LogInformation("Begin transaction {TransactionId} for {CommandName} ({@Command})", transaction.TransactionId, typeName, request);
+                    if (_logger.IsEnabled(LogLevel.Information))
+                        _logger.LogInformation("Begin transaction {TransactionId} for {CommandName} ({@Command})", transaction.TransactionId, typeName, request);
 
                     response = await next();
 
-                    _logger.LogInformation("Commit transaction {TransactionId} for {CommandName}", transaction.TransactionId, typeName);
+                    if (_logger.IsEnabled(LogLevel.Information))
+                        _logger.LogInformation("Commit transaction {TransactionId} for {CommandName}", transaction.TransactionId, typeName);
 
                     await _dbContext.CommitTransactionAsync(transaction);
 
@@ -56,7 +58,8 @@ public class TransactionBehavior<TRequest, TResponse> : IPipelineBehavior<TReque
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error Handling transaction for {CommandName} ({@Command})", typeName, request);
+            if (_logger.IsEnabled(LogLevel.Error))
+                _logger.LogError(ex, "Error Handling transaction for {CommandName} ({@Command})", typeName, request);
 
             throw;
         }

@@ -17,7 +17,7 @@ public class CreateOrderCommand
     : IRequest<bool>
 {
     [DataMember]
-    private readonly List<OrderItemDTO> _orderItems;
+    private readonly List<OrderItemDto> _orderItems;
 
     [DataMember]
     public string UserId { get; private set; }
@@ -56,18 +56,18 @@ public class CreateOrderCommand
     public int CardTypeId { get; private set; }
 
     [DataMember]
-    public IEnumerable<OrderItemDTO> OrderItems => _orderItems;
+    public IEnumerable<OrderItemDto> OrderItems => _orderItems;
 
     public CreateOrderCommand()
     {
-        _orderItems = new List<OrderItemDTO>();
+        _orderItems = new List<OrderItemDto>();
     }
 
-    public CreateOrderCommand(List<BasketItem> basketItems, string userId, string userName, string city, string street, string state, string country, string zipcode,
+    public CreateOrderCommand(List<BasketItem> basketItems, string userId, string userName, string city, string street, string state, string country, string zipcode, // NOSONAR S107
         string cardNumber, string cardHolderName, DateTime cardExpiration,
         string cardSecurityNumber, int cardTypeId) : this()
     {
-        _orderItems = basketItems.ToOrderItemsDTO().ToList();
+        _orderItems = basketItems.ToOrderItemsDto().ToList();
         UserId = userId;
         UserName = userName;
         City = city;

@@ -13,23 +13,27 @@ public class BasketService : IBasketService
 
     public async Task<BasketData> GetByIdAsync(string id)
     {
-        _logger.LogDebug("grpc client created, request = {@id}", id);
+        if (_logger.IsEnabled(LogLevel.Debug))
+            _logger.LogDebug("grpc client created, request = {@Id}", id);
         var response = await _basketClient.GetBasketByIdAsync(new BasketRequest { Id = id });
-        _logger.LogDebug("grpc response {@response}", response);
+        if (_logger.IsEnabled(LogLevel.Debug))
+            _logger.LogDebug("grpc response {@Response}", response);
 
         return MapToBasketData(response);
     }
 
     public async Task UpdateAsync(BasketData currentBasket)
     {
-        _logger.LogDebug("Grpc update basket currentBasket {@currentBasket}", currentBasket);
+        if (_logger.IsEnabled(LogLevel.Debug))
+            _logger.LogDebug("Grpc update basket currentBasket {@CurrentBasket}", currentBasket);
         var request = MapToCustomerBasketRequest(currentBasket);
-        _logger.LogDebug("Grpc update basket request {@request}", request);
+        if (_logger.IsEnabled(LogLevel.Debug))
+            _logger.LogDebug("Grpc update basket request {@Request}", request);
 
         await _basketClient.UpdateBasketAsync(request);
     }
 
-    private BasketData MapToBasketData(CustomerBasketResponse customerBasketRequest)
+    private static BasketData MapToBasketData(CustomerBasketResponse customerBasketRequest)
     {
         if (customerBasketRequest == null)
         {
@@ -55,7 +59,7 @@ public class BasketService : IBasketService
         return map;
     }
 
-    private CustomerBasketRequest MapToCustomerBasketRequest(BasketData basketData)
+    private static CustomerBasketRequest MapToCustomerBasketRequest(BasketData basketData)
     {
         if (basketData == null)
         {

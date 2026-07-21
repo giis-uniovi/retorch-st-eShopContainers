@@ -1,13 +1,14 @@
-﻿namespace Microsoft.eShopOnContainers.WebMVC.Controllers;
+﻿#nullable enable
+namespace Microsoft.eShopOnContainers.WebMVC.Controllers;
 
 public class CatalogController : Controller
 {
-    private ICatalogService _catalogSvc;
+    private readonly ICatalogService _catalogSvc;
 
     public CatalogController(ICatalogService catalogSvc) =>
         _catalogSvc = catalogSvc;
 
-    public async Task<IActionResult> Index(int? BrandFilterApplied, int? TypesFilterApplied, int? page, [FromQuery] string errorMsg)
+    public async Task<IActionResult> Index(int? BrandFilterApplied, int? TypesFilterApplied, int? page, [FromQuery] string? errorMsg) // NOSONAR S6967 - read-only filter form uses POST as transport; null coercion for int? is intentional
     {
         var itemsPage = 9;
         var catalog = await _catalogSvc.GetCatalogItems(page ?? 0, itemsPage, BrandFilterApplied, TypesFilterApplied);

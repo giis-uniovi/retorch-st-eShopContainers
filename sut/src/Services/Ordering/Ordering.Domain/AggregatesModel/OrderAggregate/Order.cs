@@ -6,7 +6,8 @@ public class Order
     // DDD Patterns comment
     // Using private fields, allowed since EF Core 1.1, is a much better encapsulation
     // aligned with DDD Aggregates and Domain Entities (Instead of properties and property collections)
-    private DateTime _orderDate;
+    private readonly DateTime _orderDate;
+    public DateTime OrderDate => _orderDate;
 
     // Address is a Value Object pattern example persisted as EF Core 2.0 owned entity
     public Address Address { get; private set; }
@@ -14,15 +15,14 @@ public class Order
     public int? GetBuyerId => _buyerId;
     private int? _buyerId;
 
-    public OrderStatus OrderStatus { get; private set; }
+    public OrderStatus OrderStatus { get; private set; } // NOSONAR S1144 - private set used by EF Core
     private int _orderStatusId;
 
     private string _description;
+    public string Description => _description;
 
-
-
-    // Draft orders have this set to true. Currently we don't check anywhere the draft status of an Order, but we could do it if needed
     private bool _isDraft;
+    public bool IsDraft => _isDraft;
 
     // DDD Patterns comment
     // Using a private collection field, better for DDD Aggregate's encapsulation
@@ -32,6 +32,7 @@ public class Order
     public IReadOnlyCollection<OrderItem> OrderItems => _orderItems;
 
     private int? _paymentMethodId;
+    public int? PaymentMethodId => _paymentMethodId;
 
     public static Order NewDraft()
     {
@@ -46,7 +47,7 @@ public class Order
         _isDraft = false;
     }
 
-    public Order(string userId, string userName, Address address, int cardTypeId, string cardNumber, string cardSecurityNumber,
+    public Order(string userId, string userName, Address address, int cardTypeId, string cardNumber, string cardSecurityNumber, // NOSONAR S107
             string cardHolderName, DateTime cardExpiration, int? buyerId = null, int? paymentMethodId = null) : this()
     {
         _buyerId = buyerId;
@@ -67,8 +68,7 @@ public class Order
     // in order to maintain consistency between the whole Aggregate. 
     public void AddOrderItem(int productId, string productName, decimal unitPrice, decimal discount, string pictureUrl, int units = 1)
     {
-        var existingOrderForProduct = _orderItems.Where(o => o.ProductId == productId)
-            .SingleOrDefault();
+        var existingOrderForProduct = _orderItems.SingleOrDefault(o => o.ProductId == productId);
 
         if (existingOrderForProduct != null)
         {

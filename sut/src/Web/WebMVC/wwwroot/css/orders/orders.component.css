@@ -71,13 +71,13 @@
 }
 
 .esh-orders-link {
-  color: #83D01B;
+  color: #4a760f;
   text-decoration: none;
   transition: color 0.35s;
 }
 
 .esh-orders-link:hover {
-  color: #75b918;
+  color: #4a760f;
   transition: color 0.35s;
 }
 

@@ -3,7 +3,7 @@
 [Authorize]
 public class OrderManagementController : Controller
 {
-    private IOrderingService _orderSvc;
+    private readonly IOrderingService _orderSvc;
     private readonly IIdentityParser<ApplicationUser> _appUserParser;
     public OrderManagementController(IOrderingService orderSvc, IIdentityParser<ApplicationUser> appUserParser)
     {

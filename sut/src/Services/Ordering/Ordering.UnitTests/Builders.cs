@@ -4,7 +4,7 @@ using Microsoft.eShopOnContainers.Services.Ordering.Domain.AggregatesModel.Order
 
 public class AddressBuilder
 {
-    public Address Build()
+    public static Address Build()
     {
         return new Address("street", "city", "state", "country", "zipcode");
     }

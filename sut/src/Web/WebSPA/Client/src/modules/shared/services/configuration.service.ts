@@ -21,9 +21,7 @@ export class ConfigurationService {
         const baseURI = document.baseURI.endsWith('/') ? document.baseURI : `${document.baseURI}/`;
         const url = `${baseURI}Home/Configuration`;
         this.http.get(url).subscribe((response) => {
-            console.log('server settings loaded');
             this.serverSettings = response as IConfiguration;
-            console.log(this.serverSettings);
             this.storageService.store('identityUrl', this.serverSettings.identityUrl);
             this.storageService.store('purchaseUrl', this.serverSettings.purchaseUrl);
             this.storageService.store('signalrHubUrl', this.serverSettings.signalrHubUrl);

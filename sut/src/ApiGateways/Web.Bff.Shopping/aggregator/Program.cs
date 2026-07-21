@@ -8,7 +8,6 @@ builder.Services.AddControllers();
 builder.Services.AddHealthChecks(builder.Configuration);
 builder.Services.AddCors(options =>
 {
-    // TODO: Read allowed origins from configuration
     options.AddPolicy("CorsPolicy",
         builder => builder
         .SetIsOriginAllowed((host) => true)

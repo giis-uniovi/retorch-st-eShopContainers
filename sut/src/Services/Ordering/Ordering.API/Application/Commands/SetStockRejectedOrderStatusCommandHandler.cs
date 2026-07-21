@@ -40,7 +40,7 @@ public class SetStockRejectedOrderStatusIdentifiedCommandHandler : IdentifiedCom
     public SetStockRejectedOrderStatusIdentifiedCommandHandler(
         IMediator mediator,
         IRequestManager requestManager,
-        ILogger<IdentifiedCommandHandler<SetStockRejectedOrderStatusCommand, bool>> logger)
+        ILogger<SetStockRejectedOrderStatusIdentifiedCommandHandler> logger)
         : base(mediator, requestManager, logger)
     {
     }

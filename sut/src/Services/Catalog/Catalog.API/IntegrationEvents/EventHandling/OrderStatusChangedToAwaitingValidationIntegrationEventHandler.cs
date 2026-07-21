@@ -21,13 +21,13 @@ public class OrderStatusChangedToAwaitingValidationIntegrationEventHandler :
     {
         using (_logger.BeginScope(new List<KeyValuePair<string, object>> { new ("IntegrationEventContext", @event.Id) }))
         {
-            _logger.LogInformation("Handling integration event: {IntegrationEventId} - ({@IntegrationEvent})", @event.Id, @event);
+            if (_logger.IsEnabled(LogLevel.Information)) _logger.LogInformation("Handling integration event: {IntegrationEventId} - ({@IntegrationEvent})", @event.Id, @event);
 
             var confirmedOrderStockItems = new List<ConfirmedOrderStockItem>();
 
             foreach (var orderStockItem in @event.OrderStockItems)
             {
-                var catalogItem = _catalogContext.CatalogItems.Find(orderStockItem.ProductId);
+                var catalogItem = await _catalogContext.CatalogItems.FindAsync(orderStockItem.ProductId);
                 var hasStock = catalogItem.AvailableStock >= orderStockItem.Units;
                 var confirmedOrderStockItem = new ConfirmedOrderStockItem(catalogItem.Id, hasStock);
 

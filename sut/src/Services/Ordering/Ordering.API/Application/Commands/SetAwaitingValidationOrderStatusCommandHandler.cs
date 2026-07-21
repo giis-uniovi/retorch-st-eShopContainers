@@ -36,7 +36,7 @@ public class SetAwaitingValidationIdentifiedOrderStatusCommandHandler : Identifi
     public SetAwaitingValidationIdentifiedOrderStatusCommandHandler(
         IMediator mediator,
         IRequestManager requestManager,
-        ILogger<IdentifiedCommandHandler<SetAwaitingValidationOrderStatusCommand, bool>> logger)
+        ILogger<SetAwaitingValidationIdentifiedOrderStatusCommandHandler> logger)
         : base(mediator, requestManager, logger)
     {
     }

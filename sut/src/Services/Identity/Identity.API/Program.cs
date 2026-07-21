@@ -1,11 +1,13 @@
-﻿var builder = WebApplication.CreateBuilder(args);
+﻿const string IdentityDbName = "IdentityDB";
+
+var builder = WebApplication.CreateBuilder(args);
 
 builder.AddServiceDefaults();
 
 builder.Services.AddControllersWithViews();
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("IdentityDB")));
+    options.UseSqlServer(builder.Configuration.GetConnectionString(IdentityDbName)));
 
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
         .AddEntityFrameworkStores<ApplicationDbContext>()
@@ -28,11 +30,12 @@ builder.Services.AddIdentityServer(options =>
 .AddAspNetIdentity<ApplicationUser>()
 .AddDeveloperSigningCredential(); // Not recommended for production - you need to store your key material somewhere secure
 
+string[] identityDbTags = new string[] { IdentityDbName };
 builder.Services.AddHealthChecks()
         .AddSqlServer(_ =>
-            builder.Configuration.GetRequiredConnectionString("IdentityDB"),
+            builder.Configuration.GetRequiredConnectionString(IdentityDbName),
             name: "IdentityDB-check",
-            tags: new string[] { "IdentityDB" });
+            tags: identityDbTags);
 
 builder.Services.AddTransient<IProfileService, ProfileService>();
 builder.Services.AddTransient<ILoginService<ApplicationUser>, EFLoginService>();

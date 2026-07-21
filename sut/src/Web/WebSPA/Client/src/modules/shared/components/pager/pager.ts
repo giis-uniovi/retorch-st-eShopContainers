@@ -25,20 +25,18 @@ export class Pager implements OnChanges {
         if (this.model) {
             this.model.items = Math.min(this.model.itemsPage, this.model.totalItems);
 
-            this.buttonStates.previousDisabled = (this.model.actualPage == 0);
+            this.buttonStates.previousDisabled = (this.model.actualPage === 0);
             this.buttonStates.nextDisabled = (this.model.actualPage + 1 >= this.model.totalPages);
         }
     }
 
     onNextClicked(event: any) {
         event.preventDefault();
-        console.log('Pager next clicked');
         this.changed.emit(this.model.actualPage + 1);
     }
 
     onPreviousCliked(event: any) {
         event.preventDefault();
-        console.log('Pager previous clicked');
         this.changed.emit(this.model.actualPage - 1);
     }
 }

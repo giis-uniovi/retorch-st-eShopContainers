@@ -4,7 +4,7 @@ public class DefaultServiceBusPersisterConnection : IServiceBusPersisterConnecti
 {
     private readonly string _serviceBusConnectionString;
     private ServiceBusClient _topicClient;
-    private ServiceBusAdministrationClient _subscriptionClient;
+    private readonly ServiceBusAdministrationClient _subscriptionClient;
 
     bool _disposed;
 
@@ -45,6 +45,7 @@ public class DefaultServiceBusPersisterConnection : IServiceBusPersisterConnecti
         if (_disposed) return;
 
         _disposed = true;
+        GC.SuppressFinalize(this);
         await _topicClient.DisposeAsync();
     }
 }

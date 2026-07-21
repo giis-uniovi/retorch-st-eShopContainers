@@ -15,8 +15,7 @@ namespace Ordering.FunctionalTests
             var response = await server.CreateClient()
                 .GetAsync(Get.Orders);
 
-            var s = await response.Content.ReadAsStringAsync();
-            response.EnsureSuccessStatusCode();
+            Assert.True(response.IsSuccessStatusCode);
         }
 
         [Fact]
@@ -30,7 +29,6 @@ namespace Ordering.FunctionalTests
             var response = await server.CreateClient()
                 .PutAsync(Put.CancelOrder, content);
 
-            var s = await response.Content.ReadAsStringAsync();
             Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
         }
 
@@ -48,7 +46,7 @@ namespace Ordering.FunctionalTests
             Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
         }
 
-        string BuildOrder()
+        static string BuildOrder()
         {
             var order = new
             {

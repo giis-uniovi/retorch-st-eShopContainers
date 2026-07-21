@@ -1,15 +1,20 @@
 ﻿using Microsoft.EntityFrameworkCore.Infrastructure;
 
+namespace Microsoft.eShopOnContainers.Services.Catalog.API.Extensions;
+
 public static class Extensions
 {
+    private const string CatalogDbName = "CatalogDB";
+    private static readonly string[] ReadyTags = new string[] { "ready" };
+
     public static IServiceCollection AddHealthChecks(this IServiceCollection services, IConfiguration configuration)
     {
         var hcBuilder = services.AddHealthChecks();
 
         hcBuilder
-            .AddSqlServer(_ => configuration.GetRequiredConnectionString("CatalogDB"),
+            .AddSqlServer(_ => configuration.GetRequiredConnectionString(CatalogDbName),
                 name: "CatalogDB-check",
-                tags: new string[] { "ready" });
+                tags: ReadyTags);
 
         var accountName = configuration["AzureStorageAccountName"];
         var accountKey = configuration["AzureStorageAccountKey"];
@@ -20,7 +25,7 @@ public static class Extensions
                 .AddAzureBlobStorage(
                     $"DefaultEndpointsProtocol=https;AccountName={accountName};AccountKey={accountKey};EndpointSuffix=core.windows.net",
                     name: "catalog-storage-check",
-                    tags: new string[] { "ready" });
+                    tags: ReadyTags);
         }
 
         return services;
@@ -35,11 +40,11 @@ public static class Extensions
             // Configuring Connection Resiliency: https://docs.microsoft.com/en-us/ef/core/miscellaneous/connection-resiliency 
 
             sqlOptions.EnableRetryOnFailure(maxRetryCount: 15, maxRetryDelay: TimeSpan.FromSeconds(30), errorNumbersToAdd: null);
-        };
+        }
 
         services.AddDbContext<CatalogContext>(options =>
         {
-            var connectionString = configuration.GetRequiredConnectionString("CatalogDB");
+            var connectionString = configuration.GetRequiredConnectionString(CatalogDbName);
 
             options.UseSqlServer(connectionString, ConfigureSqlOptions);
             options.ConfigureWarnings(w => w.Log(RelationalEventId.PendingModelChangesWarning));
@@ -47,7 +52,7 @@ public static class Extensions
 
         services.AddDbContext<IntegrationEventLogContext>(options =>
         {
-            var connectionString = configuration.GetRequiredConnectionString("CatalogDB");
+            var connectionString = configuration.GetRequiredConnectionString(CatalogDbName);
 
             options.UseSqlServer(connectionString, ConfigureSqlOptions);
             options.ConfigureWarnings(w => w.Log(RelationalEventId.PendingModelChangesWarning));
@@ -60,7 +65,6 @@ public static class Extensions
     {
         services.Configure<CatalogSettings>(configuration);
 
-        // TODO: Move to the new problem details middleware
         services.Configure<ApiBehaviorOptions>(options =>
         {
             options.InvalidModelStateResponseFactory = context =>

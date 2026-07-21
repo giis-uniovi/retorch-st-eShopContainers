@@ -1,5 +1,13 @@
-﻿public class BuyerAggregateTest
+﻿namespace Ordering.UnitTests.Domain;
+
+public class BuyerAggregateTest
 {
+    private const string FakeAlias = "fakeAlias";
+    private const string FakeCardNumber = "124";
+    private const string FakeSecurityNumber = "1234";
+    private const string FakeCardHolderName = "FakeHolderNAme";
+    private const string FakeUser = "fakeUser";
+
     public BuyerAggregateTest()
     { }
 
@@ -8,7 +16,7 @@
     {
         //Arrange    
         var identity = new Guid().ToString();
-        var name = "fakeUser";
+        var name = FakeUser;
 
         //Act 
         var fakeBuyerItem = new Buyer(identity, name);
@@ -22,7 +30,7 @@
     {
         //Arrange    
         var identity = string.Empty;
-        var name = "fakeUser";
+        var name = FakeUser;
 
         //Act - Assert
         Assert.Throws<ArgumentNullException>(() => new Buyer(identity, name));
@@ -33,13 +41,13 @@
     {
         //Arrange    
         var cardTypeId = 1;
-        var alias = "fakeAlias";
-        var cardNumber = "124";
-        var securityNumber = "1234";
-        var cardHolderName = "FakeHolderNAme";
+        var alias = FakeAlias;
+        var cardNumber = FakeCardNumber;
+        var securityNumber = FakeSecurityNumber;
+        var cardHolderName = FakeCardHolderName;
         var expiration = DateTime.Now.AddYears(1);
         var orderId = 1;
-        var name = "fakeUser";
+        var name = FakeUser;
         var identity = new Guid().ToString();
         var fakeBuyerItem = new Buyer(identity, name);
 
@@ -55,10 +63,10 @@
     {
         //Arrange    
         var cardTypeId = 1;
-        var alias = "fakeAlias";
-        var cardNumber = "124";
-        var securityNumber = "1234";
-        var cardHolderName = "FakeHolderNAme";
+        var alias = FakeAlias;
+        var cardNumber = FakeCardNumber;
+        var securityNumber = FakeSecurityNumber;
+        var cardHolderName = FakeCardHolderName;
         var expiration = DateTime.Now.AddYears(1);
         var fakePaymentMethod = new PaymentMethod(cardTypeId, alias, cardNumber, securityNumber, cardHolderName, expiration);
 
@@ -74,10 +82,10 @@
     {
         //Arrange    
         var cardTypeId = 1;
-        var alias = "fakeAlias";
-        var cardNumber = "124";
-        var securityNumber = "1234";
-        var cardHolderName = "FakeHolderNAme";
+        var alias = FakeAlias;
+        var cardNumber = FakeCardNumber;
+        var securityNumber = FakeSecurityNumber;
+        var cardHolderName = FakeCardHolderName;
         var expiration = DateTime.Now.AddYears(-1);
 
         //Act - Assert
@@ -89,10 +97,10 @@
     {
         //Arrange    
         var cardTypeId = 1;
-        var alias = "fakeAlias";
-        var cardNumber = "124";
-        var securityNumber = "1234";
-        var cardHolderName = "FakeHolderNAme";
+        var alias = FakeAlias;
+        var cardNumber = FakeCardNumber;
+        var securityNumber = FakeSecurityNumber;
+        var cardHolderName = FakeCardHolderName;
         var expiration = DateTime.Now.AddYears(1);
 
         //Act
@@ -107,7 +115,7 @@
     public void Add_new_PaymentMethod_raises_new_event()
     {
         //Arrange    
-        var alias = "fakeAlias";
+        var alias = FakeAlias;
         var orderId = 1;
         var cardTypeId = 5;
         var cardNumber = "12";
@@ -115,13 +123,13 @@
         var cardHolderName = "FakeName";
         var cardExpiration = DateTime.Now.AddYears(1);
         var expectedResult = 1;
-        var name = "fakeUser";
+        var name = FakeUser;
 
         //Act 
         var fakeBuyer = new Buyer(Guid.NewGuid().ToString(), name);
         fakeBuyer.VerifyOrAddPaymentMethod(cardTypeId, alias, cardNumber, cardSecurityNumber, cardHolderName, cardExpiration, orderId);
 
         //Assert
-        Assert.Equal(fakeBuyer.DomainEvents.Count, expectedResult);
+        Assert.Equal(expectedResult, fakeBuyer.DomainEvents.Count);
     }
 }

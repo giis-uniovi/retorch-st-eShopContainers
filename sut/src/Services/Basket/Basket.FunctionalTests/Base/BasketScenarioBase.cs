@@ -7,7 +7,7 @@ public class BasketScenarioBase
 {
     private const string ApiUrlBase = "api/v1/basket";
 
-    public TestServer CreateServer()
+    public static TestServer CreateServer()
     {
         var factory = new BasketApplication();
         return factory.Server;
@@ -28,8 +28,8 @@ public class BasketScenarioBase
 
     public static class Post
     {
-        public static string Basket = $"{ApiUrlBase}/";
-        public static string CheckoutOrder = $"{ApiUrlBase}/checkout";
+        public const string Basket = $"{ApiUrlBase}/";
+        public const string CheckoutOrder = $"{ApiUrlBase}/checkout";
     }
 
     private class BasketApplication : WebApplicationFactory<Program>

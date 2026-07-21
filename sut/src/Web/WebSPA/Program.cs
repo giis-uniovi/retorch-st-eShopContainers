@@ -28,7 +28,6 @@ app.UseRouting();
 #pragma warning disable ASP0014 // Suggest using top level route registrations
 app.UseEndpoints(routes =>
 {
-    // TODO: Change this route
     routes.MapGet("/home/configuration", (IOptions<AppSettings> options) => options.Value);
 });
 

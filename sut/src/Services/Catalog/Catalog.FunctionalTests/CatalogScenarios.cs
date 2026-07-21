@@ -10,7 +10,7 @@ public class CatalogScenarios
         var response = await server.CreateClient()
             .GetAsync(Get.Items());
 
-        response.EnsureSuccessStatusCode();
+        Assert.True(response.IsSuccessStatusCode);
     }
 
     [Fact]
@@ -20,7 +20,7 @@ public class CatalogScenarios
         var response = await server.CreateClient()
             .GetAsync(Get.ItemById(1));
 
-        response.EnsureSuccessStatusCode();
+        Assert.True(response.IsSuccessStatusCode);
     }
 
     [Fact]
@@ -50,7 +50,7 @@ public class CatalogScenarios
         var response = await server.CreateClient()
             .GetAsync(Get.ItemByName(".NET"));
 
-        response.EnsureSuccessStatusCode();
+        Assert.True(response.IsSuccessStatusCode);
     }
 
     [Fact]
@@ -61,7 +61,7 @@ public class CatalogScenarios
         var response = await server.CreateClient()
             .GetAsync(Get.ItemByName(".NET", paginated));
 
-        response.EnsureSuccessStatusCode();
+        Assert.True(response.IsSuccessStatusCode);
     }
 
     [Fact]
@@ -72,7 +72,7 @@ public class CatalogScenarios
         var response = await server.CreateClient()
             .GetAsync(Get.Items(paginated));
 
-        response.EnsureSuccessStatusCode();
+        Assert.True(response.IsSuccessStatusCode);
     }
 
     [Fact]
@@ -82,7 +82,7 @@ public class CatalogScenarios
         var response = await server.CreateClient()
             .GetAsync(Get.Filtered(1, 1));
 
-        response.EnsureSuccessStatusCode();
+        Assert.True(response.IsSuccessStatusCode);
     }
 
     [Fact]
@@ -93,7 +93,7 @@ public class CatalogScenarios
         var response = await server.CreateClient()
             .GetAsync(Get.Filtered(1, 1, paginated));
 
-        response.EnsureSuccessStatusCode();
+        Assert.True(response.IsSuccessStatusCode);
     }
 
     [Fact]
@@ -103,7 +103,7 @@ public class CatalogScenarios
         var response = await server.CreateClient()
             .GetAsync(Get.Types);
 
-        response.EnsureSuccessStatusCode();
+        Assert.True(response.IsSuccessStatusCode);
     }
 
     [Fact]
@@ -113,6 +113,6 @@ public class CatalogScenarios
         var response = await server.CreateClient()
             .GetAsync(Get.Brands);
 
-        response.EnsureSuccessStatusCode();
+        Assert.True(response.IsSuccessStatusCode);
     }
 }

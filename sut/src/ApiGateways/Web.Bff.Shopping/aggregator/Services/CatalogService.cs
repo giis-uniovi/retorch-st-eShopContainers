@@ -14,9 +14,11 @@ public class CatalogService : ICatalogService
     public async Task<CatalogItem> GetCatalogItemAsync(int id)
     {
         var request = new CatalogItemRequest { Id = id };
-        _logger.LogInformation("grpc request {@request}", request);
+        if (_logger.IsEnabled(LogLevel.Information))
+            _logger.LogInformation("grpc request {@Request}", request);
         var response = await _client.GetItemByIdAsync(request);
-        _logger.LogInformation("grpc response {@response}", response);
+        if (_logger.IsEnabled(LogLevel.Information))
+            _logger.LogInformation("grpc response {@Response}", response);
         return MapToCatalogItemResponse(response);
 
     }
@@ -24,14 +26,16 @@ public class CatalogService : ICatalogService
     public async Task<IEnumerable<CatalogItem>> GetCatalogItemsAsync(IEnumerable<int> ids)
     {
         var request = new CatalogItemsRequest { Ids = string.Join(",", ids), PageIndex = 1, PageSize = 10 };
-        _logger.LogInformation("grpc request {@request}", request);
+        if (_logger.IsEnabled(LogLevel.Information))
+            _logger.LogInformation("grpc request {@Request}", request);
         var response = await _client.GetItemsByIdsAsync(request);
-        _logger.LogInformation("grpc response {@response}", response);
-        return response.Data.Select(this.MapToCatalogItemResponse);
+        if (_logger.IsEnabled(LogLevel.Information))
+            _logger.LogInformation("grpc response {@Response}", response);
+        return response.Data.Select(MapToCatalogItemResponse);
 
     }
 
-    private CatalogItem MapToCatalogItemResponse(CatalogItemResponse catalogItemResponse)
+    private static CatalogItem MapToCatalogItemResponse(CatalogItemResponse catalogItemResponse)
     {
         return new CatalogItem
         {

@@ -27,6 +27,7 @@ global using Microsoft.AspNetCore.Identity;
 global using Microsoft.AspNetCore.Mvc;
 global using Microsoft.AspNetCore.Mvc.Rendering;
 global using Microsoft.eShopOnContainers.WebMVC;
+global using Microsoft.eShopOnContainers.WebMVC.Extensions;
 global using Microsoft.eShopOnContainers.WebMVC.Services;
 global using Microsoft.eShopOnContainers.WebMVC.ViewModels;
 global using Microsoft.eShopOnContainers.WebMVC.ViewModels.Annotations;

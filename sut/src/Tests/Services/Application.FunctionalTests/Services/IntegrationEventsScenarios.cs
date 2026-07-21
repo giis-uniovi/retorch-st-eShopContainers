@@ -8,14 +8,16 @@ using Microsoft.eShopOnContainers.Services.Catalog.API.ViewModel;
 
 public class IntegrationEventsScenarios
 {
+    private static readonly JsonSerializerOptions s_jsonOptions = new() { PropertyNameCaseInsensitive = true };
+
     [Fact]
     public async Task Post_update_product_price_and_catalog_and_basket_list_modified()
     {
         decimal priceModification = 0.15M;
         string userId = "JohnId";
 
-        using var catalogServer = new CatalogScenariosBase().CreateServer();
-        using var basketServer = new BasketScenarioBase().CreateServer();
+        using var catalogServer = CatalogScenariosBase.CreateServer();
+        using var basketServer = BasketScenarioBase.CreateServer();
         var catalogClient = catalogServer.CreateClient();
         var basketClient = basketServer.CreateClient();
 
@@ -24,7 +26,7 @@ public class IntegrationEventsScenarios
 
         // AND a user basket filled with products   
         var basket = ComposeBasket(userId, originalCatalogProducts.Data.Take(3));
-        var res = await basketClient.PostAsync(
+        await basketClient.PostAsync(
             BasketScenarioBase.Post.Basket,
             new StringContent(JsonSerializer.Serialize(basket), UTF8Encoding.UTF8, "application/json")
             );
@@ -54,7 +56,7 @@ public class IntegrationEventsScenarios
         }
     }
 
-    private async Task<BasketItem> GetUpdatedBasketItem(decimal newPrice, int productId, string userId, HttpClient basketClient)
+    private static async Task<BasketItem> GetUpdatedBasketItem(decimal newPrice, int productId, string userId, HttpClient basketClient)
     {
         bool continueLoop = true;
         var counter = 0;
@@ -64,10 +66,7 @@ public class IntegrationEventsScenarios
         {
             //get the basket and verify that the price of the modified product is updated
             var basketGetResponse = await basketClient.GetAsync(BasketScenarioBase.Get.GetBasketByCustomer(userId));
-            var basketUpdated = JsonSerializer.Deserialize<CustomerBasket>(await basketGetResponse.Content.ReadAsStringAsync(), new JsonSerializerOptions
-            {
-                PropertyNameCaseInsensitive = true
-            });
+            var basketUpdated = JsonSerializer.Deserialize<CustomerBasket>(await basketGetResponse.Content.ReadAsStringAsync(), s_jsonOptions);
 
             itemUpdated = basketUpdated.Items.Single(pr => pr.ProductId == productId);
 
@@ -85,24 +84,21 @@ public class IntegrationEventsScenarios
         return itemUpdated;
     }
 
-    private async Task<PaginatedItemsViewModel<CatalogItem>> GetCatalogAsync(HttpClient catalogClient)
+    private static async Task<PaginatedItemsViewModel<CatalogItem>> GetCatalogAsync(HttpClient catalogClient)
     {
         var response = await catalogClient.GetAsync(CatalogScenariosBase.Get.Items(paginated: false));
         var items = await response.Content.ReadAsStringAsync();
-        return JsonSerializer.Deserialize<PaginatedItemsViewModel<CatalogItem>>(items, new JsonSerializerOptions
-        {
-            PropertyNameCaseInsensitive = true
-        });
+        return JsonSerializer.Deserialize<PaginatedItemsViewModel<CatalogItem>>(items, s_jsonOptions);
     }
 
-    private string ChangePrice(BasketItem itemToModify, decimal newPrice, PaginatedItemsViewModel<CatalogItem> catalogProducts)
+    private static string ChangePrice(BasketItem itemToModify, decimal newPrice, PaginatedItemsViewModel<CatalogItem> catalogProducts)
     {
         var catalogProduct = catalogProducts.Data.Single(pr => pr.Id == itemToModify.ProductId);
         catalogProduct.Price = newPrice;
         return JsonSerializer.Serialize(catalogProduct);
     }
 
-    private CustomerBasket ComposeBasket(string customerId, IEnumerable<CatalogItem> items)
+    private static CustomerBasket ComposeBasket(string customerId, IEnumerable<CatalogItem> items)
     {
         var basket = new CustomerBasket(customerId);
         foreach (var item in items)

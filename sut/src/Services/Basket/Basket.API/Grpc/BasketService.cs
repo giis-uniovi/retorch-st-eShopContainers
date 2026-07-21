@@ -14,7 +14,8 @@ public class BasketService : Basket.BasketBase
     [AllowAnonymous]
     public override async Task<CustomerBasketResponse> GetBasketById(BasketRequest request, ServerCallContext context)
     {
-        _logger.LogInformation("Begin grpc call from method {Method} for basket id {Id}", context.Method, request.Id);
+        if (_logger.IsEnabled(LogLevel.Information))
+            _logger.LogInformation("Begin grpc call from method {Method} for basket id {Id}", context.Method, request.Id);
 
         var data = await _repository.GetBasketAsync(request.Id);
 
@@ -34,7 +35,8 @@ public class BasketService : Basket.BasketBase
 
     public override async Task<CustomerBasketResponse> UpdateBasket(CustomerBasketRequest request, ServerCallContext context)
     {
-        _logger.LogInformation("Begin grpc call BasketService.UpdateBasketAsync for buyer id {Buyerid}", request.Buyerid);
+        if (_logger.IsEnabled(LogLevel.Information))
+            _logger.LogInformation("Begin grpc call BasketService.UpdateBasketAsync for buyer id {Buyerid}", request.Buyerid);
 
         var customerBasket = MapToCustomerBasket(request);
 
@@ -50,7 +52,7 @@ public class BasketService : Basket.BasketBase
         return null;
     }
 
-    private CustomerBasketResponse MapToCustomerBasketResponse(CustomerBasket customerBasket)
+    private static CustomerBasketResponse MapToCustomerBasketResponse(CustomerBasket customerBasket)
     {
         var response = new CustomerBasketResponse
         {
@@ -71,7 +73,7 @@ public class BasketService : Basket.BasketBase
         return response;
     }
 
-    private CustomerBasket MapToCustomerBasket(CustomerBasketRequest customerBasketRequest)
+    private static CustomerBasket MapToCustomerBasket(CustomerBasketRequest customerBasketRequest)
     {
         var response = new CustomerBasket
         {

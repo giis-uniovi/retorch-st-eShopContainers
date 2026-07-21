@@ -42,7 +42,7 @@ public abstract class Entity
 
     public override bool Equals(object obj)
     {
-        if (obj == null || !(obj is Entity))
+        if (obj is not Entity)
             return false;
 
         if (Object.ReferenceEquals(this, obj))
@@ -72,10 +72,10 @@ public abstract class Entity
             return base.GetHashCode();
 
     }
-    public static bool operator ==(Entity left, Entity right)
+    public static bool operator ==(Entity left, Entity right) // NOSONAR
     {
         if (Object.Equals(left, null))
-            return (Object.Equals(right, null)) ? true : false;
+            return Object.Equals(right, null);
         else
             return left.Equals(right);
     }

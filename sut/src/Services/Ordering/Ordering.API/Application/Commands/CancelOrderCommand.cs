@@ -4,6 +4,7 @@ public class CancelOrderCommand : IRequest<bool>
 {
 
     [DataMember]
+    [Required, System.Text.Json.Serialization.JsonRequired]
     public int OrderNumber { get; set; }
     public CancelOrderCommand()
     {

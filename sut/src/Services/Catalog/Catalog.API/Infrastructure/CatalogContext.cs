@@ -9,11 +9,11 @@ public class CatalogContext : DbContext
     public DbSet<CatalogBrand> CatalogBrands { get; set; }
     public DbSet<CatalogType> CatalogTypes { get; set; }
 
-    protected override void OnModelCreating(ModelBuilder builder)
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        builder.ApplyConfiguration(new CatalogBrandEntityTypeConfiguration());
-        builder.ApplyConfiguration(new CatalogTypeEntityTypeConfiguration());
-        builder.ApplyConfiguration(new CatalogItemEntityTypeConfiguration());
+        modelBuilder.ApplyConfiguration(new CatalogBrandEntityTypeConfiguration());
+        modelBuilder.ApplyConfiguration(new CatalogTypeEntityTypeConfiguration());
+        modelBuilder.ApplyConfiguration(new CatalogItemEntityTypeConfiguration());
     }
 }
 

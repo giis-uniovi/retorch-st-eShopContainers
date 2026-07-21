@@ -4,28 +4,27 @@ using Microsoft.eShopOnContainers.WebMVC.ViewModels;
 
 public class BasketService : IBasketService
 {
-    private readonly IOptions<AppSettings> _settings;
     private readonly HttpClient _apiClient;
     private readonly ILogger<BasketService> _logger;
+    private const string ApplicationJsonMediaType = "application/json";
     private readonly string _basketByPassUrl;
     private readonly string _purchaseUrl;
 
     public BasketService(HttpClient httpClient, IOptions<AppSettings> settings, ILogger<BasketService> logger)
     {
         _apiClient = httpClient;
-        _settings = settings;
         _logger = logger;
 
-        _basketByPassUrl = $"{_settings.Value.PurchaseUrl}/b/api/v1/basket";
-        _purchaseUrl = $"{_settings.Value.PurchaseUrl}/api/v1";
+        _basketByPassUrl = $"{settings.Value.PurchaseUrl}/b/api/v1/basket";
+        _purchaseUrl = $"{settings.Value.PurchaseUrl}/api/v1";
     }
 
     public async Task<Basket> GetBasket(ApplicationUser user)
     {
-        var uri = API.Basket.GetBasket(_basketByPassUrl, user.Id);
-        _logger.LogDebug("[GetBasket] -> Calling {Uri} to get the basket", uri);
+        var uri = Api.Basket.GetBasket(_basketByPassUrl, user.Id);
+        if (_logger.IsEnabled(LogLevel.Debug)) _logger.LogDebug("[GetBasket] -> Calling {Uri} to get the basket", uri);
         var response = await _apiClient.GetAsync(uri);
-        _logger.LogDebug("[GetBasket] -> response code {StatusCode}", response.StatusCode);
+        if (_logger.IsEnabled(LogLevel.Debug)) _logger.LogDebug("[GetBasket] -> response code {StatusCode}", response.StatusCode);
         var responseString = await response.Content.ReadAsStringAsync();
         return string.IsNullOrEmpty(responseString) ?
             new Basket() { BuyerId = user.Id } :
@@ -34,9 +33,9 @@ public class BasketService : IBasketService
 
     public async Task<Basket> UpdateBasket(Basket basket)
     {
-        var uri = API.Basket.UpdateBasket(_basketByPassUrl);
+        var uri = Api.Basket.UpdateBasket(_basketByPassUrl);
 
-        var basketContent = new StringContent(JsonSerializer.Serialize(basket), Encoding.UTF8, "application/json");
+        var basketContent = new StringContent(JsonSerializer.Serialize(basket), Encoding.UTF8, ApplicationJsonMediaType);
 
         var response = await _apiClient.PostAsync(uri, basketContent);
 
@@ -45,12 +44,13 @@ public class BasketService : IBasketService
         return basket;
     }
 
-    public async Task Checkout(BasketDTO basket)
+    public async Task Checkout(BasketDto basket)
     {
-        var uri = API.Basket.CheckoutBasket(_basketByPassUrl);
-        var basketContent = new StringContent(JsonSerializer.Serialize(basket), Encoding.UTF8, "application/json");
+        var uri = Api.Basket.CheckoutBasket(_basketByPassUrl);
+        var basketContent = new StringContent(JsonSerializer.Serialize(basket), Encoding.UTF8, ApplicationJsonMediaType);
 
-        _logger.LogInformation("Uri checkout {uri}", uri);
+        if (_logger.IsEnabled(LogLevel.Information))
+            _logger.LogInformation("Uri checkout {Uri}", uri);
 
         var response = await _apiClient.PostAsync(uri, basketContent);
 
@@ -59,7 +59,7 @@ public class BasketService : IBasketService
 
     public async Task<Basket> SetQuantities(ApplicationUser user, Dictionary<string, int> quantities)
     {
-        var uri = API.Purchase.UpdateBasketItem(_purchaseUrl);
+        var uri = Api.Purchase.UpdateBasketItem(_purchaseUrl);
 
         var basketUpdate = new
         {
@@ -71,7 +71,7 @@ public class BasketService : IBasketService
             }).ToArray()
         };
 
-        var basketContent = new StringContent(JsonSerializer.Serialize(basketUpdate), Encoding.UTF8, "application/json");
+        var basketContent = new StringContent(JsonSerializer.Serialize(basketUpdate), Encoding.UTF8, ApplicationJsonMediaType);
 
         var response = await _apiClient.PutAsync(uri, basketContent);
 
@@ -84,7 +84,7 @@ public class BasketService : IBasketService
 
     public async Task<Order> GetOrderDraft(string basketId)
     {
-        var uri = API.Purchase.GetOrderDraft(_purchaseUrl, basketId);
+        var uri = Api.Purchase.GetOrderDraft(_purchaseUrl, basketId);
 
         var responseString = await _apiClient.GetStringAsync(uri);
 
@@ -95,7 +95,7 @@ public class BasketService : IBasketService
 
     public async Task AddItemToBasket(ApplicationUser user, int productId)
     {
-        var uri = API.Purchase.AddItemToBasket(_purchaseUrl);
+        var uri = Api.Purchase.AddItemToBasket(_purchaseUrl);
 
         var newItem = new
         {
@@ -104,8 +104,8 @@ public class BasketService : IBasketService
             Quantity = 1
         };
 
-        var basketContent = new StringContent(JsonSerializer.Serialize(newItem), Encoding.UTF8, "application/json");
+        var basketContent = new StringContent(JsonSerializer.Serialize(newItem), Encoding.UTF8, ApplicationJsonMediaType);
 
-        var response = await _apiClient.PostAsync(uri, basketContent);
+        await _apiClient.PostAsync(uri, basketContent);
     }
 }

@@ -3,7 +3,7 @@
 public class UpdateOrderWhenBuyerAndPaymentMethodVerifiedDomainEventHandler : INotificationHandler<BuyerAndPaymentMethodVerifiedDomainEvent>
 {
     private readonly IOrderRepository _orderRepository;
-    private readonly ILogger _logger;
+    private readonly ILogger<UpdateOrderWhenBuyerAndPaymentMethodVerifiedDomainEventHandler> _logger;
 
     public UpdateOrderWhenBuyerAndPaymentMethodVerifiedDomainEventHandler(
         IOrderRepository orderRepository,

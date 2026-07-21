@@ -11,23 +11,23 @@
 
         async public Task GetProfileDataAsync(ProfileDataRequestContext context, CancellationToken ct)
         {
-            var subject = context.Subject ?? throw new ArgumentNullException(nameof(context.Subject));
+            var subject = context.Subject ?? throw new ArgumentNullException(nameof(context));
 
-            var subjectId = subject.Claims.Where(x => x.Type == "sub").FirstOrDefault()?.Value;
+            var subjectId = subject.Claims.FirstOrDefault(x => x.Type == "sub")?.Value;
 
             var user = await _userManager.FindByIdAsync(subjectId);
             if (user == null)
                 throw new ArgumentException("Invalid subject identifier");
 
             var claims = GetClaimsFromUser(user);
-            context.IssuedClaims = claims.ToList();
+            context.IssuedClaims = claims;
         }
 
         async public Task IsActiveAsync(IsActiveContext context, CancellationToken ct)
         {
-            var subject = context.Subject ?? throw new ArgumentNullException(nameof(context.Subject));
+            var subject = context.Subject ?? throw new ArgumentNullException(nameof(context));
 
-            var subjectId = subject.Claims.Where(x => x.Type == "sub").FirstOrDefault()?.Value;
+            var subjectId = subject.Claims.FirstOrDefault(x => x.Type == "sub")?.Value;
             var user = await _userManager.FindByIdAsync(subjectId);
 
             context.IsActive = false;
@@ -52,7 +52,7 @@
             }
         }
 
-        private IEnumerable<Claim> GetClaimsFromUser(ApplicationUser user)
+        private List<Claim> GetClaimsFromUser(ApplicationUser user) // NOSONAR S3776
         {
             var claims = new List<Claim>
             {

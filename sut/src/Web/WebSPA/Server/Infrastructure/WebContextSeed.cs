@@ -2,7 +2,7 @@
 
 using Microsoft.Extensions.Logging;
 
-public class WebContextSeed
+public static class WebContextSeed
 {
     public static void Seed(IApplicationBuilder applicationBuilder, IWebHostEnvironment env, ILogger logger)
     {

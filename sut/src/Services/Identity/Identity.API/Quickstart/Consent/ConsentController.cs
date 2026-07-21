@@ -76,9 +76,7 @@ public class ConsentController : Controller
         return View("Error");
     }
 
-    /*****************************************/
-    /* helper APIs for the ConsentController */
-    /*****************************************/
+    // helper APIs for the ConsentController
     private async Task<ProcessConsentResult> ProcessConsent(ConsentInputModel model)
     {
         var result = new ProcessConsentResult();
@@ -104,14 +102,10 @@ public class ConsentController : Controller
             if (model.ScopesConsented != null && model.ScopesConsented.Any())
             {
                 var scopes = model.ScopesConsented;
-                if (ConsentOptions.EnableOfflineAccess == false)
-                {
-                    scopes = scopes.Where(x => x != IdentityServerConstants.StandardScopes.OfflineAccess);
-                }
 
                 grantedConsent = new ConsentResponse
                 {
-                    RememberConsent = model.RememberConsent,
+                    RememberConsent = model.RememberConsent ?? false,
                     ScopesValuesConsented = scopes.ToArray(),
                     Description = model.Description
                 };
@@ -156,13 +150,13 @@ public class ConsentController : Controller
         }
         else
         {
-            _logger.LogError("No consent request matching request: {0}", returnUrl);
+            _logger.LogError("No consent request matching request: {ReturnUrl}", returnUrl);
         }
 
         return null;
     }
 
-    private ConsentViewModel CreateConsentViewModel(
+    private static ConsentViewModel CreateConsentViewModel(
         ConsentInputModel model, string returnUrl,
         AuthorizationRequest request)
     {
@@ -201,7 +195,7 @@ public class ConsentController : Controller
         return vm;
     }
 
-    private ScopeViewModel CreateScopeViewModel(IdentityResource identity, bool check)
+    private static ScopeViewModel CreateScopeViewModel(IdentityResource identity, bool check)
     {
         return new ScopeViewModel
         {
@@ -214,7 +208,7 @@ public class ConsentController : Controller
         };
     }
 
-    public ScopeViewModel CreateScopeViewModel(ParsedScopeValue parsedScopeValue, ApiScope apiScope, bool check)
+    public static ScopeViewModel CreateScopeViewModel(ParsedScopeValue parsedScopeValue, ApiScope apiScope, bool check)
     {
         var displayName = apiScope.DisplayName ?? apiScope.Name;
         if (!string.IsNullOrWhiteSpace(parsedScopeValue.ParsedParameter))
@@ -233,7 +227,7 @@ public class ConsentController : Controller
         };
     }
 
-    private ScopeViewModel GetOfflineAccessScope(bool check)
+    private static ScopeViewModel GetOfflineAccessScope(bool check)
     {
         return new ScopeViewModel
         {

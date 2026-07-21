@@ -35,7 +35,7 @@ using (var scope = app.Services.CreateScope())
     var logger = app.Services.GetService<ILogger<CatalogContextSeed>>();
     await context.Database.MigrateAsync();
 
-    await new CatalogContextSeed().SeedAsync(context, app.Environment, settings, logger);
+    await CatalogContextSeed.SeedAsync(context, app.Environment, settings, logger);
     var integEventContext = scope.ServiceProvider.GetRequiredService<IntegrationEventLogContext>();
     await integEventContext.Database.MigrateAsync();
 }

@@ -8,6 +8,6 @@ public interface IOrderingService
     Task CancelOrder(string orderId);
     Task ShipOrder(string orderId);
     Order MapUserInfoIntoOrder(ApplicationUser user, Order order);
-    BasketDTO MapOrderToBasket(Order order);
+    BasketDto MapOrderToBasket(Order order);
     void OverrideUserInfoIntoOrder(Order original, Order destination);
 }

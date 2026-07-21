@@ -57,7 +57,7 @@ export class OrdersNewComponent {
                 this.isOrderProcessing = false;
                 return throwError(() => error);
             }))
-            .subscribe(res => {
+            .subscribe(() => {
                 this.router.navigate(['orders']);
             });
         this.errorReceived = false;

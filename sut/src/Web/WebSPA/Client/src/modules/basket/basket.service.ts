@@ -43,7 +43,7 @@ export class BasketService {
                     this.purchaseUrl = this.configurationService.serverSettings.purchaseUrl;
                     this.loadData();
                 } else {
-                    this.configurationService.settingsLoaded$.subscribe(x => {
+                    this.configurationService.settingsLoaded$.subscribe(() => {
                         this.basketUrl = this.configurationService.serverSettings.purchaseUrl;
                         this.purchaseUrl = this.configurationService.serverSettings.purchaseUrl;
                         this.loadData();
@@ -52,13 +52,13 @@ export class BasketService {
             }
         }
 
-        this.basketWrapperService.orderCreated$.subscribe(x => {
+        this.basketWrapperService.orderCreated$.subscribe(() => {
             this.dropBasket();
         });
     }
 
     addItemToBasket(item): Observable<boolean> {
-        const basketItem = this.basket.items.find(value => value.productId == item.productId);
+        const basketItem = this.basket.items.find(value => value.productId === item.productId);
 
         if (basketItem) {
             basketItem.quantity++;
@@ -123,7 +123,7 @@ export class BasketService {
 
     dropBasket() {
         this.basket.items = [];
-        this.setBasket(this.basket).subscribe(res => {
+        this.setBasket(this.basket).subscribe(() => {
             this.basketUpdateSource.next();
         });
     }

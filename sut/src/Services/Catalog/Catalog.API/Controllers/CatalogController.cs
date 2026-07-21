@@ -4,6 +4,7 @@
 [ApiController]
 public class CatalogController : ControllerBase
 {
+    private const string ItemsRoute = "items";
     private readonly CatalogContext _catalogContext;
     private readonly CatalogSettings _settings;
     private readonly ICatalogIntegrationEventService _catalogIntegrationEventService;
@@ -19,17 +20,17 @@ public class CatalogController : ControllerBase
 
     // GET api/v1/[controller]/items[?pageSize=3&pageIndex=10]
     [HttpGet]
-    [Route("items")]
+    [Route(ItemsRoute)]
     [ProducesResponseType(typeof(PaginatedItemsViewModel<CatalogItem>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(IEnumerable<CatalogItem>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> ItemsAsync([FromQuery] int pageSize = 10, [FromQuery] int pageIndex = 0, string ids = null)
+    public async Task<IActionResult> ItemsAsync([FromQuery] int? pageSize = null, [FromQuery] int? pageIndex = null, string ids = null)
     {
         if (!string.IsNullOrEmpty(ids))
         {
             var items = await GetItemsByIdsAsync(ids);
 
-            if (!items.Any())
+            if (items.Count == 0)
             {
                 return BadRequest("ids value invalid. Must be comma-separated list of numbers");
             }
@@ -37,18 +38,21 @@ public class CatalogController : ControllerBase
             return Ok(items);
         }
 
+        int ps = pageSize ?? 10;
+        int pi = pageIndex ?? 0;
+
         var totalItems = await _catalogContext.CatalogItems
             .LongCountAsync();
 
         var itemsOnPage = await _catalogContext.CatalogItems
             .OrderBy(c => c.Name)
-            .Skip(pageSize * pageIndex)
-            .Take(pageSize)
+            .Skip(ps * pi)
+            .Take(ps)
             .ToListAsync();
 
         itemsOnPage = ChangeUriPlaceholder(itemsOnPage);
 
-        var model = new PaginatedItemsViewModel<CatalogItem>(pageIndex, pageSize, totalItems, itemsOnPage);
+        var model = new PaginatedItemsViewModel<CatalogItem>(pi, ps, totalItems, itemsOnPage);
 
         return Ok(model);
     }
@@ -101,28 +105,34 @@ public class CatalogController : ControllerBase
     // GET api/v1/[controller]/items/withname/samplename[?pageSize=3&pageIndex=10]
     [HttpGet]
     [Route("items/withname/{name:minlength(1)}")]
-    public async Task<ActionResult<PaginatedItemsViewModel<CatalogItem>>> ItemsWithNameAsync(string name, [FromQuery] int pageSize = 10, [FromQuery] int pageIndex = 0)
+    public async Task<ActionResult<PaginatedItemsViewModel<CatalogItem>>> ItemsWithNameAsync(string name, [FromQuery] int? pageSize = null, [FromQuery] int? pageIndex = null)
     {
+        int ps = pageSize ?? 10;
+        int pi = pageIndex ?? 0;
+
         var totalItems = await _catalogContext.CatalogItems
             .Where(c => c.Name.StartsWith(name))
             .LongCountAsync();
 
         var itemsOnPage = await _catalogContext.CatalogItems
             .Where(c => c.Name.StartsWith(name))
-            .Skip(pageSize * pageIndex)
-            .Take(pageSize)
+            .Skip(ps * pi)
+            .Take(ps)
             .ToListAsync();
 
         itemsOnPage = ChangeUriPlaceholder(itemsOnPage);
 
-        return new PaginatedItemsViewModel<CatalogItem>(pageIndex, pageSize, totalItems, itemsOnPage);
+        return new PaginatedItemsViewModel<CatalogItem>(pi, ps, totalItems, itemsOnPage);
     }
 
     // GET api/v1/[controller]/items/type/1/brand[?pageSize=3&pageIndex=10]
     [HttpGet]
     [Route("items/type/{catalogTypeId}/brand/{catalogBrandId:int?}")]
-    public async Task<ActionResult<PaginatedItemsViewModel<CatalogItem>>> ItemsByTypeIdAndBrandIdAsync(int catalogTypeId, int? catalogBrandId, [FromQuery] int pageSize = 10, [FromQuery] int pageIndex = 0)
+    public async Task<ActionResult<PaginatedItemsViewModel<CatalogItem>>> ItemsByTypeIdAndBrandIdAsync(int catalogTypeId, int? catalogBrandId, [FromQuery] int? pageSize = null, [FromQuery] int? pageIndex = null)
     {
+        int ps = pageSize ?? 10;
+        int pi = pageIndex ?? 0;
+
         var root = (IQueryable<CatalogItem>)_catalogContext.CatalogItems;
 
         root = root.Where(ci => ci.CatalogTypeId == catalogTypeId);
@@ -136,20 +146,23 @@ public class CatalogController : ControllerBase
             .LongCountAsync();
 
         var itemsOnPage = await root
-            .Skip(pageSize * pageIndex)
-            .Take(pageSize)
+            .Skip(ps * pi)
+            .Take(ps)
             .ToListAsync();
 
         itemsOnPage = ChangeUriPlaceholder(itemsOnPage);
 
-        return new PaginatedItemsViewModel<CatalogItem>(pageIndex, pageSize, totalItems, itemsOnPage);
+        return new PaginatedItemsViewModel<CatalogItem>(pi, ps, totalItems, itemsOnPage);
     }
 
     // GET api/v1/[controller]/items/type/all/brand[?pageSize=3&pageIndex=10]
     [HttpGet]
     [Route("items/type/all/brand/{catalogBrandId:int?}")]
-    public async Task<ActionResult<PaginatedItemsViewModel<CatalogItem>>> ItemsByBrandIdAsync(int? catalogBrandId, [FromQuery] int pageSize = 10, [FromQuery] int pageIndex = 0)
+    public async Task<ActionResult<PaginatedItemsViewModel<CatalogItem>>> ItemsByBrandIdAsync(int? catalogBrandId, [FromQuery] int? pageSize = null, [FromQuery] int? pageIndex = null)
     {
+        int ps = pageSize ?? 10;
+        int pi = pageIndex ?? 0;
+
         var root = (IQueryable<CatalogItem>)_catalogContext.CatalogItems;
 
         if (catalogBrandId.HasValue)
@@ -161,13 +174,13 @@ public class CatalogController : ControllerBase
             .LongCountAsync();
 
         var itemsOnPage = await root
-            .Skip(pageSize * pageIndex)
-            .Take(pageSize)
+            .Skip(ps * pi)
+            .Take(ps)
             .ToListAsync();
 
         itemsOnPage = ChangeUriPlaceholder(itemsOnPage);
 
-        return new PaginatedItemsViewModel<CatalogItem>(pageIndex, pageSize, totalItems, itemsOnPage);
+        return new PaginatedItemsViewModel<CatalogItem>(pi, ps, totalItems, itemsOnPage);
     }
 
     // GET api/v1/[controller]/CatalogTypes
@@ -187,7 +200,7 @@ public class CatalogController : ControllerBase
     }
 
     //PUT api/v1/[controller]/items
-    [Route("items")]
+    [Route(ItemsRoute)]
     [HttpPut]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status201Created)]
@@ -227,7 +240,7 @@ public class CatalogController : ControllerBase
     }
 
     //POST api/v1/[controller]/items
-    [Route("items")]
+    [Route(ItemsRoute)]
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status201Created)]
     public async Task<ActionResult> CreateProductAsync([FromBody] CatalogItem product)
@@ -256,7 +269,7 @@ public class CatalogController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult> DeleteProductAsync(int id)
     {
-        var product = _catalogContext.CatalogItems.SingleOrDefault(x => x.Id == id);
+        var product = await _catalogContext.CatalogItems.SingleOrDefaultAsync(x => x.Id == id);
 
         if (product == null)
         {

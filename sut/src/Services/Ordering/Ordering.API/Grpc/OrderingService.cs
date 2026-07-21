@@ -5,6 +5,8 @@ using CreateOrderDraftCommand = GrpcOrdering.CreateOrderDraftCommand;
 using BasketItem = GrpcOrdering.BasketItem;
 using OrderItemDTO = GrpcOrdering.OrderItemDTO;
 
+namespace Microsoft.eShopOnContainers.Services.Ordering.API.Grpc;
+
 public class OrderingService : OrderingGrpc.OrderingGrpcBase
 {
     private readonly IMediator _mediator;
@@ -16,37 +18,38 @@ public class OrderingService : OrderingGrpc.OrderingGrpcBase
         _logger = logger;
     }
 
-    public override async Task<OrderDraftDTO> CreateOrderDraftFromBasketData(CreateOrderDraftCommand createOrderDraftCommand, ServerCallContext context)
+    public override async Task<OrderDraftDTO> CreateOrderDraftFromBasketData(CreateOrderDraftCommand request, ServerCallContext context)
     {
-        _logger.LogInformation("Begin grpc call from method {Method} for ordering get order draft {CreateOrderDraftCommand}", context.Method, createOrderDraftCommand);
-        _logger.LogTrace(
+        if (_logger.IsEnabled(LogLevel.Information))
+            _logger.LogInformation("Begin grpc call from method {Method} for ordering get order draft {CreateOrderDraftCommand}", context.Method, request);
+        _logger.LogTrace( // NOSONAR CA1873
             "Sending command: {CommandName} - {IdProperty}: {CommandId} ({@Command})",
-            createOrderDraftCommand.GetGenericTypeName(),
-            nameof(createOrderDraftCommand.BuyerId),
-            createOrderDraftCommand.BuyerId,
-            createOrderDraftCommand);
+            request.GetGenericTypeName(),
+            nameof(request.BuyerId),
+            request.BuyerId,
+            request);
 
         var command = new AppCommand.CreateOrderDraftCommand(
-                        createOrderDraftCommand.BuyerId,
-                        this.MapBasketItems(createOrderDraftCommand.Items));
+                        request.BuyerId,
+                        MapBasketItems(request.Items));
 
         var data = await _mediator.Send(command);
 
         if (data != null)
         {
-            context.Status = new Status(StatusCode.OK, $" ordering get order draft {createOrderDraftCommand} do exist");
+            context.Status = new Status(StatusCode.OK, $" ordering get order draft {request} do exist");
 
-            return this.MapResponse(data);
+            return MapResponse(data);
         }
         else
         {
-            context.Status = new Status(StatusCode.NotFound, $" ordering get order draft {createOrderDraftCommand} do not exist");
+            context.Status = new Status(StatusCode.NotFound, $" ordering get order draft {request} do not exist");
         }
 
         return new OrderDraftDTO();
     }
 
-    public OrderDraftDTO MapResponse(AppCommand.OrderDraftDTO order)
+    public static OrderDraftDTO MapResponse(AppCommand.OrderDraftDto order)
     {
         var result = new OrderDraftDTO()
         {
@@ -66,7 +69,7 @@ public class OrderingService : OrderingGrpc.OrderingGrpcBase
         return result;
     }
 
-    public IEnumerable<ApiModels.BasketItem> MapBasketItems(RepeatedField<BasketItem> items)
+    public static IEnumerable<ApiModels.BasketItem> MapBasketItems(RepeatedField<BasketItem> items)
     {
         return items.Select(x => new ApiModels.BasketItem()
         {

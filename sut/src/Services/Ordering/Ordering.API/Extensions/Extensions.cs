@@ -1,17 +1,22 @@
 ﻿using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 
+namespace Microsoft.eShopOnContainers.Services.Ordering.API.Extensions;
+
 internal static class Extensions
 {
+    private const string OrderingDbName = "OrderingDB";
+    private static readonly string[] ReadyTags = new string[] { "ready" };
+
     public static IServiceCollection AddHealthChecks(this IServiceCollection services, IConfiguration configuration)
     {
         var hcBuilder = services.AddHealthChecks();
 
         hcBuilder
             .AddSqlServer(_ =>
-                configuration.GetRequiredConnectionString("OrderingDB"),
+                configuration.GetRequiredConnectionString(OrderingDbName),
                 name: "OrderingDB-check",
-                tags: new string[] { "ready" });
+                tags: ReadyTags);
 
         return services;
     }
@@ -25,17 +30,17 @@ internal static class Extensions
             // Configuring Connection Resiliency: https://docs.microsoft.com/en-us/ef/core/miscellaneous/connection-resiliency 
 
             sqlOptions.EnableRetryOnFailure(maxRetryCount: 15, maxRetryDelay: TimeSpan.FromSeconds(30), errorNumbersToAdd: null);
-        };
+        }
 
         services.AddDbContext<OrderingContext>(options =>
         {
-            options.UseSqlServer(configuration.GetRequiredConnectionString("OrderingDB"), ConfigureSqlOptions);
+            options.UseSqlServer(configuration.GetRequiredConnectionString(OrderingDbName), ConfigureSqlOptions);
             options.ConfigureWarnings(w => w.Ignore(RelationalEventId.PendingModelChangesWarning));
         });
 
         services.AddDbContext<IntegrationEventLogContext>(options =>
         {
-            options.UseSqlServer(configuration.GetRequiredConnectionString("OrderingDB"), ConfigureSqlOptions);
+            options.UseSqlServer(configuration.GetRequiredConnectionString(OrderingDbName), ConfigureSqlOptions);
             options.ConfigureWarnings(w => w.Ignore(RelationalEventId.PendingModelChangesWarning));
         });
 

@@ -75,7 +75,7 @@ public class BasketController : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<BasketData>> UpdateQuantitiesAsync([FromBody] UpdateBasketItemsRequest data)
     {
-        if (!data.Updates.Any())
+        if (data.Updates.Count == 0)
         {
             return BadRequest("No updates sent");
         }
@@ -118,7 +118,7 @@ public class BasketController : ControllerBase
         }
 
         // Step 1: Get the item from catalog
-        var item = await _catalog.GetCatalogItemAsync(data.CatalogItemId);
+        var item = await _catalog.GetCatalogItemAsync(data.CatalogItemId ?? 0);
 
         //item.PictureUri = 
 
@@ -131,7 +131,7 @@ public class BasketController : ControllerBase
             PictureUrl = item.PictureUri,
             ProductId = item.Id,
             ProductName = item.Name,
-            Quantity = data.Quantity,
+            Quantity = data.Quantity ?? 0,
             Id = Guid.NewGuid().ToString()
         });
 

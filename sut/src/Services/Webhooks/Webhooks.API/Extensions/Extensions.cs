@@ -1,5 +1,9 @@
-﻿internal static class Extensions
+﻿namespace Webhooks.API.Extensions;
+
+internal static class Extensions
 {
+    private static readonly string[] ReadyTags = new string[] { "ready" };
+
     public static IServiceCollection AddDbContexts(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddDbContext<WebhooksContext>(options =>
@@ -25,7 +29,7 @@
             .AddSqlServer(_ =>
                 configuration.GetRequiredConnectionString("WebHooksDB"),
                 name: "WebhooksApiDb-check",
-                tags: new string[] { "ready" });
+                tags: ReadyTags);
 
         return services;
     }

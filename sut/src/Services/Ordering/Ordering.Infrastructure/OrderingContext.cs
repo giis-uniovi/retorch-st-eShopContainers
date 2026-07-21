@@ -1,4 +1,5 @@
 ﻿namespace Microsoft.eShopOnContainers.Services.Ordering.Infrastructure;
+#nullable enable
 
 public class OrderingContext : DbContext, IUnitOfWork
 {
@@ -15,17 +16,14 @@ public class OrderingContext : DbContext, IUnitOfWork
 
     public OrderingContext(DbContextOptions<OrderingContext> options) : base(options) { }
 
-    public IDbContextTransaction GetCurrentTransaction() => _currentTransaction;
-
-    public bool HasActiveTransaction => _currentTransaction != null;
-
     public OrderingContext(DbContextOptions<OrderingContext> options, IMediator mediator) : base(options)
     {
         _mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
-
-
-        System.Diagnostics.Debug.WriteLine("OrderingContext::ctor ->" + this.GetHashCode());
     }
+
+    public IDbContextTransaction GetCurrentTransaction() => _currentTransaction;
+
+    public bool HasActiveTransaction => _currentTransaction != null;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -50,7 +48,7 @@ public class OrderingContext : DbContext, IUnitOfWork
 
         // After executing this line all the changes (from the Command Handler and Domain Event Handlers) 
         // performed through the DbContext will be committed
-        var result = await base.SaveChangesAsync(cancellationToken);
+        await base.SaveChangesAsync(cancellationToken);
 
         return true;
     }
@@ -66,7 +64,7 @@ public class OrderingContext : DbContext, IUnitOfWork
 
     public async Task CommitTransactionAsync(IDbContextTransaction transaction)
     {
-        if (transaction == null) throw new ArgumentNullException(nameof(transaction));
+        ArgumentNullException.ThrowIfNull(transaction);
         if (transaction != _currentTransaction) throw new InvalidOperationException($"Transaction {transaction.TransactionId} is not current");
 
         try
