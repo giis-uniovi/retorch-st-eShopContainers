@@ -3,7 +3,7 @@
 public class OrderStatusChangedToPaidDomainEventHandler : INotificationHandler<OrderStatusChangedToPaidDomainEvent>
 {
     private readonly IOrderRepository _orderRepository;
-    private readonly ILogger _logger;
+    private readonly ILogger<OrderStatusChangedToPaidDomainEventHandler> _logger;
     private readonly IBuyerRepository _buyerRepository;
     private readonly IOrderingIntegrationEventService _orderingIntegrationEventService;
 

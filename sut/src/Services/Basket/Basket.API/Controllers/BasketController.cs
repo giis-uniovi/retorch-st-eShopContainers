@@ -8,15 +8,12 @@ public class BasketController : ControllerBase
     private readonly IBasketRepository _repository;
     private readonly IIdentityService _identityService;
     private readonly IEventBus _eventBus;
-    private readonly ILogger<BasketController> _logger;
 
     public BasketController(
-        ILogger<BasketController> logger,
         IBasketRepository repository,
         IIdentityService identityService,
         IEventBus eventBus)
     {
-        _logger = logger;
         _repository = repository;
         _identityService = identityService;
         _eventBus = eventBus;
@@ -58,21 +55,13 @@ public class BasketController : ControllerBase
 
         var eventMessage = new UserCheckoutAcceptedIntegrationEvent(userId, userName, basketCheckout.City, basketCheckout.Street,
             basketCheckout.State, basketCheckout.Country, basketCheckout.ZipCode, basketCheckout.CardNumber, basketCheckout.CardHolderName,
-            basketCheckout.CardExpiration, basketCheckout.CardSecurityNumber, basketCheckout.CardTypeId, basketCheckout.Buyer, basketCheckout.RequestId, basket);
+            basketCheckout.CardExpiration ?? DateTime.MinValue, basketCheckout.CardSecurityNumber,
+            basketCheckout.CardTypeId ?? 0, basketCheckout.Buyer, basketCheckout.RequestId ?? Guid.Empty, basket);
 
         // Once basket is checkout, sends an integration event to
         // ordering.api to convert basket to order and proceeds with
         // order creation process
-        try
-        {
-            _eventBus.Publish(eventMessage);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error Publishing integration event: {IntegrationEventId}", eventMessage.Id);
-
-            throw;
-        }
+        _eventBus.Publish(eventMessage);
 
         return Accepted();
     }

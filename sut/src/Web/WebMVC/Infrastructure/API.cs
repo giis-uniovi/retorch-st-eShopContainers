@@ -1,6 +1,6 @@
 ﻿namespace WebMVC.Infrastructure;
 
-public static class API
+public static class Api
 {
 
     public static class Purchase

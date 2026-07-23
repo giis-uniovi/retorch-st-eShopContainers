@@ -2,6 +2,8 @@
 
 public static class CustomExtensionMethods
 {
+    private static readonly string[] LiveReadyTags = new string[] { "live", "ready" };
+
     public static IServiceCollection AddHealthChecks(this IServiceCollection services, IConfiguration configuration)
     {
         var hcBuilder = services.AddHealthChecks();
@@ -9,7 +11,7 @@ public static class CustomExtensionMethods
         hcBuilder.AddSqlServer(_ =>
                 configuration.GetRequiredConnectionString("OrderingDB"),
                 name: "OrderingTaskDB-check",
-                tags: new string[] { "live", "ready" });
+                tags: LiveReadyTags);
 
         return services;
     }

@@ -1,12 +1,12 @@
 ﻿namespace WebMVC.Infrastructure;
 
-public class WebContextSeed
+public static class WebContextSeed
 {
     public static void Seed(IApplicationBuilder applicationBuilder, IWebHostEnvironment env)
     {
         var settings = applicationBuilder
             .ApplicationServices.GetRequiredService<IOptions<AppSettings>>().Value;
-        var log = applicationBuilder.ApplicationServices.GetRequiredService<ILogger<WebContextSeed>>();
+        var log = applicationBuilder.ApplicationServices.GetRequiredService<ILoggerFactory>().CreateLogger(nameof(WebContextSeed));
 
         var useCustomizationData = settings.UseCustomizationData;
         var contentRootPath = env.ContentRootPath;

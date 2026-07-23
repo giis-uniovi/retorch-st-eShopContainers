@@ -5,7 +5,7 @@ public class OrderStatusChangedToStockConfirmedDomainEventHandler
 {
     private readonly IOrderRepository _orderRepository;
     private readonly IBuyerRepository _buyerRepository;
-    private readonly ILogger _logger;
+    private readonly ILogger<OrderStatusChangedToStockConfirmedDomainEventHandler> _logger;
     private readonly IOrderingIntegrationEventService _orderingIntegrationEventService;
 
     public OrderStatusChangedToStockConfirmedDomainEventHandler(

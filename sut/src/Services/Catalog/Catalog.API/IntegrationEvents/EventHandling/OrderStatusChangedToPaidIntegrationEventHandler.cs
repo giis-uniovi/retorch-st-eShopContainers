@@ -18,12 +18,12 @@ public class OrderStatusChangedToPaidIntegrationEventHandler :
     {
         using (_logger.BeginScope(new List<KeyValuePair<string, object>> { new ("IntegrationEventContext", @event.Id) }))
         {
-            _logger.LogInformation("Handling integration event: {IntegrationEventId} - ({@IntegrationEvent})", @event.Id, @event);
+            if (_logger.IsEnabled(LogLevel.Information)) _logger.LogInformation("Handling integration event: {IntegrationEventId} - ({@IntegrationEvent})", @event.Id, @event);
 
             //we're not blocking stock/inventory
             foreach (var orderStockItem in @event.OrderStockItems)
             {
-                var catalogItem = _catalogContext.CatalogItems.Find(orderStockItem.ProductId);
+                var catalogItem = await _catalogContext.CatalogItems.FindAsync(orderStockItem.ProductId);
 
                 catalogItem.RemoveStock(orderStockItem.Units);
             }

@@ -15,7 +15,7 @@ public class CardExpirationAttribute : ValidationAttribute
         if ((int.TryParse(monthString, out var month)) &&
             (int.TryParse(yearString, out var year)))
         {
-            DateTime d = new DateTime(year, month, 1);
+            DateTime d = new DateTime(year, month, 1, 0, 0, 0, DateTimeKind.Unspecified);
 
             return d > DateTime.UtcNow;
         }

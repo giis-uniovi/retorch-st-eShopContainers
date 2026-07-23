@@ -8,6 +8,7 @@ namespace Microsoft.eShopOnContainers.Services.Ordering.API.Controllers;
 [ApiController]
 public class OrdersController : ControllerBase
 {
+    private const string SendCommandLog = "Sending command: {CommandName} - {IdProperty}: {CommandId} ({@Command})";
     private readonly IMediator _mediator;
     private readonly IOrderQueries _orderQueries;
     private readonly IIdentityService _identityService;
@@ -37,12 +38,13 @@ public class OrdersController : ControllerBase
         {
             var requestCancelOrder = new IdentifiedCommand<CancelOrderCommand, bool>(command, guid);
 
-            _logger.LogInformation(
-                "Sending command: {CommandName} - {IdProperty}: {CommandId} ({@Command})",
-                requestCancelOrder.GetGenericTypeName(),
-                nameof(requestCancelOrder.Command.OrderNumber),
-                requestCancelOrder.Command.OrderNumber,
-                requestCancelOrder);
+            if (_logger.IsEnabled(LogLevel.Information))
+                _logger.LogInformation(
+                    SendCommandLog,
+                    requestCancelOrder.GetGenericTypeName(),
+                    nameof(requestCancelOrder.Command.OrderNumber),
+                    requestCancelOrder.Command.OrderNumber,
+                    requestCancelOrder);
 
             commandResult = await _mediator.Send(requestCancelOrder);
         }
@@ -67,12 +69,13 @@ public class OrdersController : ControllerBase
         {
             var requestShipOrder = new IdentifiedCommand<ShipOrderCommand, bool>(command, guid);
 
-            _logger.LogInformation(
-                "Sending command: {CommandName} - {IdProperty}: {CommandId} ({@Command})",
-                requestShipOrder.GetGenericTypeName(),
-                nameof(requestShipOrder.Command.OrderNumber),
-                requestShipOrder.Command.OrderNumber,
-                requestShipOrder);
+            if (_logger.IsEnabled(LogLevel.Information))
+                _logger.LogInformation(
+                    SendCommandLog,
+                    requestShipOrder.GetGenericTypeName(),
+                    nameof(requestShipOrder.Command.OrderNumber),
+                    requestShipOrder.Command.OrderNumber,
+                    requestShipOrder);
 
             commandResult = await _mediator.Send(requestShipOrder);
         }
@@ -93,8 +96,6 @@ public class OrdersController : ControllerBase
     {
         try
         {
-            //Todo: It's good idea to take advantage of GetOrderByIdQuery and handle by GetCustomerByIdQueryHandler
-            //var order customer = await _mediator.Send(new GetOrderByIdQuery(orderId));
             var order = await _orderQueries.GetOrderAsync(orderId);
 
             return order;
@@ -127,14 +128,15 @@ public class OrdersController : ControllerBase
 
     [Route("draft")]
     [HttpPost]
-    public async Task<ActionResult<OrderDraftDTO>> CreateOrderDraftFromBasketDataAsync([FromBody] CreateOrderDraftCommand createOrderDraftCommand)
+    public async Task<ActionResult<OrderDraftDto>> CreateOrderDraftFromBasketDataAsync([FromBody] CreateOrderDraftCommand createOrderDraftCommand)
     {
-        _logger.LogInformation(
-            "Sending command: {CommandName} - {IdProperty}: {CommandId} ({@Command})",
-            createOrderDraftCommand.GetGenericTypeName(),
-            nameof(createOrderDraftCommand.BuyerId),
-            createOrderDraftCommand.BuyerId,
-            createOrderDraftCommand);
+        if (_logger.IsEnabled(LogLevel.Information))
+            _logger.LogInformation(
+                SendCommandLog,
+                createOrderDraftCommand.GetGenericTypeName(),
+                nameof(createOrderDraftCommand.BuyerId),
+                createOrderDraftCommand.BuyerId,
+                createOrderDraftCommand);
 
         return await _mediator.Send(createOrderDraftCommand);
     }

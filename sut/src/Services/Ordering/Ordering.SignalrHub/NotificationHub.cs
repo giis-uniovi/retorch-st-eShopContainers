@@ -9,9 +9,9 @@ public class NotificationsHub : Hub
         await base.OnConnectedAsync();
     }
 
-    public override async Task OnDisconnectedAsync(Exception ex)
+    public override async Task OnDisconnectedAsync(Exception exception)
     {
         await Groups.RemoveFromGroupAsync(Context.ConnectionId, Context.User.Identity.Name);
-        await base.OnDisconnectedAsync(ex);
+        await base.OnDisconnectedAsync(exception);
     }
 }

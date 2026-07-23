@@ -1,5 +1,7 @@
-﻿global using System.Data.Common;
-global using System.Data.SqlClient;
+﻿global using System.ComponentModel.DataAnnotations;
+global using System.Text.Json.Serialization;
+global using System.Data.Common;
+global using Microsoft.Data.SqlClient;
 global using System.Globalization;
 global using System.IO.Compression;
 global using System.Text.RegularExpressions;

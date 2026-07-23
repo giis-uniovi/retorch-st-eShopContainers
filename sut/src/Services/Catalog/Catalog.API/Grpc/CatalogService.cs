@@ -7,7 +7,7 @@ public class CatalogService : CatalogBase
 {
     private readonly CatalogContext _catalogContext;
     private readonly CatalogSettings _settings;
-    private readonly ILogger _logger;
+    private readonly ILogger<CatalogService> _logger;
 
     public CatalogService(CatalogContext dbContext, IOptions<CatalogSettings> settings, ILogger<CatalogService> logger)
     {
@@ -18,7 +18,8 @@ public class CatalogService : CatalogBase
 
     public override async Task<CatalogItemResponse> GetItemById(CatalogItemRequest request, ServerCallContext context)
     {
-        _logger.LogInformation("Begin grpc call CatalogService.GetItemById for product id {Id}", request.Id);
+        if (_logger.IsEnabled(LogLevel.Information))
+            _logger.LogInformation("Begin grpc call CatalogService.GetItemById for product id {Id}", request.Id);
         if (request.Id <= 0)
         {
             context.Status = new Status(StatusCode.FailedPrecondition, $"Id must be > 0 (received {request.Id})");
@@ -55,38 +56,29 @@ public class CatalogService : CatalogBase
     {
         if (!string.IsNullOrEmpty(request.Ids))
         {
-            var items = await GetItemsByIdsAsync(request.Ids);
+            var items = await _catalogContext.GetItemsByIdsAsync(request.Ids, _settings.PicBaseUrl, _settings.AzureStorageEnabled);
 
-            context.Status = !items.Any() ?
+            context.Status = items.Count == 0 ?
                 new Status(StatusCode.NotFound, $"ids value invalid. Must be comma-separated list of numbers") :
                 new Status(StatusCode.OK, string.Empty);
 
-            return this.MapToResponse(items);
+            return MapToResponse(items);
         }
 
-        var totalItems = await _catalogContext.CatalogItems
-            .LongCountAsync();
+        var (totalItems, itemsOnPage) = await _catalogContext.GetAllItemsPagedAsync(request.PageIndex, request.PageSize, _settings.PicBaseUrl, _settings.AzureStorageEnabled);
 
-        var itemsOnPage = await _catalogContext.CatalogItems
-            .OrderBy(c => c.Name)
-            .Skip(request.PageSize * request.PageIndex)
-            .Take(request.PageSize)
-            .ToListAsync();
-
-        itemsOnPage = ChangeUriPlaceholder(itemsOnPage);
-
-        var model = this.MapToResponse(itemsOnPage, totalItems, request.PageIndex, request.PageSize);
+        var model = MapToResponse(itemsOnPage, totalItems, request.PageIndex, request.PageSize);
         context.Status = new Status(StatusCode.OK, string.Empty);
 
         return model;
     }
 
-    private PaginatedItemsResponse MapToResponse(List<CatalogItem> items)
+    private static PaginatedItemsResponse MapToResponse(List<CatalogItem> items)
     {
-        return this.MapToResponse(items, items.Count, 1, items.Count);
+        return MapToResponse(items, items.Count, 1, items.Count);
     }
 
-    private PaginatedItemsResponse MapToResponse(List<CatalogItem> items, long count, int pageIndex, int pageSize)
+    private static PaginatedItemsResponse MapToResponse(List<CatalogItem> items, long count, int pageIndex, int pageSize)
     {
         var result = new PaginatedItemsResponse()
         {
@@ -133,35 +125,4 @@ public class CatalogService : CatalogBase
     }
 
 
-    private async Task<List<CatalogItem>> GetItemsByIdsAsync(string ids)
-    {
-        var numIds = ids.Split(',').Select(id => (Ok: int.TryParse(id, out int x), Value: x));
-
-        if (!numIds.All(nid => nid.Ok))
-        {
-            return new List<CatalogItem>();
-        }
-
-        var idsToSelect = numIds
-            .Select(id => id.Value);
-
-        var items = await _catalogContext.CatalogItems.Where(ci => idsToSelect.Contains(ci.Id)).ToListAsync();
-
-        items = ChangeUriPlaceholder(items);
-
-        return items;
-    }
-
-    private List<CatalogItem> ChangeUriPlaceholder(List<CatalogItem> items)
-    {
-        var baseUri = _settings.PicBaseUrl;
-        var azureStorageEnabled = _settings.AzureStorageEnabled;
-
-        foreach (var item in items)
-        {
-            item.FillProductUrl(baseUri, azureStorageEnabled: azureStorageEnabled);
-        }
-
-        return items;
-    }
 }

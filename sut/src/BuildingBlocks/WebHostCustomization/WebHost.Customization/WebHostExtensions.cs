@@ -1,4 +1,4 @@
-﻿using System.Data.SqlClient;
+﻿using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -27,7 +27,8 @@ public static class IWebHostExtensions
 
         try
         {
-            logger.LogInformation("Migrating database associated with context {DbContextName}", typeof(TContext).Name);
+            if (logger.IsEnabled(LogLevel.Information))
+                logger.LogInformation("Migrating database associated with context {DbContextName}", typeof(TContext).Name);
 
             if (underK8s)
             {
@@ -42,7 +43,7 @@ public static class IWebHostExtensions
                         sleepDurationProvider: retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)),
                         onRetry: (exception, timeSpan, retry, ctx) =>
                         {
-                            logger.LogWarning(exception, "[{prefix}] Error migrating database (attempt {retry} of {retries})", nameof(TContext), retry, retries);
+                            logger.LogWarning(exception, "[{Prefix}] Error migrating database (attempt {Retry} of {Retries})", nameof(TContext), retry, retries);
                         });
 
                 //if the sql server container is not created on run docker compose this
@@ -52,7 +53,8 @@ public static class IWebHostExtensions
                 retry.Execute(() => InvokeSeeder(seeder, context, scopeServices));
             }
 
-            logger.LogInformation("Migrated database associated with context {DbContextName}", typeof(TContext).Name);
+            if (logger.IsEnabled(LogLevel.Information))
+                logger.LogInformation("Migrated database associated with context {DbContextName}", typeof(TContext).Name);
         }
         catch (Exception ex)
         {

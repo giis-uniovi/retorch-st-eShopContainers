@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using System.Data.SqlClient;
+using Microsoft.Data.SqlClient;
 using System.Threading;
 using System.Threading.Tasks;
 using Dapper;
@@ -49,25 +49,26 @@ namespace Ordering.BackgroundTasks.Services
             {
                 var confirmGracePeriodEvent = new GracePeriodConfirmedIntegrationEvent(orderId);
 
-                _logger.LogInformation("Publishing integration event: {IntegrationEventId} - ({@IntegrationEvent})", confirmGracePeriodEvent.Id, confirmGracePeriodEvent);
+                if (_logger.IsEnabled(LogLevel.Information))
+                    _logger.LogInformation("Publishing integration event: {IntegrationEventId} - ({@IntegrationEvent})", confirmGracePeriodEvent.Id, confirmGracePeriodEvent);
 
                 _eventBus.Publish(confirmGracePeriodEvent);
             }
         }
 
-        private IEnumerable<int> GetConfirmedGracePeriodOrders()
+        private List<int> GetConfirmedGracePeriodOrders()
         {
-            IEnumerable<int> orderIds = new List<int>();
+            var orderIds = new List<int>();
 
             using var conn = new SqlConnection(_settings.ConnectionString);
             try
             {
                 conn.Open();
                 orderIds = conn.Query<int>(
-                    @"SELECT Id FROM [ordering].[orders] 
+                    @"SELECT Id FROM [ordering].[orders]
                         WHERE DATEDIFF(minute, [OrderDate], GETDATE()) >= @GracePeriodTime
                         AND [OrderStatusId] = 1",
-                    new { _settings.GracePeriodTime });
+                    new { _settings.GracePeriodTime }).ToList();
             }
             catch (SqlException exception)
             {

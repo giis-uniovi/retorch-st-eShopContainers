@@ -67,12 +67,10 @@ class OrderEntityTypeConfiguration : IEntityTypeConfiguration<Order>
         orderConfiguration.HasOne<Buyer>()
             .WithMany()
             .IsRequired(false)
-            // .HasForeignKey("BuyerId");
             .HasForeignKey("_buyerId");
 
         orderConfiguration.HasOne(o => o.OrderStatus)
             .WithMany()
-            // .HasForeignKey("OrderStatusId");
             .HasForeignKey("_orderStatusId");
     }
 }

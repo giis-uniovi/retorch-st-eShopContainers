@@ -5,6 +5,7 @@ namespace Basket.FunctionalTests
     public class RedisBasketRepositoryTests
         : BasketScenarioBase
     {
+        private const string FakeBuyerId = "buyerId";
 
         [Fact]
         public async Task UpdateBasket_return_and_add_basket()
@@ -16,7 +17,7 @@ namespace Basket.FunctionalTests
 
             var basket = await redisBasketRepository.UpdateBasketAsync(new CustomerBasket("customerId")
             {
-                BuyerId = "buyerId",
+                BuyerId = FakeBuyerId,
                 Items = BuildBasketItems()
             });
 
@@ -34,11 +35,11 @@ namespace Basket.FunctionalTests
 
             var basket = await redisBasketRepository.UpdateBasketAsync(new CustomerBasket("customerId")
             {
-                BuyerId = "buyerId",
+                BuyerId = FakeBuyerId,
                 Items = BuildBasketItems()
             });
 
-            var deleteResult = await redisBasketRepository.DeleteBasketAsync("buyerId");
+            var deleteResult = await redisBasketRepository.DeleteBasketAsync(FakeBuyerId);
 
             var result = await redisBasketRepository.GetBasketAsync(basket.BuyerId);
 
@@ -46,13 +47,13 @@ namespace Basket.FunctionalTests
             Assert.Null(result);
         }
 
-        RedisBasketRepository BuildBasketRepository(ConnectionMultiplexer connMux)
+        static RedisBasketRepository BuildBasketRepository(ConnectionMultiplexer connMux)
         {
             var loggerFactory = new LoggerFactory();
             return new RedisBasketRepository(loggerFactory.CreateLogger<RedisBasketRepository>(), connMux);
         }
 
-        List<BasketItem> BuildBasketItems()
+        static List<BasketItem> BuildBasketItems()
         {
             return new List<BasketItem>()
             {

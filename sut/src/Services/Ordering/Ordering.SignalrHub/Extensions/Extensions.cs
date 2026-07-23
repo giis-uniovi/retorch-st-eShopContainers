@@ -1,12 +1,13 @@
 ﻿using Microsoft.AspNetCore.Http;
 
+namespace Microsoft.eShopOnContainers.Services.Ordering.SignalrHub.Extensions;
+
 internal static class Extensions
 {
     public static IServiceCollection AddSignalR(this IServiceCollection services, IConfiguration configuration)
     {
         if (configuration.GetConnectionString("redis") is string redisConnection)
         {
-            // TODO: Add a redis health check
             services.AddSignalR().AddStackExchangeRedis(redisConnection);
         }
         else

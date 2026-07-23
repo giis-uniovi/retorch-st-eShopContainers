@@ -1,18 +1,31 @@
 ﻿namespace Microsoft.eShopOnContainers.Services.Identity.API.Configuration
 {
-    public class Config
+    public static class Config
     {
+        private const string OrdersScope = "orders";
+        private const string BasketScope = "basket";
+        private const string WebShoppingAggScope = "webshoppingagg";
+        private const string MobileShoppingAggScope = "mobileshoppingagg";
+        private const string WebhooksScope = "webhooks";
+        private const string OrdersSignalrHubScope = "orders.signalrhub";
+        private const string MvcClientKey = "MvcClient";
+        private const string SpaClientKey = "SpaClient";
+        private const string WebhooksWebClientKey = "WebhooksWebClient";
+        private const string SharedSecret = "secret";
+        private const string SwaggerOAuth2RedirectSuffix = "/swagger/oauth2-redirect.html";
+        private const string SwaggerSuffix = "/swagger/";
+
         // ApiResources define the apis in your system
         public static IEnumerable<ApiResource> GetApis()
         {
             return new List<ApiResource>
             {
-                new ApiResource("orders", "Orders Service"),
-                new ApiResource("basket", "Basket Service"),
-                new ApiResource("mobileshoppingagg", "Mobile Shopping Aggregator"),
-                new ApiResource("webshoppingagg", "Web Shopping Aggregator"),
-                new ApiResource("orders.signalrhub", "Ordering Signalr Hub"),
-                new ApiResource("webhooks", "Webhooks registration Service"),
+                new ApiResource(OrdersScope, "Orders Service"),
+                new ApiResource(BasketScope, "Basket Service"),
+                new ApiResource(MobileShoppingAggScope, "Mobile Shopping Aggregator"),
+                new ApiResource(WebShoppingAggScope, "Web Shopping Aggregator"),
+                new ApiResource(OrdersSignalrHubScope, "Ordering Signalr Hub"),
+                new ApiResource(WebhooksScope, "Webhooks registration Service"),
             };
         }
 
@@ -22,12 +35,12 @@
         {
             return new List<ApiScope>
             {
-                new ApiScope("orders", "Orders Service"),
-                new ApiScope("basket", "Basket Service"),
-                new ApiScope("mobileshoppingagg", "Mobile Shopping Aggregator"),
-                new ApiScope("webshoppingagg", "Web Shopping Aggregator"),
-                new ApiScope("orders.signalrhub", "Ordering Signalr Hub"),
-                new ApiScope("webhooks", "Webhooks registration Service"),
+                new ApiScope(OrdersScope, "Orders Service"),
+                new ApiScope(BasketScope, "Basket Service"),
+                new ApiScope(MobileShoppingAggScope, "Mobile Shopping Aggregator"),
+                new ApiScope(WebShoppingAggScope, "Web Shopping Aggregator"),
+                new ApiScope(OrdersSignalrHubScope, "Ordering Signalr Hub"),
+                new ApiScope(WebhooksScope, "Webhooks registration Service"),
             };
         }
 
@@ -54,19 +67,19 @@
                     ClientName = "eShop SPA OpenId Client",
                     AllowedGrantTypes = GrantTypes.Implicit,
                     AllowAccessTokensViaBrowser = true,
-                    RedirectUris =           { $"{configuration["SpaClient"]}/" },
+                    RedirectUris =           { $"{configuration[SpaClientKey]}/" },
                     RequireConsent = false,
-                    PostLogoutRedirectUris = { $"{configuration["SpaClient"]}/" },
-                    AllowedCorsOrigins =     { $"{configuration["SpaClient"]}" },
+                    PostLogoutRedirectUris = { $"{configuration[SpaClientKey]}/" },
+                    AllowedCorsOrigins =     { $"{configuration[SpaClientKey]}" },
                     AllowedScopes =
                     {
                         IdentityServerConstants.StandardScopes.OpenId,
                         IdentityServerConstants.StandardScopes.Profile,
-                        "orders",
-                        "basket",
-                        "webshoppingagg",
-                        "orders.signalrhub",
-                        "webhooks"
+                        OrdersScope,
+                        BasketScope,
+                        WebShoppingAggScope,
+                        OrdersSignalrHubScope,
+                        WebhooksScope
                     },
                 },
                 new Client
@@ -77,7 +90,7 @@
                     //Used to retrieve the access token on the back channel.
                     ClientSecrets =
                     {
-                        new Secret("secret".Sha256())
+                        new Secret(SharedSecret.Sha256())
                     },
                     RedirectUris = { configuration["XamarinCallback"] },
                     RequireConsent = false,
@@ -89,10 +102,10 @@
                         IdentityServerConstants.StandardScopes.OpenId,
                         IdentityServerConstants.StandardScopes.Profile,
                         IdentityServerConstants.StandardScopes.OfflineAccess,
-                        "orders",
-                        "basket",
-                        "mobileshoppingagg",
-                        "webhooks"
+                        OrdersScope,
+                        BasketScope,
+                        MobileShoppingAggScope,
+                        WebhooksScope
                     },
                     //Allow requesting refresh tokens for long lived API access
                     AllowOfflineAccess = true,
@@ -105,9 +118,9 @@
                     ClientSecrets = new List<Secret>
                     {
 
-                        new Secret("secret".Sha256())
+                        new Secret(SharedSecret.Sha256())
                     },
-                    ClientUri = $"{configuration["MvcClient"]}",                             // public uri of the client
+                    ClientUri = $"{configuration[MvcClientKey]}",                             // public uri of the client
                     AllowedGrantTypes = GrantTypes.Code,
                     AllowAccessTokensViaBrowser = false,
                     RequireConsent = false,
@@ -116,22 +129,22 @@
                     RequirePkce = false,
                     RedirectUris = new List<string>
                     {
-                        $"{configuration["MvcClient"]}/signin-oidc"
+                        $"{configuration[MvcClientKey]}/signin-oidc"
                     },
                     PostLogoutRedirectUris = new List<string>
                     {
-                        $"{configuration["MvcClient"]}/signout-callback-oidc"
+                        $"{configuration[MvcClientKey]}/signout-callback-oidc"
                     },
                     AllowedScopes = new List<string>
                     {
                         IdentityServerConstants.StandardScopes.OpenId,
                         IdentityServerConstants.StandardScopes.Profile,
                         IdentityServerConstants.StandardScopes.OfflineAccess,
-                        "orders",
-                        "basket",
-                        "webshoppingagg",
-                        "orders.signalrhub",
-                        "webhooks"
+                        OrdersScope,
+                        BasketScope,
+                        WebShoppingAggScope,
+                        OrdersSignalrHubScope,
+                        WebhooksScope
                     },
                     AccessTokenLifetime = 60*60*2, // 2 hours
                     IdentityTokenLifetime= 60*60*2 // 2 hours
@@ -142,9 +155,9 @@
                     ClientName = "Webhooks Client",
                     ClientSecrets = new List<Secret>
                     {
-                        new Secret("secret".Sha256())
+                        new Secret(SharedSecret.Sha256())
                     },
-                    ClientUri = $"{configuration["WebhooksWebClient"]}",                             // public uri of the client
+                    ClientUri = $"{configuration[WebhooksWebClientKey]}",                             // public uri of the client
                     AllowedGrantTypes = GrantTypes.Code,
                     AllowAccessTokensViaBrowser = false,
                     RequireConsent = false,
@@ -152,18 +165,18 @@
                     AlwaysIncludeUserClaimsInIdToken = true,
                     RedirectUris = new List<string>
                     {
-                        $"{configuration["WebhooksWebClient"]}/signin-oidc"
+                        $"{configuration[WebhooksWebClientKey]}/signin-oidc"
                     },
                     PostLogoutRedirectUris = new List<string>
                     {
-                        $"{configuration["WebhooksWebClient"]}/signout-callback-oidc"
+                        $"{configuration[WebhooksWebClientKey]}/signout-callback-oidc"
                     },
                     AllowedScopes = new List<string>
                     {
                         IdentityServerConstants.StandardScopes.OpenId,
                         IdentityServerConstants.StandardScopes.Profile,
                         IdentityServerConstants.StandardScopes.OfflineAccess,
-                        "webhooks"
+                        WebhooksScope
                     },
                     AccessTokenLifetime = 60*60*2, // 2 hours
                     IdentityTokenLifetime= 60*60*2 // 2 hours
@@ -174,7 +187,7 @@
                     ClientName = "MVC Client Test",
                     ClientSecrets = new List<Secret>
                     {
-                        new Secret("secret".Sha256())
+                        new Secret(SharedSecret.Sha256())
                     },
                     ClientUri = $"{configuration["Mvc"]}",                             // public uri of the client
                     AllowedGrantTypes = GrantTypes.Code,
@@ -183,21 +196,21 @@
                     AllowOfflineAccess = true,
                     RedirectUris = new List<string>
                     {
-                        $"{configuration["MvcClient"]}/signin-oidc"
+                        $"{configuration[MvcClientKey]}/signin-oidc"
                     },
                     PostLogoutRedirectUris = new List<string>
                     {
-                        $"{configuration["MvcClient"]}/signout-callback-oidc"
+                        $"{configuration[MvcClientKey]}/signout-callback-oidc"
                     },
                     AllowedScopes = new List<string>
                     {
                         IdentityServerConstants.StandardScopes.OpenId,
                         IdentityServerConstants.StandardScopes.Profile,
                         IdentityServerConstants.StandardScopes.OfflineAccess,
-                        "orders",
-                        "basket",
-                        "webshoppingagg",
-                        "webhooks"
+                        OrdersScope,
+                        BasketScope,
+                        WebShoppingAggScope,
+                        WebhooksScope
                     },
                 },
                 new Client
@@ -207,12 +220,12 @@
                     AllowedGrantTypes = GrantTypes.Implicit,
                     AllowAccessTokensViaBrowser = true,
 
-                    RedirectUris = { $"{configuration["BasketApiClient"]}/swagger/oauth2-redirect.html" },
-                    PostLogoutRedirectUris = { $"{configuration["BasketApiClient"]}/swagger/" },
+                    RedirectUris = { $"{configuration["BasketApiClient"]}{SwaggerOAuth2RedirectSuffix}" },
+                    PostLogoutRedirectUris = { $"{configuration["BasketApiClient"]}{SwaggerSuffix}" },
 
                     AllowedScopes =
                     {
-                        "basket"
+                        BasketScope
                     }
                 },
                 new Client
@@ -222,12 +235,12 @@
                     AllowedGrantTypes = GrantTypes.Implicit,
                     AllowAccessTokensViaBrowser = true,
 
-                    RedirectUris = { $"{configuration["OrderingApiClient"]}/swagger/oauth2-redirect.html" },
-                    PostLogoutRedirectUris = { $"{configuration["OrderingApiClient"]}/swagger/" },
+                    RedirectUris = { $"{configuration["OrderingApiClient"]}{SwaggerOAuth2RedirectSuffix}" },
+                    PostLogoutRedirectUris = { $"{configuration["OrderingApiClient"]}{SwaggerSuffix}" },
 
                     AllowedScopes =
                     {
-                        "orders"
+                        OrdersScope
                     }
                 },
                 new Client
@@ -237,12 +250,12 @@
                     AllowedGrantTypes = GrantTypes.Implicit,
                     AllowAccessTokensViaBrowser = true,
 
-                    RedirectUris = { $"{configuration["MobileShoppingAggClient"]}/swagger/oauth2-redirect.html" },
-                    PostLogoutRedirectUris = { $"{configuration["MobileShoppingAggClient"]}/swagger/" },
+                    RedirectUris = { $"{configuration["MobileShoppingAggClient"]}{SwaggerOAuth2RedirectSuffix}" },
+                    PostLogoutRedirectUris = { $"{configuration["MobileShoppingAggClient"]}{SwaggerSuffix}" },
 
                     AllowedScopes =
                     {
-                        "mobileshoppingagg"
+                        MobileShoppingAggScope
                     }
                 },
                 new Client
@@ -252,13 +265,13 @@
                     AllowedGrantTypes = GrantTypes.Implicit,
                     AllowAccessTokensViaBrowser = true,
 
-                    RedirectUris = { $"{configuration["WebShoppingAggClient"]}/swagger/oauth2-redirect.html" },
-                    PostLogoutRedirectUris = { $"{configuration["WebShoppingAggClient"]}/swagger/" },
+                    RedirectUris = { $"{configuration["WebShoppingAggClient"]}{SwaggerOAuth2RedirectSuffix}" },
+                    PostLogoutRedirectUris = { $"{configuration["WebShoppingAggClient"]}{SwaggerSuffix}" },
 
                     AllowedScopes =
                     {
-                        "webshoppingagg",
-                        "basket"
+                        WebShoppingAggScope,
+                        BasketScope
                     }
                 },
                 new Client
@@ -268,12 +281,12 @@
                     AllowedGrantTypes = GrantTypes.Implicit,
                     AllowAccessTokensViaBrowser = true,
 
-                    RedirectUris = { $"{configuration["WebhooksApiClient"]}/swagger/oauth2-redirect.html" },
-                    PostLogoutRedirectUris = { $"{configuration["WebhooksApiClient"]}/swagger/" },
+                    RedirectUris = { $"{configuration["WebhooksApiClient"]}{SwaggerOAuth2RedirectSuffix}" },
+                    PostLogoutRedirectUris = { $"{configuration["WebhooksApiClient"]}{SwaggerSuffix}" },
 
                     AllowedScopes =
                     {
-                        "webhooks"
+                        WebhooksScope
                     }
                 },
                  new Client
@@ -282,7 +295,7 @@
                     ClientName = "MVC Client Test",
                     ClientSecrets = new List<Secret>
                     {
-                        new Secret("secret".Sha256())
+                        new Secret(SharedSecret.Sha256())
                     },                        
                     AllowedGrantTypes = GrantTypes.ClientCredentials,
                     AllowAccessTokensViaBrowser = true,
@@ -291,10 +304,10 @@
                         IdentityServerConstants.StandardScopes.OpenId,
                         IdentityServerConstants.StandardScopes.Profile,
                         IdentityServerConstants.StandardScopes.OfflineAccess,
-                        "orders",
-                        "basket",
-                        "webshoppingagg",
-                        "webhooks"
+                        OrdersScope,
+                        BasketScope,
+                        WebShoppingAggScope,
+                        WebhooksScope
                     },
                 },
                 new Client
@@ -303,7 +316,7 @@
                     ClientName = "MVC Alice Client Test",
                     ClientSecrets = new List<Secret>
                     {
-                        new Secret("secret".Sha256())
+                        new Secret(SharedSecret.Sha256())
                     },
                     AllowedGrantTypes = GrantTypes.ResourceOwnerPassword,
                     AllowAccessTokensViaBrowser = true,
@@ -312,10 +325,10 @@
                         IdentityServerConstants.StandardScopes.OpenId,
                         IdentityServerConstants.StandardScopes.Profile,
                         IdentityServerConstants.StandardScopes.OfflineAccess,
-                        "orders",
-                        "basket",
-                        "webshoppingagg",
-                        "webhooks"
+                        OrdersScope,
+                        BasketScope,
+                        WebShoppingAggScope,
+                        WebhooksScope
                     },
                 }
 

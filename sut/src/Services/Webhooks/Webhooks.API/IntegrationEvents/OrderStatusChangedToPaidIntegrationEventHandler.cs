@@ -4,8 +4,8 @@ public class OrderStatusChangedToPaidIntegrationEventHandler : IIntegrationEvent
 {
     private readonly IWebhooksRetriever _retriever;
     private readonly IWebhooksSender _sender;
-    private readonly ILogger _logger;
-    public OrderStatusChangedToPaidIntegrationEventHandler(IWebhooksRetriever retriever, IWebhooksSender sender, ILogger<OrderStatusChangedToShippedIntegrationEventHandler> logger)
+    private readonly ILogger<OrderStatusChangedToPaidIntegrationEventHandler> _logger;
+    public OrderStatusChangedToPaidIntegrationEventHandler(IWebhooksRetriever retriever, IWebhooksSender sender, ILogger<OrderStatusChangedToPaidIntegrationEventHandler> logger)
     {
         _retriever = retriever;
         _sender = sender;
@@ -15,7 +15,8 @@ public class OrderStatusChangedToPaidIntegrationEventHandler : IIntegrationEvent
     public async Task Handle(OrderStatusChangedToPaidIntegrationEvent @event)
     {
         var subscriptions = await _retriever.GetSubscriptionsOfType(WebhookType.OrderPaid);
-        _logger.LogInformation("Received OrderStatusChangedToShippedIntegrationEvent and got {SubscriptionsCount} subscriptions to process", subscriptions.Count());
+        if (_logger.IsEnabled(LogLevel.Information))
+            _logger.LogInformation("Received OrderStatusChangedToShippedIntegrationEvent and got {SubscriptionsCount} subscriptions to process", subscriptions.Count());
         var whook = new WebhookData(WebhookType.OrderPaid, @event);
         await _sender.SendAll(subscriptions, whook);
     }

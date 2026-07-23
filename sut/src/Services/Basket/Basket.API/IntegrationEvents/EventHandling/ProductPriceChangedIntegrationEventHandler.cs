@@ -17,7 +17,8 @@ public class ProductPriceChangedIntegrationEventHandler : IIntegrationEventHandl
     {
         using (_logger.BeginScope(new List<KeyValuePair<string, object>> { new ("IntegrationEventContext", @event.Id) }))
         {
-            _logger.LogInformation("Handling integration event: {IntegrationEventId} - ({@IntegrationEvent})", @event.Id, @event);
+            if (_logger.IsEnabled(LogLevel.Information))
+                _logger.LogInformation("Handling integration event: {IntegrationEventId} - ({@IntegrationEvent})", @event.Id, @event);
 
             var userIds = _repository.GetUsers();
 
@@ -36,7 +37,8 @@ public class ProductPriceChangedIntegrationEventHandler : IIntegrationEventHandl
 
         if (itemsToUpdate != null)
         {
-            _logger.LogInformation("ProductPriceChangedIntegrationEventHandler - Updating items in basket for user: {BuyerId} ({@Items})", basket.BuyerId, itemsToUpdate);
+            if (_logger.IsEnabled(LogLevel.Information))
+                _logger.LogInformation("ProductPriceChangedIntegrationEventHandler - Updating items in basket for user: {BuyerId} ({@Items})", basket.BuyerId, itemsToUpdate);
 
             foreach (var item in itemsToUpdate)
             {

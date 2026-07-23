@@ -38,7 +38,7 @@
                 <section class="col-lg-7 col-md-6 col-12">
                     <a class="navbar-brand" routerLink="catalog">
                         <a asp-area="" asp-controller="Catalog" asp-action="Index">
-                            <img src="~/images/brand.png" />
+                            <img src="~/images/brand.png" alt="eShop brand" />
                         </a>
                     </a>
                 </section>
@@ -56,11 +56,11 @@
             <article class="row">
 
                 <section class="col-sm-6">
-                    <img class="esh-app-footer-brand" src="~/images/brand_dark.png" />
+                    <img class="esh-app-footer-brand" src="~/images/brand_dark.png" alt="eShop brand" />
                 </section>
 
                 <section class="col-sm-6">
-                    <img class="esh-app-footer-text hidden-xs" src="~/images/main_footer_text.png" width="335" height="26" alt="footer text image" />
+                    <img class="esh-app-footer-text hidden-xs" src="~/images/main_footer_text.png" width="335" height="26" alt="footer text" />
                 </section>
 
             </article>
@@ -84,7 +84,7 @@
         <script src="~/js/site.min.js" asp-append-version="true"></script>
     </environment>
 
-    @RenderSection("scripts", required: false)
+    @await RenderSectionAsync("scripts", required: false)
 
     <script type="text/javascript">
         if ('@User.Identity.IsAuthenticated' === 'True') {

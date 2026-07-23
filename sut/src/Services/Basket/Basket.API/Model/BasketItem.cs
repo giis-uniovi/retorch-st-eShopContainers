@@ -2,6 +2,7 @@
 
 public class BasketItem : IValidatableObject
 {
+    private static readonly string[] s_quantityMemberNames = ["Quantity"];
     public string Id { get; set; }
     public int ProductId { get; set; }
     public string ProductName { get; set; }
@@ -16,7 +17,7 @@ public class BasketItem : IValidatableObject
 
         if (Quantity < 1)
         {
-            results.Add(new ValidationResult("Invalid number of units", new[] { "Quantity" }));
+            results.Add(new ValidationResult("Invalid number of units", s_quantityMemberNames));
         }
 
         return results;

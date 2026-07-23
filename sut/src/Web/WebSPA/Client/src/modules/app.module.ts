@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { provideAnimationsAsync } from '@angular/platform-browser/animations/async'; // NOSONAR typescript:S1874
 import { BrowserModule } from '@angular/platform-browser';
-import { HttpClientModule } from "@angular/common/http";
+import { provideHttpClient } from "@angular/common/http";
 
 import { routing } from './app.routes';
 import { AppService } from './app.service';
@@ -15,11 +15,9 @@ import { ToastrModule } from 'ngx-toastr';
 @NgModule({
     declarations: [AppComponent],
     imports: [
-        BrowserAnimationsModule,
         BrowserModule,
         ToastrModule.forRoot(),
         routing,
-        HttpClientModule,
         // Only module that app module loads
         SharedModule.forRoot(),
         CatalogModule,
@@ -27,7 +25,9 @@ import { ToastrModule } from 'ngx-toastr';
         BasketModule
     ],
     providers: [
-        AppService
+        AppService,
+        provideAnimationsAsync(), // NOSONAR typescript:S1874
+        provideHttpClient()
     ],
     bootstrap: [AppComponent]
 })

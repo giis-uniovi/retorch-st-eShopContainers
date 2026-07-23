@@ -60,5 +60,10 @@ public abstract class Enumeration : IComparable
         return matchingItem;
     }
 
-    public int CompareTo(object other) => Id.CompareTo(((Enumeration)other).Id);
+    public int CompareTo(object obj) => Id.CompareTo(((Enumeration)obj).Id);
+
+    public static bool operator <(Enumeration left, Enumeration right) => left.CompareTo(right) < 0;
+    public static bool operator <=(Enumeration left, Enumeration right) => left.CompareTo(right) <= 0;
+    public static bool operator >(Enumeration left, Enumeration right) => left.CompareTo(right) > 0;
+    public static bool operator >=(Enumeration left, Enumeration right) => left.CompareTo(right) >= 0;
 }

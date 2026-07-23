@@ -1,4 +1,5 @@
 ﻿namespace Microsoft.eShopOnContainers.Services.Ordering.Infrastructure;
+#nullable enable
 
 public class OrderingContext : DbContext, IUnitOfWork
 {
@@ -10,22 +11,19 @@ public class OrderingContext : DbContext, IUnitOfWork
     public DbSet<CardType> CardTypes { get; set; }
     public DbSet<OrderStatus> OrderStatus { get; set; }
 
-    private readonly IMediator _mediator;
-    private IDbContextTransaction _currentTransaction;
+    private readonly IMediator? _mediator;
+    private IDbContextTransaction? _currentTransaction;
 
     public OrderingContext(DbContextOptions<OrderingContext> options) : base(options) { }
-
-    public IDbContextTransaction GetCurrentTransaction() => _currentTransaction;
-
-    public bool HasActiveTransaction => _currentTransaction != null;
 
     public OrderingContext(DbContextOptions<OrderingContext> options, IMediator mediator) : base(options)
     {
         _mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
-
-
-        System.Diagnostics.Debug.WriteLine("OrderingContext::ctor ->" + this.GetHashCode());
     }
+
+    public IDbContextTransaction? GetCurrentTransaction() => _currentTransaction;
+
+    public bool HasActiveTransaction => _currentTransaction != null;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -46,16 +44,17 @@ public class OrderingContext : DbContext, IUnitOfWork
         // side effects from the domain event handlers which are using the same DbContext with "InstancePerLifetimeScope" or "scoped" lifetime
         // B) Right AFTER committing data (EF SaveChanges) into the DB will make multiple transactions. 
         // You will need to handle eventual consistency and compensatory actions in case of failures in any of the Handlers. 
-        await _mediator.DispatchDomainEventsAsync(this);
+        if (_mediator is not null)
+            await _mediator.DispatchDomainEventsAsync(this);
 
         // After executing this line all the changes (from the Command Handler and Domain Event Handlers) 
         // performed through the DbContext will be committed
-        var result = await base.SaveChangesAsync(cancellationToken);
+        await base.SaveChangesAsync(cancellationToken);
 
         return true;
     }
 
-    public async Task<IDbContextTransaction> BeginTransactionAsync()
+    public async Task<IDbContextTransaction?> BeginTransactionAsync()
     {
         if (_currentTransaction != null) return null;
 
@@ -66,7 +65,7 @@ public class OrderingContext : DbContext, IUnitOfWork
 
     public async Task CommitTransactionAsync(IDbContextTransaction transaction)
     {
-        if (transaction == null) throw new ArgumentNullException(nameof(transaction));
+        ArgumentNullException.ThrowIfNull(transaction);
         if (transaction != _currentTransaction) throw new InvalidOperationException($"Transaction {transaction.TransactionId} is not current");
 
         try
@@ -120,12 +119,12 @@ public class OrderingContextDesignFactory : IDesignTimeDbContextFactory<Ordering
     {
         public IAsyncEnumerable<TResponse> CreateStream<TResponse>(IStreamRequest<TResponse> request, CancellationToken cancellationToken = default)
         {
-            return default;
+            return default!;
         }
 
         public IAsyncEnumerable<object?> CreateStream(object request, CancellationToken cancellationToken = default)
         {
-            return default;
+            return default!;
         }
 
         public Task Publish<TNotification>(TNotification notification, CancellationToken cancellationToken = default) where TNotification : INotification
@@ -140,12 +139,12 @@ public class OrderingContextDesignFactory : IDesignTimeDbContextFactory<Ordering
 
         public Task<TResponse> Send<TResponse>(IRequest<TResponse> request, CancellationToken cancellationToken = default)
         {
-            return Task.FromResult<TResponse>(default);
+            return Task.FromResult<TResponse>(default!);
         }
 
-        public Task<object> Send(object request, CancellationToken cancellationToken = default)
+        public Task<object?> Send(object request, CancellationToken cancellationToken = default)
         {
-            return Task.FromResult(default(object));
+            return Task.FromResult<object?>(null);
         }
 
         public Task Send<TRequest>(TRequest request, CancellationToken cancellationToken = default) where TRequest : IRequest

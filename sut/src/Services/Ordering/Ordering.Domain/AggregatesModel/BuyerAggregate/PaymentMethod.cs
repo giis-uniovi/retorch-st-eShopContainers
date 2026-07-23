@@ -2,10 +2,9 @@
 
 public class PaymentMethod : Entity
 {
-    private string _alias;
+    private string _alias; // NOSONAR - EF Core backing field (PaymentMethodEntityTypeConfiguration maps this to the Alias column)
     private string _cardNumber;
-    private string _securityNumber;
-    private string _cardHolderName;
+    private string _cardHolderName; // NOSONAR - EF Core backing field (PaymentMethodEntityTypeConfiguration maps this to the CardHolderName column)
     private DateTime _expiration;
 
     private int _cardTypeId;
@@ -16,7 +15,7 @@ public class PaymentMethod : Entity
     public PaymentMethod(int cardTypeId, string alias, string cardNumber, string securityNumber, string cardHolderName, DateTime expiration)
     {
         _cardNumber = !string.IsNullOrWhiteSpace(cardNumber) ? cardNumber : throw new OrderingDomainException(nameof(cardNumber));
-        _securityNumber = !string.IsNullOrWhiteSpace(securityNumber) ? securityNumber : throw new OrderingDomainException(nameof(securityNumber));
+        if (string.IsNullOrWhiteSpace(securityNumber)) throw new OrderingDomainException(nameof(securityNumber));
         _cardHolderName = !string.IsNullOrWhiteSpace(cardHolderName) ? cardHolderName : throw new OrderingDomainException(nameof(cardHolderName));
 
         if (expiration < DateTime.UtcNow)

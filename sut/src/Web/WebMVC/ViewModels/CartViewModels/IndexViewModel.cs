@@ -3,5 +3,6 @@
 public class CartComponentViewModel
 {
     public int ItemsCount { get; set; }
+    public bool IsBasketInoperative { get; set; }
     public string Disabled => (ItemsCount == 0) ? "is-disabled" : "";
 }

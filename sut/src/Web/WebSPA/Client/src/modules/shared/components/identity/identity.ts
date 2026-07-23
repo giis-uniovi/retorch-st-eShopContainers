@@ -27,7 +27,6 @@ export class Identity implements OnInit {
             this.service.AuthorizedCallback();
         }
 
-        console.log('identity component, checking authorized' + this.service.IsAuthorized);
         this.authenticated = this.service.IsAuthorized;
 
         if (this.authenticated) {
@@ -38,7 +37,6 @@ export class Identity implements OnInit {
 
     logoutClicked(event: any) {
         event.preventDefault();
-        console.log('Logout clicked');
         this.logout();
     }
 

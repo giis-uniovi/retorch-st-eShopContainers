@@ -33,14 +33,11 @@ export class AppComponent implements OnInit {
     }
 
     ngOnInit() {
-        console.log('app on init');
         this.subscription = this.securityService.authenticationChallenge$.subscribe(res => this.Authenticated = res);
-
-        console.log('configuration');
         this.configurationService.load();
     }
 
-    public setTitle(newTitle: string) {
+    public setTitle() {
         this.titleService.setTitle('eShopOnContainers');
     }
 }

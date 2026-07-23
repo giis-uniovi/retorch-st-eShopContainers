@@ -1,6 +1,6 @@
 ﻿namespace Microsoft.eShopOnContainers.Services.Identity.API;
 
-public class SeedData
+public static class SeedData
 {
     public static async Task EnsureSeedData(IServiceScope scope, IConfiguration configuration, ILogger logger)
     {
@@ -39,11 +39,11 @@ public class SeedData
                     SecurityNumber = "123"
                 };
 
-                var result = userMgr.CreateAsync(alice, "Pass123$").Result;
+                var result = await userMgr.CreateAsync(alice, "Pass123$");
 
                 if (!result.Succeeded)
                 {
-                    throw new Exception(result.Errors.First().Description);
+                    throw new InvalidOperationException(result.Errors.First().Description);
                 }
 
                 logger.LogDebug("alice created");
@@ -82,7 +82,7 @@ public class SeedData
 
                 if (!result.Succeeded)
                 {
-                    throw new Exception(result.Errors.First().Description);
+                    throw new InvalidOperationException(result.Errors.First().Description);
                 }
 
                 logger.LogDebug("bob created");
@@ -96,8 +96,7 @@ public class SeedData
 
     private static AsyncPolicy CreateRetryPolicy(IConfiguration configuration, Microsoft.Extensions.Logging.ILogger logger)
     {
-        var retryMigrations = false;
-        bool.TryParse(configuration["RetryMigrations"], out retryMigrations);
+        var retryMigrations = configuration.GetValue<bool>("RetryMigrations");
 
         // Only use a retry policy if configured to do so.
         // When running in an orchestrator/K8s, it will take care of restarting failed services.
@@ -106,7 +105,7 @@ public class SeedData
             return Policy.Handle<Exception>().
                 WaitAndRetryForeverAsync(
                     sleepDurationProvider: retry => TimeSpan.FromSeconds(5),
-                    onRetry: (exception, retry, timeSpan) => logger.LogWarning(exception, "Error migrating database (retry attempt {retry})", retry));
+                    onRetry: (exception, retry, timeSpan) => logger.LogWarning(exception, "Error migrating database (retry attempt {Retry})", retry));
         }
 
         return Policy.NoOpAsync();

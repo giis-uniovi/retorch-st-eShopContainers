@@ -2,7 +2,7 @@
 
 public class WebhookData
 {
-    public DateTime When { get; set; }
+    public DateTime? When { get; set; }
 
     public string Payload { get; set; }
 

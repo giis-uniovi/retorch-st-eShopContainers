@@ -23,7 +23,7 @@ public class CatalogService : ICatalogService
         return response.Data.Select(MapToCatalogItemResponse);
     }
 
-    private CatalogItem MapToCatalogItemResponse(CatalogItemResponse catalogItemResponse)
+    private static CatalogItem MapToCatalogItemResponse(CatalogItemResponse catalogItemResponse)
     {
         return new CatalogItem
         {

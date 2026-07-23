@@ -2,12 +2,16 @@
 // Refer to https://github.com/dotnet-architecture/eShopOnContainers/issues/1391
 using Yarp.ReverseProxy.Forwarder;
 
+namespace Microsoft.eShopOnContainers.WebMVC.Extensions;
+
 internal static class Extensions
 {
+    private static readonly string[] IdentityApiTags = new string[] { "identityapi" };
+
     public static void AddHealthChecks(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddHealthChecks()
-            .AddUrlGroup(_ => new Uri(configuration["IdentityUrlHC"]), name: "identityapi-check", tags: new string[] { "identityapi" });
+            .AddUrlGroup(_ => new Uri(configuration["IdentityUrlHC"]), name: "identityapi-check", tags: IdentityApiTags);
     }
 
     public static void AddApplicationServices(this IServiceCollection services, IConfiguration configuration)

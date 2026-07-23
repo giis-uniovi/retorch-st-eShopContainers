@@ -21,7 +21,7 @@ export class SignalrService {
             this.SignalrHubUrl = this.configurationService.serverSettings.signalrHubUrl;
             this.init();
         } else {
-            this.configurationService.settingsLoaded$.subscribe(x => {
+            this.configurationService.settingsLoaded$.subscribe(() => {
                 this.SignalrHubUrl = this.configurationService.serverSettings.signalrHubUrl;
                 this.init();
             });
@@ -51,18 +51,11 @@ export class SignalrService {
     }
 
     private stablishConnection() {
-        this._hubConnection.start()
-            .then(() => {
-                console.log('Hub connection started');
-            })
-            .catch(() => {
-                console.log('Error while establishing connection');
-            });
+        this._hubConnection.start().catch(() => { });
     }
 
     private registerHandlers() {
         this._hubConnection.on('UpdatedOrderState', (msg) => {
-            console.log(`Order ${msg.orderId} updated to ${msg.status}`);
             this.toastr.success('Updated to status: ' + msg.status, 'Order Id: ' + msg.orderId);
             this.msgSignalrSource.next();
         });
