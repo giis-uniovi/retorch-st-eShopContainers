@@ -22,12 +22,13 @@ public class OrderingService : OrderingGrpc.OrderingGrpcBase
     {
         if (_logger.IsEnabled(LogLevel.Information))
             _logger.LogInformation("Begin grpc call from method {Method} for ordering get order draft {CreateOrderDraftCommand}", context.Method, request);
-        _logger.LogTrace( // NOSONAR CA1873
-            "Sending command: {CommandName} - {IdProperty}: {CommandId} ({@Command})",
-            request.GetGenericTypeName(),
-            nameof(request.BuyerId),
-            request.BuyerId,
-            request);
+        if (_logger.IsEnabled(LogLevel.Trace))
+            _logger.LogTrace(
+                "Sending command: {CommandName} - {IdProperty}: {CommandId} ({@Command})",
+                request.GetGenericTypeName(),
+                nameof(request.BuyerId),
+                request.BuyerId,
+                request);
 
         var command = new AppCommand.CreateOrderDraftCommand(
                         request.BuyerId,
