@@ -21,21 +21,23 @@ public class NavigationWebSPA extends Navigation {
     protected By getMainMenuBy(){return By.className("esh-app-header-brand");}
 
     /**
-     * Navigates to the Orders page. The {@code .esh-identity-drop} section is always rendered when authenticated
-     * so no explicit dropdown expansion is needed.
+     * Navigates to the Orders page by hovering over the identity container to expand the CSS dropdown,
+     * then clicking "My orders". The dropdown uses CSS :hover on .esh-identity to expand
+     * .esh-identity-drop from height:0 to height:5rem, so we hover the parent, not the drop itself.
      */
     @Override
     public void toOrdersPage(WebDriver driver, Waiter waiter) throws ElementNotFoundException {
         toMainMenu(driver, waiter);
         log.debug("Navigating to orders page (WebSPA), hovering identity and clicking My orders...");
-        // The .esh-identity-drop is CSS hover-triggered; Actions hover then click
-        // simulates real user behavior better than a raw JS click.
-        By identityDropLocator = By.className("esh-identity-drop");
-        waiter.waitUntil(ExpectedConditions.presenceOfElementLocated(identityDropLocator),
-                "Identity drop not found");
-        WebElement identityDrop = driver.findElement(identityDropLocator);
+        // Wait for .esh-identity-drop to confirm authenticated (rendered via *ngIf="authenticated")
+        waiter.waitUntil(ExpectedConditions.presenceOfElementLocated(By.className("esh-identity-drop")),
+                "Identity drop not found (user not authenticated)");
+        // Hover over .esh-identity (the parent) to trigger CSS :hover -> .esh-identity-drop expands.
+        // Hovering .esh-identity-drop directly is unreliable: its height is 0 and its top edge
+        // sits at exactly 2.5rem from the parent, making the cursor land on the boundary.
+        WebElement identityContainer = driver.findElement(By.className("esh-identity"));
         new Actions(driver)
-                .moveToElement(identityDrop)
+                .moveToElement(identityContainer)
                 .perform();
         By myOrdersLocator = By.xpath(
                 "//*[contains(@class,'esh-identity-item')]//*[normalize-space(text())='My orders']");
