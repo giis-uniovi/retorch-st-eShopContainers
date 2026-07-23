@@ -91,36 +91,13 @@ public class ConsentController : Controller
         if (model?.Button == "no")
         {
             grantedConsent = new ConsentResponse { Error = InteractionError.AccessDenied };
-
-            // emit event
             await _events.RaiseAsync(new ConsentDeniedEvent(User.GetSubjectId(), request.Client.ClientId, request.ValidatedResources.RawScopeValues), HttpContext.RequestAborted);
-        }
-        // user clicked 'yes' - validate the data
-        else if (model?.Button == "yes")
-        {
-            // if the user consented to some scope, build the response model
-            if (model.ScopesConsented != null && model.ScopesConsented.Any())
-            {
-                var scopes = model.ScopesConsented;
-
-                grantedConsent = new ConsentResponse
-                {
-                    RememberConsent = model.RememberConsent ?? false,
-                    ScopesValuesConsented = scopes.ToArray(),
-                    Description = model.Description
-                };
-
-                // emit event
-                await _events.RaiseAsync(new ConsentGrantedEvent(User.GetSubjectId(), request.Client.ClientId, request.ValidatedResources.RawScopeValues, grantedConsent.ScopesValuesConsented, grantedConsent.RememberConsent), HttpContext.RequestAborted);
-            }
-            else
-            {
-                result.ValidationError = ConsentOptions.MustChooseOneErrorMessage;
-            }
         }
         else
         {
-            result.ValidationError = ConsentOptions.InvalidSelectionErrorMessage;
+            grantedConsent = await ScopeViewModelHelper.BuildConsentResponseAsync(
+                model, result, _events, User.GetSubjectId(), request.Client.ClientId,
+                request.ValidatedResources.RawScopeValues, HttpContext.RequestAborted);
         }
 
         if (grantedConsent != null)
@@ -165,77 +142,10 @@ public class ConsentController : Controller
             RememberConsent = model?.RememberConsent ?? true,
             ScopesConsented = model?.ScopesConsented ?? Enumerable.Empty<string>(),
             Description = model?.Description,
-
             ReturnUrl = returnUrl,
-
-            ClientName = request.Client.ClientName ?? request.Client.ClientId,
-            ClientUrl = request.Client.ClientUri,
-            ClientLogoUrl = request.Client.LogoUri,
-            AllowRememberConsent = request.Client.AllowRememberConsent
         };
-
-        vm.IdentityScopes = request.ValidatedResources.Resources.IdentityResources.Select(x => CreateScopeViewModel(x, vm.ScopesConsented.Contains(x.Name) || model == null)).ToArray();
-
-        var apiScopes = new List<ScopeViewModel>();
-        foreach (var parsedScope in request.ValidatedResources.ParsedScopes)
-        {
-            var apiScope = request.ValidatedResources.Resources.FindApiScope(parsedScope.ParsedName);
-            if (apiScope != null)
-            {
-                var scopeVm = CreateScopeViewModel(parsedScope, apiScope, vm.ScopesConsented.Contains(parsedScope.RawValue) || model == null);
-                apiScopes.Add(scopeVm);
-            }
-        }
-        if (ConsentOptions.EnableOfflineAccess && request.ValidatedResources.Resources.OfflineAccess)
-        {
-            apiScopes.Add(GetOfflineAccessScope(vm.ScopesConsented.Contains(IdentityServerConstants.StandardScopes.OfflineAccess) || model == null));
-        }
-        vm.ApiScopes = apiScopes;
-
+        ScopeViewModelHelper.PopulateConsentViewModel(vm, model == null, request.Client, request.ValidatedResources);
         return vm;
     }
 
-    private static ScopeViewModel CreateScopeViewModel(IdentityResource identity, bool check)
-    {
-        return new ScopeViewModel
-        {
-            Value = identity.Name,
-            DisplayName = identity.DisplayName ?? identity.Name,
-            Description = identity.Description,
-            Emphasize = identity.Emphasize,
-            Required = identity.Required,
-            Checked = check || identity.Required
-        };
-    }
-
-    public static ScopeViewModel CreateScopeViewModel(ParsedScopeValue parsedScopeValue, ApiScope apiScope, bool check)
-    {
-        var displayName = apiScope.DisplayName ?? apiScope.Name;
-        if (!string.IsNullOrWhiteSpace(parsedScopeValue.ParsedParameter))
-        {
-            displayName += ":" + parsedScopeValue.ParsedParameter;
-        }
-
-        return new ScopeViewModel
-        {
-            Value = parsedScopeValue.RawValue,
-            DisplayName = displayName,
-            Description = apiScope.Description,
-            Emphasize = apiScope.Emphasize,
-            Required = apiScope.Required,
-            Checked = check || apiScope.Required
-        };
-    }
-
-    private static ScopeViewModel GetOfflineAccessScope(bool check)
-    {
-        return new ScopeViewModel
-        {
-            Value = IdentityServerConstants.StandardScopes.OfflineAccess,
-            DisplayName = ConsentOptions.OfflineAccessDisplayName,
-            Description = ConsentOptions.OfflineAccessDescription,
-            Emphasize = true,
-            Checked = check
-        };
-    }
 }

@@ -28,7 +28,7 @@ public class CatalogController : ControllerBase
     {
         if (!string.IsNullOrEmpty(ids))
         {
-            var items = await GetItemsByIdsAsync(ids);
+            var items = await _catalogContext.GetItemsByIdsAsync(ids, _settings.PicBaseUrl, _settings.AzureStorageEnabled);
 
             if (items.Count == 0)
             {
@@ -41,39 +41,11 @@ public class CatalogController : ControllerBase
         int ps = pageSize ?? 10;
         int pi = pageIndex ?? 0;
 
-        var totalItems = await _catalogContext.CatalogItems
-            .LongCountAsync();
-
-        var itemsOnPage = await _catalogContext.CatalogItems
-            .OrderBy(c => c.Name)
-            .Skip(ps * pi)
-            .Take(ps)
-            .ToListAsync();
-
-        itemsOnPage = ChangeUriPlaceholder(itemsOnPage);
+        var (totalItems, itemsOnPage) = await _catalogContext.GetAllItemsPagedAsync(pi, ps, _settings.PicBaseUrl, _settings.AzureStorageEnabled);
 
         var model = new PaginatedItemsViewModel<CatalogItem>(pi, ps, totalItems, itemsOnPage);
 
         return Ok(model);
-    }
-
-    private async Task<List<CatalogItem>> GetItemsByIdsAsync(string ids)
-    {
-        var numIds = ids.Split(',').Select(id => (Ok: int.TryParse(id, out int x), Value: x));
-
-        if (!numIds.All(nid => nid.Ok))
-        {
-            return new List<CatalogItem>();
-        }
-
-        var idsToSelect = numIds
-            .Select(id => id.Value);
-
-        var items = await _catalogContext.CatalogItems.Where(ci => idsToSelect.Contains(ci.Id)).ToListAsync();
-
-        items = ChangeUriPlaceholder(items);
-
-        return items;
     }
 
     [HttpGet]
@@ -110,17 +82,9 @@ public class CatalogController : ControllerBase
         int ps = pageSize ?? 10;
         int pi = pageIndex ?? 0;
 
-        var totalItems = await _catalogContext.CatalogItems
+        var (totalItems, itemsOnPage) = await _catalogContext.CatalogItems
             .Where(c => c.Name.StartsWith(name))
-            .LongCountAsync();
-
-        var itemsOnPage = await _catalogContext.CatalogItems
-            .Where(c => c.Name.StartsWith(name))
-            .Skip(ps * pi)
-            .Take(ps)
-            .ToListAsync();
-
-        itemsOnPage = ChangeUriPlaceholder(itemsOnPage);
+            .GetPagedAsync(pi, ps, _settings.PicBaseUrl, _settings.AzureStorageEnabled);
 
         return new PaginatedItemsViewModel<CatalogItem>(pi, ps, totalItems, itemsOnPage);
     }
@@ -134,24 +98,11 @@ public class CatalogController : ControllerBase
         int pi = pageIndex ?? 0;
 
         var root = (IQueryable<CatalogItem>)_catalogContext.CatalogItems;
-
         root = root.Where(ci => ci.CatalogTypeId == catalogTypeId);
-
         if (catalogBrandId.HasValue)
-        {
             root = root.Where(ci => ci.CatalogBrandId == catalogBrandId);
-        }
 
-        var totalItems = await root
-            .LongCountAsync();
-
-        var itemsOnPage = await root
-            .Skip(ps * pi)
-            .Take(ps)
-            .ToListAsync();
-
-        itemsOnPage = ChangeUriPlaceholder(itemsOnPage);
-
+        var (totalItems, itemsOnPage) = await root.GetPagedAsync(pi, ps, _settings.PicBaseUrl, _settings.AzureStorageEnabled);
         return new PaginatedItemsViewModel<CatalogItem>(pi, ps, totalItems, itemsOnPage);
     }
 
@@ -164,22 +115,10 @@ public class CatalogController : ControllerBase
         int pi = pageIndex ?? 0;
 
         var root = (IQueryable<CatalogItem>)_catalogContext.CatalogItems;
-
         if (catalogBrandId.HasValue)
-        {
             root = root.Where(ci => ci.CatalogBrandId == catalogBrandId);
-        }
 
-        var totalItems = await root
-            .LongCountAsync();
-
-        var itemsOnPage = await root
-            .Skip(ps * pi)
-            .Take(ps)
-            .ToListAsync();
-
-        itemsOnPage = ChangeUriPlaceholder(itemsOnPage);
-
+        var (totalItems, itemsOnPage) = await root.GetPagedAsync(pi, ps, _settings.PicBaseUrl, _settings.AzureStorageEnabled);
         return new PaginatedItemsViewModel<CatalogItem>(pi, ps, totalItems, itemsOnPage);
     }
 
@@ -283,16 +222,4 @@ public class CatalogController : ControllerBase
         return NoContent();
     }
 
-    private List<CatalogItem> ChangeUriPlaceholder(List<CatalogItem> items)
-    {
-        var baseUri = _settings.PicBaseUrl;
-        var azureStorageEnabled = _settings.AzureStorageEnabled;
-
-        foreach (var item in items)
-        {
-            item.FillProductUrl(baseUri, azureStorageEnabled: azureStorageEnabled);
-        }
-
-        return items;
-    }
 }

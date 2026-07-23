@@ -56,7 +56,7 @@ public class CatalogService : CatalogBase
     {
         if (!string.IsNullOrEmpty(request.Ids))
         {
-            var items = await GetItemsByIdsAsync(request.Ids);
+            var items = await _catalogContext.GetItemsByIdsAsync(request.Ids, _settings.PicBaseUrl, _settings.AzureStorageEnabled);
 
             context.Status = items.Count == 0 ?
                 new Status(StatusCode.NotFound, $"ids value invalid. Must be comma-separated list of numbers") :
@@ -65,16 +65,7 @@ public class CatalogService : CatalogBase
             return MapToResponse(items);
         }
 
-        var totalItems = await _catalogContext.CatalogItems
-            .LongCountAsync();
-
-        var itemsOnPage = await _catalogContext.CatalogItems
-            .OrderBy(c => c.Name)
-            .Skip(request.PageSize * request.PageIndex)
-            .Take(request.PageSize)
-            .ToListAsync();
-
-        itemsOnPage = ChangeUriPlaceholder(itemsOnPage);
+        var (totalItems, itemsOnPage) = await _catalogContext.GetAllItemsPagedAsync(request.PageIndex, request.PageSize, _settings.PicBaseUrl, _settings.AzureStorageEnabled);
 
         var model = MapToResponse(itemsOnPage, totalItems, request.PageIndex, request.PageSize);
         context.Status = new Status(StatusCode.OK, string.Empty);
@@ -134,35 +125,4 @@ public class CatalogService : CatalogBase
     }
 
 
-    private async Task<List<CatalogItem>> GetItemsByIdsAsync(string ids)
-    {
-        var numIds = ids.Split(',').Select(id => (Ok: int.TryParse(id, out int x), Value: x));
-
-        if (!numIds.All(nid => nid.Ok))
-        {
-            return new List<CatalogItem>();
-        }
-
-        var idsToSelect = numIds
-            .Select(id => id.Value);
-
-        var items = await _catalogContext.CatalogItems.Where(ci => idsToSelect.Contains(ci.Id)).ToListAsync();
-
-        items = ChangeUriPlaceholder(items);
-
-        return items;
-    }
-
-    private List<CatalogItem> ChangeUriPlaceholder(List<CatalogItem> items)
-    {
-        var baseUri = _settings.PicBaseUrl;
-        var azureStorageEnabled = _settings.AzureStorageEnabled;
-
-        foreach (var item in items)
-        {
-            item.FillProductUrl(baseUri, azureStorageEnabled: azureStorageEnabled);
-        }
-
-        return items;
-    }
 }
