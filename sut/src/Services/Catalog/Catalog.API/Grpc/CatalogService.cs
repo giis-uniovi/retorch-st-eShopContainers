@@ -26,7 +26,7 @@ public class CatalogService : CatalogBase
             return null;
         }
 
-        var item = await _catalogContext.CatalogItems.SingleOrDefaultAsync(ci => ci.Id == request.Id);
+        var item = await _catalogContext.CatalogItems.SingleOrDefaultAsync(ci => ci.Id == request.Id, context.CancellationToken);
         var baseUri = _settings.PicBaseUrl;
         var azureStorageEnabled = _settings.AzureStorageEnabled;
         item.FillProductUrl(baseUri, azureStorageEnabled: azureStorageEnabled);

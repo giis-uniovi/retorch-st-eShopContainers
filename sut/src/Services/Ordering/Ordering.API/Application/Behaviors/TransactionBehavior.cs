@@ -41,7 +41,7 @@ public class TransactionBehavior<TRequest, TResponse> : IPipelineBehavior<TReque
                     if (_logger.IsEnabled(LogLevel.Information))
                         _logger.LogInformation("Begin transaction {TransactionId} for {CommandName} ({@Command})", transaction.TransactionId, typeName, request);
 
-                    response = await next();
+                    response = await next(cancellationToken);
 
                     if (_logger.IsEnabled(LogLevel.Information))
                         _logger.LogInformation("Commit transaction {TransactionId} for {CommandName}", transaction.TransactionId, typeName);

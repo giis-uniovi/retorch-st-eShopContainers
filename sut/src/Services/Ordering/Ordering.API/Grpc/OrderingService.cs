@@ -34,7 +34,7 @@ public class OrderingService : OrderingGrpc.OrderingGrpcBase
                         request.BuyerId,
                         MapBasketItems(request.Items));
 
-        var data = await _mediator.Send(command);
+        var data = await _mediator.Send(command, context.CancellationToken);
 
         if (data != null)
         {
