@@ -54,7 +54,9 @@ jobs:
       # C# requires dotnet-sonarscanner (begin → build → end) so that Roslyn
       # analyzers are invoked during the build. C# + TypeScript (WebSPA) are the
       # only languages analyzed; settings come from sonar.properties.
-
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0  # full history required for SonarCloud blame data
       - name: Install SonarScanner for .NET
         run: dotnet tool install --global dotnet-sonarscanner
 
