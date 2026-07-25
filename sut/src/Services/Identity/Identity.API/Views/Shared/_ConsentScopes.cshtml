@@ -8,12 +8,7 @@
                 <span class="glyphicon glyphicon-user"></span>
                 Personal Information
             </div>
-            <ul class="list-group list-group-flush">
-                @foreach (var scope in Model.IdentityScopes)
-                {
-                    <partial name="_ScopeListItem" model="@scope" />
-                }
-            </ul>
+            <partial name="_ScopeListItem" model="Model.IdentityScopes" />
         </div>
     </div>
 }
@@ -26,12 +21,7 @@
                 <span class="glyphicon glyphicon-tasks"></span>
                 Application Access
             </div>
-            <ul class="list-group list-group-flush">
-                @foreach (var scope in Model.ApiScopes)
-                {
-                    <partial name="_ScopeListItem" model="scope" />
-                }
-            </ul>
+            <partial name="_ScopeListItem" model="Model.ApiScopes" />
         </div>
     </div>
 }

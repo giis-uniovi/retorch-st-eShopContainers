@@ -5,6 +5,7 @@ import { Observable, Subject } from 'rxjs';
 import { Router, ActivatedRoute } from '@angular/router';
 import { ConfigurationService } from './configuration.service';
 import { StorageService } from './storage.service';
+import { Guid } from '../../../guid';
 
 @Injectable()
 export class SecurityService {
@@ -82,8 +83,8 @@ export class SecurityService {
         const redirect_uri = location.origin + '/';
         const response_type = 'id_token token';
         const scope = 'openid profile orders basket webshoppingagg orders.signalrhub';
-        const nonce = 'N' + Math.random() + '' + Date.now();
-        const state = Date.now() + '' + Math.random();
+        const nonce = Guid.newGuid();
+        const state = Guid.newGuid();
 
         this.storage.store('authStateControl', state);
         this.storage.store('authNonce', nonce);

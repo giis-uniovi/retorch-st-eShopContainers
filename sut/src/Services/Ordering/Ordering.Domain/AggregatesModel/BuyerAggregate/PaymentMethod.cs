@@ -3,12 +3,12 @@
 public class PaymentMethod : Entity
 {
     private string _alias; // NOSONAR - EF Core backing field (PaymentMethodEntityTypeConfiguration maps this to the Alias column)
-    private string _cardNumber;
+    private readonly string _cardNumber;
     private string _cardHolderName; // NOSONAR - EF Core backing field (PaymentMethodEntityTypeConfiguration maps this to the CardHolderName column)
-    private DateTime _expiration;
+    private readonly DateTime _expiration;
 
-    private int _cardTypeId;
-    public CardType CardType { get; private set; }
+    private readonly int _cardTypeId;
+    public CardType CardType { get; private set; } // NOSONAR - EF Core navigation property setter (PaymentMethodEntityTypeConfiguration.HasOne(p => p.CardType))
 
     protected PaymentMethod() { }
 
