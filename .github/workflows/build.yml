@@ -32,6 +32,13 @@ jobs:
         with:
           dotnet-version: '10.x'
 
+      - name: Run SUT unit tests
+        run: |
+          dotnet test sut/src/BuildingBlocks/EventBus/EventBus.Tests/EventBus.Tests.csproj
+          dotnet test sut/src/Services/Basket/Basket.UnitTests/Basket.UnitTests.csproj
+          dotnet test sut/src/Services/Catalog/Catalog.UnitTests/Catalog.UnitTests.csproj
+          dotnet test sut/src/Services/Ordering/Ordering.UnitTests/Ordering.UnitTests.csproj
+
       - name: Init jenkins commit status (optional)
         run: |
           curl -L -X POST  https://api.github.com/repos/${{ github.repository }}/statuses/${{ github.sha }} \
