@@ -1,5 +1,6 @@
-﻿global using System.Data.Common;
-global using System.Data.SqlClient;
+﻿global using System.ComponentModel.DataAnnotations;
+global using System.Data.Common;
+global using Microsoft.Data.SqlClient;
 global using System.Runtime.Serialization;
 global using Azure.Identity;
 global using Dapper;
@@ -39,6 +40,7 @@ global using Microsoft.eShopOnContainers.Services.Ordering.Infrastructure.Reposi
 global using Microsoft.Extensions.Options;
 global using Polly;
 global using Polly.Retry;
+global using Microsoft.eShopOnContainers.Services.Ordering.API.Grpc;
 global using Services.Common;
 global using Swashbuckle.AspNetCore.SwaggerGen;
 global using AppCommand = Microsoft.eShopOnContainers.Services.Ordering.API.Application.Commands;

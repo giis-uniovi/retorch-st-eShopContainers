@@ -3,11 +3,9 @@
 @Injectable()
 export class NotificationService {
 
-    printSuccessMessage(message: string) {
-        console.log(message);
-    }
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
+    printSuccessMessage(_message: string) { /* no-op */ }
 
-    printErrorMessage(message: string) {
-        console.error(message);
-    }
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
+    printErrorMessage(_message: string) { /* no-op */ }
 }

@@ -5,8 +5,8 @@ using Microsoft.eShopOnContainers.WebMVC.ViewModels;
 [Authorize]
 public class OrderController : Controller
 {
-    private IOrderingService _orderSvc;
-    private IBasketService _basketSvc;
+    private readonly IOrderingService _orderSvc;
+    private readonly IBasketService _basketSvc;
     private readonly IIdentityParser<ApplicationUser> _appUserParser;
     public OrderController(IOrderingService orderSvc, IBasketService basketSvc, IIdentityParser<ApplicationUser> appUserParser)
     {
@@ -33,7 +33,6 @@ public class OrderController : Controller
         {
             if (ModelState.IsValid)
             {
-                var user = _appUserParser.Parse(HttpContext.User);
                 var basket = _orderSvc.MapOrderToBasket(model);
 
                 await _basketSvc.Checkout(basket);
@@ -73,7 +72,7 @@ public class OrderController : Controller
         return View(order);
     }
 
-    public async Task<IActionResult> Index(Order item)
+    public async Task<IActionResult> Index(Order item) // NOSONAR S1172 S6967 - GET list action; model binding creates invalid state for complex type from empty request
     {
         var user = _appUserParser.Parse(HttpContext.User);
         var vm = await _orderSvc.GetMyOrders(user);

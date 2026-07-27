@@ -15,5 +15,6 @@ global using Microsoft.eShopOnContainers.Services.Basket.API.IntegrationEvents.E
 global using Microsoft.eShopOnContainers.Services.Basket.API.IntegrationEvents.Events;
 global using Microsoft.eShopOnContainers.Services.Basket.API.Model;
 global using Microsoft.eShopOnContainers.Services.Basket.API.Services;
+global using Microsoft.eShopOnContainers.Services.Basket.API.Extensions;
 global using Services.Common;
 global using StackExchange.Redis;

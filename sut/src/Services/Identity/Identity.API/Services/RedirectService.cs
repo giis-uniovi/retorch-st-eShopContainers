@@ -5,19 +5,15 @@
         public string ExtractRedirectUriFromReturnUrl(string url)
         {
             var decodedUrl = System.Net.WebUtility.HtmlDecode(url);
-            var results = Regex.Split(decodedUrl, "redirect_uri=");
+            var results = decodedUrl.Split("redirect_uri=");
             if (results.Length < 2)
                 return "";
 
             string result = results[1];
 
-            string splitKey;
-            if (result.Contains("signin-oidc"))
-                splitKey = "signin-oidc";
-            else
-                splitKey = "scope";
+            string splitKey = result.Contains("signin-oidc") ? "signin-oidc" : "scope";
 
-            results = Regex.Split(result, splitKey);
+            results = result.Split(splitKey);
             if (results.Length < 2)
                 return "";
 

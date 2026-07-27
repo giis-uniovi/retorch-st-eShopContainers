@@ -30,7 +30,7 @@ export class BasketStatusComponent implements OnInit {
     ngOnInit() {
         // Subscribe to Add Basket Observable:
         this.basketItemAddedSubscription = this.basketWrapperService.addItemToBasket$.subscribe(item => {
-            this.basketService.addItemToBasket(item).subscribe(res => {
+            this.basketService.addItemToBasket(item).subscribe(() => {
                 this.basketService.getBasket().subscribe(basket => {
                     if (basket)
                         this.badge = basket.items.length;
@@ -39,7 +39,7 @@ export class BasketStatusComponent implements OnInit {
             });
         });
 
-        this.basketUpdateSubscription = this.basketService.basketUpdate$.subscribe(res => {
+        this.basketUpdateSubscription = this.basketService.basketUpdate$.subscribe(() => {
             this.basketService.getBasket().subscribe(basket => {
                 this.badge = basket ? basket.items.length : 0;
                 this.cdr.detectChanges();
@@ -47,7 +47,7 @@ export class BasketStatusComponent implements OnInit {
         });
 
         // Subscribe to login and logout observable
-        this.authSubscription = this.authService.authenticationChallenge$.subscribe(res => {
+        this.authSubscription = this.authService.authenticationChallenge$.subscribe(() => {
             this.basketService.getBasket().subscribe(basket => {
                 if (basket != null)
                     this.badge = basket.items.length;
@@ -63,7 +63,7 @@ export class BasketStatusComponent implements OnInit {
                 this.cdr.detectChanges();
             });
         } else {
-            this.configurationService.settingsLoaded$.subscribe(x => {
+            this.configurationService.settingsLoaded$.subscribe(() => {
                 this.basketService.getBasket().subscribe(basket => {
                     if (basket != null)
                         this.badge = basket.items.length;

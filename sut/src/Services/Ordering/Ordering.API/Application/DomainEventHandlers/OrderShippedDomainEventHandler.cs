@@ -6,7 +6,7 @@ public class OrderShippedDomainEventHandler
     private readonly IOrderRepository _orderRepository;
     private readonly IBuyerRepository _buyerRepository;
     private readonly IOrderingIntegrationEventService _orderingIntegrationEventService;
-    private readonly ILogger _logger;
+    private readonly ILogger<OrderShippedDomainEventHandler> _logger;
 
     public OrderShippedDomainEventHandler(
         IOrderRepository orderRepository,

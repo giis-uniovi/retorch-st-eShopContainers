@@ -20,11 +20,13 @@ public class CatalogScenariosBase
         }
     }
 
-    public TestServer CreateServer()
+    public static TestServer CreateServer()
     {
         var factory = new CatalogApplication();
         return factory.Server;
     }
+
+    private const string ItemsRoute = "api/v1/catalog/items";
 
     public static class Get
     {
@@ -34,31 +36,31 @@ public class CatalogScenariosBase
         public static string Items(bool paginated = false)
         {
             return paginated
-                ? "api/v1/catalog/items" + Paginated(PageIndex, PageCount)
-                : "api/v1/catalog/items";
+                ? ItemsRoute + Paginated(PageIndex, PageCount)
+                : ItemsRoute;
         }
 
         public static string ItemById(int id)
         {
-            return $"api/v1/catalog/items/{id}";
+            return $"{ItemsRoute}/{id}";
         }
 
         public static string ItemByName(string name, bool paginated = false)
         {
             return paginated
-                ? $"api/v1/catalog/items/withname/{name}" + Paginated(PageIndex, PageCount)
-                : $"api/v1/catalog/items/withname/{name}";
+                ? $"{ItemsRoute}/withname/{name}" + Paginated(PageIndex, PageCount)
+                : $"{ItemsRoute}/withname/{name}";
         }
 
-        public static string Types = "api/v1/catalog/catalogtypes";
+        public const string Types = "api/v1/catalog/catalogtypes";
 
-        public static string Brands = "api/v1/catalog/catalogbrands";
+        public const string Brands = "api/v1/catalog/catalogbrands";
 
         public static string Filtered(int catalogTypeId, int catalogBrandId, bool paginated = false)
         {
             return paginated
-                ? $"api/v1/catalog/items/type/{catalogTypeId}/brand/{catalogBrandId}" + Paginated(PageIndex, PageCount)
-                : $"api/v1/catalog/items/type/{catalogTypeId}/brand/{catalogBrandId}";
+                ? $"{ItemsRoute}/type/{catalogTypeId}/brand/{catalogBrandId}" + Paginated(PageIndex, PageCount)
+                : $"{ItemsRoute}/type/{catalogTypeId}/brand/{catalogBrandId}";
         }
 
         private static string Paginated(int pageIndex, int pageCount)
@@ -69,6 +71,6 @@ public class CatalogScenariosBase
 
     public static class Put
     {
-        public static string UpdateCatalogProduct = "api/v1/catalog/items";
+        public const string UpdateCatalogProduct = ItemsRoute;
     }
 }

@@ -3,16 +3,15 @@
 public class IntegrationEventLogService : IIntegrationEventLogService, IDisposable
 {
     private readonly IntegrationEventLogContext _integrationEventLogContext;
-    private readonly DbConnection _dbConnection;
     private readonly List<Type> _eventTypes;
     private volatile bool _disposedValue;
 
     public IntegrationEventLogService(DbConnection dbConnection)
     {
-        _dbConnection = dbConnection ?? throw new ArgumentNullException(nameof(dbConnection));
+        ArgumentNullException.ThrowIfNull(dbConnection);
         _integrationEventLogContext = new IntegrationEventLogContext(
             new DbContextOptionsBuilder<IntegrationEventLogContext>()
-                .UseSqlServer(_dbConnection)
+                .UseSqlServer(dbConnection)
                 .Options);
 
         _eventTypes = Assembly.Load(Assembly.GetEntryAssembly().FullName)
@@ -26,9 +25,9 @@ public class IntegrationEventLogService : IIntegrationEventLogService, IDisposab
         var tid = transactionId.ToString();
 
         var result = await _integrationEventLogContext.IntegrationEventLogs
-            .Where(e => e.TransactionId == tid && e.State == EventStateEnum.NotPublished).ToListAsync();
+            .Where(e => e.TransactionId == tid && e.State == EventState.NotPublished).ToListAsync();
 
-        if (result.Any())
+        if (result.Count != 0)
         {
             return result.OrderBy(o => o.CreationTime)
                 .Select(e => e.DeserializeJsonContent(_eventTypes.Find(t => t.Name == e.EventTypeShortName)));
@@ -39,7 +38,7 @@ public class IntegrationEventLogService : IIntegrationEventLogService, IDisposab
 
     public Task SaveEventAsync(IntegrationEvent @event, IDbContextTransaction transaction)
     {
-        if (transaction == null) throw new ArgumentNullException(nameof(transaction));
+        ArgumentNullException.ThrowIfNull(transaction);
 
         var eventLogEntry = new IntegrationEventLogEntry(@event, transaction.TransactionId);
 
@@ -51,25 +50,25 @@ public class IntegrationEventLogService : IIntegrationEventLogService, IDisposab
 
     public Task MarkEventAsPublishedAsync(Guid eventId)
     {
-        return UpdateEventStatus(eventId, EventStateEnum.Published);
+        return UpdateEventStatus(eventId, EventState.Published);
     }
 
     public Task MarkEventAsInProgressAsync(Guid eventId)
     {
-        return UpdateEventStatus(eventId, EventStateEnum.InProgress);
+        return UpdateEventStatus(eventId, EventState.InProgress);
     }
 
     public Task MarkEventAsFailedAsync(Guid eventId)
     {
-        return UpdateEventStatus(eventId, EventStateEnum.PublishedFailed);
+        return UpdateEventStatus(eventId, EventState.PublishedFailed);
     }
 
-    private Task UpdateEventStatus(Guid eventId, EventStateEnum status)
+    private Task<int> UpdateEventStatus(Guid eventId, EventState status)
     {
         var eventLogEntry = _integrationEventLogContext.IntegrationEventLogs.Single(ie => ie.EventId == eventId);
         eventLogEntry.State = status;
 
-        if (status == EventStateEnum.InProgress)
+        if (status == EventState.InProgress)
             eventLogEntry.TimesSent++;
 
         _integrationEventLogContext.IntegrationEventLogs.Update(eventLogEntry);

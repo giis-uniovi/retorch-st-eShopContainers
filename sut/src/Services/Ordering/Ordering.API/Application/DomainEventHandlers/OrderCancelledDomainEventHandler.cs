@@ -5,7 +5,7 @@ public partial class OrderCancelledDomainEventHandler
 {
     private readonly IOrderRepository _orderRepository;
     private readonly IBuyerRepository _buyerRepository;
-    private readonly ILogger _logger;
+    private readonly ILogger<OrderCancelledDomainEventHandler> _logger;
     private readonly IOrderingIntegrationEventService _orderingIntegrationEventService;
 
     public OrderCancelledDomainEventHandler(

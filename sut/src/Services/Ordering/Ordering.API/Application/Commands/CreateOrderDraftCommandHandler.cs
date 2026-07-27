@@ -5,32 +5,32 @@ using Microsoft.eShopOnContainers.Services.Ordering.Domain.AggregatesModel.Order
 
 // Regular CommandHandler
 public class CreateOrderDraftCommandHandler
-    : IRequestHandler<CreateOrderDraftCommand, OrderDraftDTO>
+    : IRequestHandler<CreateOrderDraftCommand, OrderDraftDto>
 {
-    public Task<OrderDraftDTO> Handle(CreateOrderDraftCommand message, CancellationToken cancellationToken)
+    public Task<OrderDraftDto> Handle(CreateOrderDraftCommand message, CancellationToken cancellationToken)
     {
 
         var order = Order.NewDraft();
-        var orderItems = message.Items.Select(i => i.ToOrderItemDTO());
+        var orderItems = message.Items.Select(i => i.ToOrderItemDto());
         foreach (var item in orderItems)
         {
             order.AddOrderItem(item.ProductId, item.ProductName, item.UnitPrice, item.Discount, item.PictureUrl, item.Units);
         }
 
-        return Task.FromResult(OrderDraftDTO.FromOrder(order));
+        return Task.FromResult(OrderDraftDto.FromOrder(order));
     }
 }
 
-public record OrderDraftDTO
+public record OrderDraftDto
 {
-    public IEnumerable<OrderItemDTO> OrderItems { get; init; }
+    public IEnumerable<OrderItemDto> OrderItems { get; init; }
     public decimal Total { get; init; }
 
-    public static OrderDraftDTO FromOrder(Order order)
+    public static OrderDraftDto FromOrder(Order order)
     {
-        return new OrderDraftDTO()
+        return new OrderDraftDto()
         {
-            OrderItems = order.OrderItems.Select(oi => new OrderItemDTO
+            OrderItems = order.OrderItems.Select(oi => new OrderItemDto
             {
                 Discount = oi.GetCurrentDiscount(),
                 ProductId = oi.ProductId,
@@ -44,7 +44,7 @@ public record OrderDraftDTO
     }
 }
 
-public record OrderItemDTO
+public record OrderItemDto
 {
     public int ProductId { get; init; }
 

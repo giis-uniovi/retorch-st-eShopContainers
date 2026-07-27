@@ -39,7 +39,7 @@ public class SetPaidIdentifiedOrderStatusCommandHandler : IdentifiedCommandHandl
     public SetPaidIdentifiedOrderStatusCommandHandler(
         IMediator mediator,
         IRequestManager requestManager,
-        ILogger<IdentifiedCommandHandler<SetPaidOrderStatusCommand, bool>> logger)
+        ILogger<SetPaidIdentifiedOrderStatusCommandHandler> logger)
         : base(mediator, requestManager, logger)
     {
     }

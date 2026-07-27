@@ -6,6 +6,7 @@ namespace WebhookClient.Pages
     {
         public void OnGet()
         {
+            // no action needed for privacy page GET
         }
     }
 }

@@ -88,11 +88,26 @@ jobs:
 
       - name: Build only, tests run in on-premises Jenkins
         run: mvn test -DskipTests -U --no-transfer-progress
-
+  sonarqube:
+    needs: [ build ]
+    #if: ${{ false }}  # disable for now
+    #This job fails when comming from a dependabot PR (can't read the sonarqube token for security reasons).
+    #Links to discussions and workaround at: https://github.com/giis-uniovi/samples-giis-template/issues/4
+    if: ${{ github.actor != 'dependabot[bot]' }}
+    runs-on: ubuntu-latest
+    steps:
       # ── SonarCloud analysis (SUT only — scoped to ./sut via sonar.projectBaseDir) ─
       # C# requires dotnet-sonarscanner (begin → build → end) so that Roslyn
       # analyzers are invoked during the build. C# + TypeScript (WebSPA) are the
       # only languages analyzed; settings come from sonar.properties.
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0  # full history required for SonarCloud blame data
+
+      - name: Set up .NET 10
+        uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: '10.x'
 
       - name: Install SonarScanner for .NET
         run: dotnet tool install --global dotnet-sonarscanner

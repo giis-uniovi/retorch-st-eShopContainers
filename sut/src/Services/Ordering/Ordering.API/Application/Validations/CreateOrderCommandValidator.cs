@@ -18,15 +18,16 @@ public class CreateOrderCommandValidator : AbstractValidator<CreateOrderCommand>
         RuleFor(command => command.CardTypeId).NotEmpty();
         RuleFor(command => command.OrderItems).Must(ContainOrderItems).WithMessage("No order items found");
 
-        logger.LogTrace("INSTANCE CREATED - {ClassName}", GetType().Name);
+        if (logger.IsEnabled(LogLevel.Trace))
+            logger.LogTrace("INSTANCE CREATED - {ClassName}", GetType().Name);
     }
 
-    private bool BeValidExpirationDate(DateTime dateTime)
+    private static bool BeValidExpirationDate(DateTime dateTime)
     {
         return dateTime >= DateTime.UtcNow;
     }
 
-    private bool ContainOrderItems(IEnumerable<OrderItemDTO> orderItems)
+    private static bool ContainOrderItems(IEnumerable<OrderItemDto> orderItems)
     {
         return orderItems.Any();
     }

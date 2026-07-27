@@ -1,4 +1,5 @@
-﻿global using System.Text.Json;
+﻿global using System.ComponentModel.DataAnnotations;
+global using System.Text.Json;
 global using CatalogApi;
 global using Grpc.Core;
 global using Grpc.Core.Interceptors;
@@ -10,4 +11,5 @@ global using Microsoft.eShopOnContainers.Web.Shopping.HttpAggregator.Infrastruct
 global using Microsoft.eShopOnContainers.Web.Shopping.HttpAggregator.Models;
 global using Microsoft.eShopOnContainers.Web.Shopping.HttpAggregator.Services;
 global using Microsoft.Extensions.Options;
+global using Microsoft.eShopOnContainers.Web.Shopping.HttpAggregator.Extensions;
 global using Services.Common;

@@ -2,24 +2,18 @@
 
 public class CatalogService : ICatalogService
 {
-    private readonly IOptions<AppSettings> _settings;
     private readonly HttpClient _httpClient;
-    private readonly ILogger<CatalogService> _logger;
-
     private readonly string _remoteServiceBaseUrl;
 
-    public CatalogService(HttpClient httpClient, ILogger<CatalogService> logger, IOptions<AppSettings> settings)
+    public CatalogService(HttpClient httpClient, IOptions<AppSettings> settings)
     {
         _httpClient = httpClient;
-        _settings = settings;
-        _logger = logger;
-
-        _remoteServiceBaseUrl = $"{_settings.Value.PurchaseUrl}/c/api/v1/catalog/";
+        _remoteServiceBaseUrl = $"{settings.Value.PurchaseUrl}/c/api/v1/catalog/";
     }
 
     public async Task<Catalog> GetCatalogItems(int page, int take, int? brand, int? type)
     {
-        var uri = API.Catalog.GetAllCatalogItems(_remoteServiceBaseUrl, page, take, brand, type);
+        var uri = Api.Catalog.GetAllCatalogItems(_remoteServiceBaseUrl, page, take, brand, type);
 
         var responseString = await _httpClient.GetStringAsync(uri);
 
@@ -30,7 +24,7 @@ public class CatalogService : ICatalogService
 
     public async Task<IEnumerable<SelectListItem>> GetBrands()
     {
-        var uri = API.Catalog.GetAllBrands(_remoteServiceBaseUrl);
+        var uri = Api.Catalog.GetAllBrands(_remoteServiceBaseUrl);
 
         var responseString = await _httpClient.GetStringAsync(uri);
 
@@ -54,7 +48,7 @@ public class CatalogService : ICatalogService
 
     public async Task<IEnumerable<SelectListItem>> GetTypes()
     {
-        var uri = API.Catalog.GetAllTypes(_remoteServiceBaseUrl);
+        var uri = Api.Catalog.GetAllTypes(_remoteServiceBaseUrl);
 
         var responseString = await _httpClient.GetStringAsync(uri);
 

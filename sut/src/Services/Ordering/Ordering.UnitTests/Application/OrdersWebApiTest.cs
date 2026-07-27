@@ -96,7 +96,7 @@ public class OrdersWebApiTest
         var actionResult = await orderController.GetOrdersAsync();
 
         //Assert
-        Assert.Equal((actionResult.Result as OkObjectResult).StatusCode, (int)System.Net.HttpStatusCode.OK);
+        Assert.Equal((int)System.Net.HttpStatusCode.OK, (actionResult.Result as OkObjectResult).StatusCode);
     }
 
     [Fact]
@@ -113,7 +113,7 @@ public class OrdersWebApiTest
         var actionResult = await orderController.GetOrderAsync(fakeOrderId);
 
         //Assert
-        Assert.Same(actionResult.Value, fakeDynamicResult);
+        Assert.Same(fakeDynamicResult, actionResult.Value);
     }
 
     [Fact]
@@ -129,6 +129,6 @@ public class OrdersWebApiTest
         var actionResult = await orderController.GetCardTypesAsync();
 
         //Assert
-        Assert.Equal((actionResult.Result as OkObjectResult).StatusCode, (int)System.Net.HttpStatusCode.OK);
+        Assert.Equal((int)System.Net.HttpStatusCode.OK, (actionResult.Result as OkObjectResult).StatusCode);
     }
 }

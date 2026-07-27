@@ -14,7 +14,7 @@ var services = builder.Services;
 
 services.AddMediatR(cfg =>
 {
-    cfg.RegisterServicesFromAssemblyContaining(typeof(Program));
+    cfg.RegisterServicesFromAssemblyContaining<Program>();
 
     cfg.AddOpenBehavior(typeof(LoggingBehavior<,>));
     cfg.AddOpenBehavior(typeof(ValidatorBehavior<,>));
@@ -66,7 +66,7 @@ using (var scope = app.Services.CreateScope())
     context.Database.SetCommandTimeout(300);
     await context.Database.MigrateAsync().ConfigureAwait(false);
 
-    await new OrderingContextSeed().SeedAsync(context, env, settings, logger);
+    await OrderingContextSeed.SeedAsync(context, env, settings, logger);
     var integEventContext = scope.ServiceProvider.GetRequiredService<IntegrationEventLogContext>();
     await integEventContext.Database.MigrateAsync();
 }

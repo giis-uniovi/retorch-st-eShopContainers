@@ -2,17 +2,17 @@
 
 public static class BasketItemExtensions
 {
-    public static IEnumerable<OrderItemDTO> ToOrderItemsDTO(this IEnumerable<BasketItem> basketItems)
+    public static IEnumerable<OrderItemDto> ToOrderItemsDto(this IEnumerable<BasketItem> basketItems)
     {
         foreach (var item in basketItems)
         {
-            yield return item.ToOrderItemDTO();
+            yield return item.ToOrderItemDto();
         }
     }
 
-    public static OrderItemDTO ToOrderItemDTO(this BasketItem item)
+    public static OrderItemDto ToOrderItemDto(this BasketItem item)
     {
-        return new OrderItemDTO()
+        return new OrderItemDto()
         {
             ProductId = item.ProductId,
             ProductName = item.ProductName,

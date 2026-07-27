@@ -2,39 +2,46 @@
 
 public class CatalogItem
 {
+    [Required, JsonRequired]
     public int Id { get; set; }
 
     public string Name { get; set; }
 
     public string Description { get; set; }
 
+    [Required, JsonRequired]
     public decimal Price { get; set; }
 
     public string PictureFileName { get; set; }
 
     public string PictureUri { get; set; }
 
+    [Required, JsonRequired]
     public int CatalogTypeId { get; set; }
 
     public CatalogType CatalogType { get; set; }
 
+    [Required, JsonRequired]
     public int CatalogBrandId { get; set; }
 
     public CatalogBrand CatalogBrand { get; set; }
 
     // Quantity in stock
+    [Required, JsonRequired]
     public int AvailableStock { get; set; }
 
     // Available stock at which we should reorder
+    [Required, JsonRequired]
     public int RestockThreshold { get; set; }
 
-
     // Maximum number of units that can be in-stock at any time (due to physicial/logistical constraints in warehouses)
+    [Required, JsonRequired]
     public int MaxStockThreshold { get; set; }
 
     /// <summary>
     /// True if item is on reorder
     /// </summary>
+    [Required, JsonRequired]
     public bool OnReorder { get; set; }
 
     public CatalogItem() { }

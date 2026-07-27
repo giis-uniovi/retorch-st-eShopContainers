@@ -22,6 +22,11 @@ namespace Services.Common;
 
 public static class CommonExtensions
 {
+    private const string IdentitySectionName = "Identity";
+    private const string EventBusConnectionName = "EventBus";
+    private const string UrlConfigKey = "Url";
+    private static readonly string[] ReadyTags = new string[] { "ready" };
+
     public static WebApplicationBuilder AddServiceDefaults(this WebApplicationBuilder builder)
     {
         // Shared configuration via key vault
@@ -60,7 +65,7 @@ public static class CommonExtensions
             app.UsePathBase(pathBase);
             app.UseRouting();
 
-            var identitySection = app.Configuration.GetSection("Identity");
+            var identitySection = app.Configuration.GetSection(IdentitySectionName);
 
             if (identitySection.Exists())
             {
@@ -89,10 +94,8 @@ public static class CommonExtensions
             app.Logger.LogCritical("Health checks failed!");
             foreach (var entry in report.Entries)
             {
-                if (entry.Value.Status == HealthStatus.Unhealthy)
-                {
+                if (entry.Value.Status == HealthStatus.Unhealthy && app.Logger.IsEnabled(LogLevel.Critical))
                     app.Logger.LogCritical("{Check}: {Status}", entry.Key, entry.Value.Status);
-                }
             }
 
             return false;
@@ -129,7 +132,7 @@ public static class CommonExtensions
             var authSection = openApiSection.GetSection("Auth");
             var endpointSection = openApiSection.GetRequiredSection("Endpoint");
 
-            var swaggerUrl = endpointSection["Url"] ?? $"{(!string.IsNullOrEmpty(pathBase) ? pathBase : string.Empty)}/swagger/v1/swagger.json";
+            var swaggerUrl = endpointSection[UrlConfigKey] ?? $"{(!string.IsNullOrEmpty(pathBase) ? pathBase : string.Empty)}/swagger/v1/swagger.json";
 
             setup.SwaggerEndpoint(swaggerUrl, endpointSection.GetRequiredValue("Name"));
 
@@ -179,7 +182,7 @@ public static class CommonExtensions
                 Description = document.GetRequiredValue("Description")
             });
 
-            var identitySection = configuration.GetSection("Identity");
+            var identitySection = configuration.GetSection(IdentitySectionName);
 
             if (!identitySection.Exists())
             {
@@ -187,17 +190,8 @@ public static class CommonExtensions
                 return;
             }
 
-            // {
-            //   "Identity": {
-            //     "ExternalUrl": "http://identity",
-            //     "Scopes": {
-            //         "basket": "Basket API"
-            //      }
-            //    }
-            // }
-
-            var identityUrlExternal = identitySection["ExternalUrl"] ?? identitySection.GetRequiredValue("Url");
-            var scopes = identitySection.GetRequiredSection("Scopes").GetChildren().ToDictionary(p => p.Key, p => p.Value);
+            var identityUrlExternal = identitySection["ExternalUrl"] ?? identitySection.GetRequiredValue(UrlConfigKey);
+            var scopes = identitySection.GetRequiredSection("Scopes").GetChildren().ToDictionary(p => p.Key, p => p.Value ?? string.Empty);
 
             options.AddSecurityDefinition("oauth2", new OpenApiSecurityScheme
             {
@@ -219,14 +213,7 @@ public static class CommonExtensions
 
     public static IServiceCollection AddDefaultAuthentication(this IServiceCollection services, IConfiguration configuration)
     {
-        // {
-        //   "Identity": {
-        //     "Url": "http://identity",
-        //     "Audience": "basket"
-        //    }
-        // }
-
-        var identitySection = configuration.GetSection("Identity");
+        var identitySection = configuration.GetSection(IdentitySectionName);
 
         if (!identitySection.Exists())
         {
@@ -239,7 +226,7 @@ public static class CommonExtensions
 
         services.AddAuthentication().AddJwtBearer(options =>
         {
-            var identityUrl = identitySection.GetRequiredValue("Url");
+            var identityUrl = identitySection.GetRequiredValue(UrlConfigKey);
             var audience = identitySection.GetRequiredValue("Audience");
 
             options.Authority = identityUrl;
@@ -257,14 +244,6 @@ public static class CommonExtensions
 
     public static ConfigurationManager AddKeyVault(this ConfigurationManager configuration)
     {
-        // {
-        //   "Vault": {
-        //     "Name": "myvault",
-        //     "TenantId": "mytenantid",
-        //     "ClientId": "myclientid",
-        //    }
-        // }
-
         var vaultSection = configuration.GetSection("Vault");
 
         if (!vaultSection.Exists())
@@ -306,13 +285,7 @@ public static class CommonExtensions
         // Health check for the application itself
         hcBuilder.AddCheck("self", () => HealthCheckResult.Healthy());
 
-        // {
-        //   "EventBus": {
-        //     "ProviderName": "ServiceBus | RabbitMQ",
-        //   }
-        // }
-
-        var eventBusSection = configuration.GetSection("EventBus");
+        var eventBusSection = configuration.GetSection(EventBusConnectionName);
 
         if (!eventBusSection.Exists())
         {
@@ -322,58 +295,29 @@ public static class CommonExtensions
         return eventBusSection["ProviderName"]?.ToLowerInvariant() switch
         {
             "servicebus" => hcBuilder.AddAzureServiceBusTopic(
-                    _ => configuration.GetRequiredConnectionString("EventBus"),
+                    _ => configuration.GetRequiredConnectionString(EventBusConnectionName),
                     _ => "eshop_event_bus",
                     name: "servicebus",
-                    tags: new string[] { "ready" }),
+                    tags: ReadyTags),
 
             _ => hcBuilder.AddRabbitMQ(
                     _ =>
                     {
                         var factory = new ConnectionFactory
                         {
-                            Uri = new Uri($"amqp://{configuration.GetRequiredConnectionString("EventBus")}")
+                            Uri = new Uri($"amqp://{configuration.GetRequiredConnectionString(EventBusConnectionName)}")
                         };
 
                         return factory.CreateConnectionAsync();
                     },
                     name: "rabbitmq",
-                    tags: new string[] { "ready" })
+                    tags: ReadyTags)
         };
     }
 
     public static IServiceCollection AddEventBus(this IServiceCollection services, IConfiguration configuration)
     {
-        //  {
-        //    "ConnectionStrings": {
-        //      "EventBus": "..."
-        //    },
-
-        // {
-        //   "EventBus": {
-        //     "ProviderName": "ServiceBus | RabbitMQ",
-        //     ...
-        //   }
-        // }
-
-        // {
-        //   "EventBus": {
-        //     "ProviderName": "ServiceBus",
-        //     "SubscriptionClientName": "eshop_event_bus"
-        //   }
-        // }
-
-        // {
-        //   "EventBus": {
-        //     "ProviderName": "RabbitMQ",
-        //     "SubscriptionClientName": "...",
-        //     "UserName": "...",
-        //     "Password": "...",
-        //     "RetryCount": 1
-        //   }
-        // }
-
-        var eventBusSection = configuration.GetSection("EventBus");
+        var eventBusSection = configuration.GetSection(EventBusConnectionName);
 
         if (!eventBusSection.Exists())
         {
@@ -384,7 +328,7 @@ public static class CommonExtensions
         {
             services.AddSingleton<IServiceBusPersisterConnection>(sp =>
             {
-                var serviceBusConnectionString = configuration.GetRequiredConnectionString("EventBus");
+                var serviceBusConnectionString = configuration.GetRequiredConnectionString(EventBusConnectionName);
 
                 return new DefaultServiceBusPersisterConnection(serviceBusConnectionString);
             });
@@ -408,17 +352,17 @@ public static class CommonExtensions
 
                 var factory = new ConnectionFactory()
                 {
-                    HostName = configuration.GetRequiredConnectionString("EventBus")
+                    HostName = configuration.GetRequiredConnectionString(EventBusConnectionName)
                 };
 
                 if (!string.IsNullOrEmpty(eventBusSection["UserName"]))
                 {
-                    factory.UserName = eventBusSection["UserName"];
+                    factory.UserName = eventBusSection["UserName"]!;
                 }
 
                 if (!string.IsNullOrEmpty(eventBusSection["Password"]))
                 {
-                    factory.Password = eventBusSection["Password"];
+                    factory.Password = eventBusSection["Password"]!;
                 }
 
                 var retryCount = eventBusSection.GetValue("RetryCount", 5);

@@ -58,7 +58,7 @@ namespace IdentityServerHost.Quickstart.UI
         /// </summary>
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Login(LoginInputModel model, string button)
+        public async Task<IActionResult> Login(LoginInputModel model, string button) // NOSONAR S3776
         {
             // check if we are in the context of an authorization request
             var context = await _interaction.GetAuthorizationContextAsync(model.ReturnUrl, HttpContext.RequestAborted);
@@ -92,7 +92,7 @@ namespace IdentityServerHost.Quickstart.UI
 
             if (ModelState.IsValid)
             {
-                var result = await _signInManager.PasswordSignInAsync(model.Username, model.Password, model.RememberLogin, lockoutOnFailure: true);
+                var result = await _signInManager.PasswordSignInAsync(model.Username, model.Password, model.RememberLogin ?? false, lockoutOnFailure: true);
                 if (result.Succeeded)
                 {
                     var user = await _userManager.FindByNameAsync(model.Username);
@@ -123,7 +123,7 @@ namespace IdentityServerHost.Quickstart.UI
                     else
                     {
                         // user might have clicked on a malicious link - should be logged
-                        throw new Exception("invalid return URL");
+                        throw new InvalidOperationException("invalid return URL");
                     }
                 }
 
@@ -149,7 +149,7 @@ namespace IdentityServerHost.Quickstart.UI
             // build a model so the logout page knows what to display
             var vm = await BuildLogoutViewModelAsync(logoutId);
 
-            if (vm.ShowLogoutPrompt == false)
+            if (!vm.ShowLogoutPrompt)
             {
                 // if the request for logout was properly authenticated from IdentityServer, then
                 // we don't need to show the prompt and can just log the user out directly.
@@ -200,9 +200,7 @@ namespace IdentityServerHost.Quickstart.UI
         }
 
 
-        /*****************************************/
-        /* helper APIs for the AccountController */
-        /*****************************************/
+        // helper APIs for the AccountController
         private async Task<LoginViewModel> BuildLoginViewModelAsync(string returnUrl)
         {
             var context = await _interaction.GetAuthorizationContextAsync(returnUrl, HttpContext.RequestAborted);
@@ -244,7 +242,7 @@ namespace IdentityServerHost.Quickstart.UI
                 {
                     allowLocal = client.EnableLocalLogin;
 
-                    if (client.IdentityProviderRestrictions != null && client.IdentityProviderRestrictions.Any())
+                    if (client.IdentityProviderRestrictions != null && client.IdentityProviderRestrictions.Count != 0)
                     {
                         providers = providers.Where(provider => client.IdentityProviderRestrictions.Contains(provider.AuthenticationScheme)).ToList();
                     }

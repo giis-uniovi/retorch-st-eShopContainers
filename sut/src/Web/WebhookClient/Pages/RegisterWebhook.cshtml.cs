@@ -35,7 +35,7 @@ namespace WebhookClient.Pages
             ResponseCode = (int)HttpStatusCode.OK;
             var protocol = Request.IsHttps ? "https" : "http";
             var selfurl = !string.IsNullOrEmpty(_options.SelfUrl) ? _options.SelfUrl : $"{protocol}://{Request.Host}/{Request.PathBase}";
-            if (!selfurl.EndsWith("/"))
+            if (!selfurl.EndsWith('/'))
             {
                 selfurl = selfurl + "/";
             }

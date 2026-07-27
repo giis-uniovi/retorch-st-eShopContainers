@@ -36,7 +36,7 @@ public class ShipOrderIdentifiedCommandHandler : IdentifiedCommandHandler<ShipOr
     public ShipOrderIdentifiedCommandHandler(
         IMediator mediator,
         IRequestManager requestManager,
-        ILogger<IdentifiedCommandHandler<ShipOrderCommand, bool>> logger)
+        ILogger<ShipOrderIdentifiedCommandHandler> logger)
         : base(mediator, requestManager, logger)
     {
     }

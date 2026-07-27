@@ -51,7 +51,8 @@ public class EventBusServiceBus : IEventBus, IAsyncDisposable
     public void SubscribeDynamic<TH>(string eventName)
         where TH : IDynamicIntegrationEventHandler
     {
-        _logger.LogInformation("Subscribing to dynamic event {EventName} with {EventHandler}", eventName, typeof(TH).Name);
+        if (_logger.IsEnabled(LogLevel.Information))
+            _logger.LogInformation("Subscribing to dynamic event {EventName} with {EventHandler}", eventName, typeof(TH).Name);
 
         _subsManager.AddDynamicSubscription<TH>(eventName);
     }
@@ -73,13 +74,14 @@ public class EventBusServiceBus : IEventBus, IAsyncDisposable
                     Name = eventName
                 }).GetAwaiter().GetResult();
             }
-            catch (ServiceBusException)
+            catch (ServiceBusException ex)
             {
-                _logger.LogWarning("The messaging entity {eventName} already exists.", eventName);
+                _logger.LogWarning(ex, "The messaging entity {EventName} already exists.", eventName);
             }
         }
 
-        _logger.LogInformation("Subscribing to event {EventName} with {EventHandler}", eventName, typeof(TH).Name);
+        if (_logger.IsEnabled(LogLevel.Information))
+            _logger.LogInformation("Subscribing to event {EventName} with {EventHandler}", eventName, typeof(TH).Name);
 
         _subsManager.AddSubscription<T, TH>();
     }
@@ -100,10 +102,11 @@ public class EventBusServiceBus : IEventBus, IAsyncDisposable
         }
         catch (ServiceBusException ex) when (ex.Reason == ServiceBusFailureReason.MessagingEntityNotFound)
         {
-            _logger.LogWarning("The messaging entity {eventName} Could not be found.", eventName);
+            _logger.LogWarning(ex, "The messaging entity {EventName} Could not be found.", eventName);
         }
 
-        _logger.LogInformation("Unsubscribing from event {EventName}", eventName);
+        if (_logger.IsEnabled(LogLevel.Information))
+            _logger.LogInformation("Unsubscribing from event {EventName}", eventName);
 
         _subsManager.RemoveSubscription<T, TH>();
     }
@@ -111,7 +114,8 @@ public class EventBusServiceBus : IEventBus, IAsyncDisposable
     public void UnsubscribeDynamic<TH>(string eventName)
         where TH : IDynamicIntegrationEventHandler
     {
-        _logger.LogInformation("Unsubscribing from dynamic event {EventName}", eventName);
+        if (_logger.IsEnabled(LogLevel.Information))
+            _logger.LogInformation("Unsubscribing from dynamic event {EventName}", eventName);
 
         _subsManager.RemoveDynamicSubscription<TH>(eventName);
     }
@@ -188,12 +192,13 @@ public class EventBusServiceBus : IEventBus, IAsyncDisposable
         }
         catch (ServiceBusException ex) when (ex.Reason == ServiceBusFailureReason.MessagingEntityNotFound)
         {
-            _logger.LogWarning("The messaging entity {DefaultRuleName} Could not be found.", RuleProperties.DefaultRuleName);
+            _logger.LogWarning(ex, "The messaging entity {DefaultRuleName} Could not be found.", RuleProperties.DefaultRuleName);
         }
     }
 
     public async ValueTask DisposeAsync()
     {
+        GC.SuppressFinalize(this);
         _subsManager.Clear();
         await _processor.CloseAsync();
     }

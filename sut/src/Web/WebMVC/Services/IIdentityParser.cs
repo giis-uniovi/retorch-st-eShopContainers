@@ -1,6 +1,6 @@
 ﻿namespace Microsoft.eShopOnContainers.WebMVC.Services;
 
-public interface IIdentityParser<T>
+public interface IIdentityParser<out T>
 {
     T Parse(IPrincipal principal);
 }

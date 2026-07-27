@@ -45,7 +45,7 @@ export class CatalogComponent implements OnInit {
         if (this.configurationService.isReady) 
             this.loadData();
         else
-            this.configurationService.settingsLoaded$.subscribe(x => {
+            this.configurationService.settingsLoaded$.subscribe(() => {
                 this.loadData();
             });
 
@@ -64,8 +64,8 @@ export class CatalogComponent implements OnInit {
     onFilterApplied(event: any) {
         event.preventDefault();
         
-        this.brandSelected = this.brandSelected && this.brandSelected.toString() != "null" ? this.brandSelected : null;
-        this.typeSelected = this.typeSelected && this.typeSelected.toString() != "null" ? this.typeSelected : null;
+        this.brandSelected = this.brandSelected && this.brandSelected.toString() !== "null" ? this.brandSelected : null;
+        this.typeSelected = this.typeSelected && this.typeSelected.toString() !== "null" ? this.typeSelected : null;
         this.paginationInfo.actualPage = 0;
         this.getCatalog(this.paginationInfo.itemsPage, this.paginationInfo.actualPage, this.brandSelected, this.typeSelected);
     }
@@ -81,7 +81,6 @@ export class CatalogComponent implements OnInit {
     }
 
     onPageChanged(value: any) {
-        console.log('catalog pager event fired' + value);
         this.paginationInfo.actualPage = value;
         this.getCatalog(this.paginationInfo.itemsPage, value);
     }
