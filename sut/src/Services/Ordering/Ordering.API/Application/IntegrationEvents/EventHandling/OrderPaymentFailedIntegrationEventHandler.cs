@@ -18,16 +18,18 @@ public class OrderPaymentFailedIntegrationEventHandler :
     {
         using (_logger.BeginScope(new List<KeyValuePair<string, object>> { new ("IntegrationEventContext", @event.Id) }))
         {
-            _logger.LogInformation("Handling integration event: {IntegrationEventId} - ({@IntegrationEvent})", @event.Id, @event);
+            if (_logger.IsEnabled(LogLevel.Information))
+                _logger.LogInformation("Handling integration event: {IntegrationEventId} - ({@IntegrationEvent})", @event.Id, @event);
 
             var command = new CancelOrderCommand(@event.OrderId);
 
-            _logger.LogInformation(
-                "Sending command: {CommandName} - {IdProperty}: {CommandId} ({@Command})",
-                command.GetGenericTypeName(),
-                nameof(command.OrderNumber),
-                command.OrderNumber,
-                command);
+            if (_logger.IsEnabled(LogLevel.Information))
+                _logger.LogInformation(
+                    "Sending command: {CommandName} - {IdProperty}: {CommandId} ({@Command})",
+                    command.GetGenericTypeName(),
+                    nameof(command.OrderNumber),
+                    command.OrderNumber,
+                    command);
 
             await _mediator.Send(command);
         }

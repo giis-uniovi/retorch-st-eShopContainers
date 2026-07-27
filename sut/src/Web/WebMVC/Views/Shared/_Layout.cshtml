@@ -1,5 +1,5 @@
 ﻿<!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -24,6 +24,8 @@
     </environment>
     <environment names="Staging,Production">
         <link rel="stylesheet" href="https://ajax.aspnetcdn.com/ajax/bootstrap/3.3.7/css/bootstrap.min.css"
+              integrity="sha512-6MXa8B6uaO18Hid6blRMetEIoPqHf7Ux1tnyIQdpt9qI5OACx7C+O3IVTr98vwGnlcg0LOLa02i9Y1HpVhlfiw=="
+              crossorigin="anonymous"
               asp-fallback-href="~/lib/bootstrap/dist/css/bootstrap.min.css"
               asp-fallback-test-class="sr-only" asp-fallback-test-property="position" asp-fallback-test-value="absolute" />
         <link rel="stylesheet" href="~/css/site.min.css" asp-append-version="true" />
@@ -38,7 +40,7 @@
                 <section class="col-lg-7 col-md-6 col-12">
                     <a class="navbar-brand" routerLink="catalog">
                         <a asp-area="" asp-controller="Catalog" asp-action="Index">
-                            <img src="~/images/brand.png" />
+                            <img src="~/images/brand.png" alt="eShop brand" />
                         </a>
                     </a>
                 </section>
@@ -56,11 +58,11 @@
             <article class="row">
 
                 <section class="col-sm-6">
-                    <img class="esh-app-footer-brand" src="~/images/brand_dark.png" />
+                    <img class="esh-app-footer-brand" src="~/images/brand_dark.png" alt="eShop brand" />
                 </section>
 
                 <section class="col-sm-6">
-                    <img class="esh-app-footer-text hidden-xs" src="~/images/main_footer_text.png" width="335" height="26" alt="footer text image" />
+                    <img class="esh-app-footer-text hidden-xs" src="~/images/main_footer_text.png" width="335" height="26" alt="footer text" />
                 </section>
 
             </article>
@@ -74,17 +76,21 @@
     </environment>
     <environment names="Staging,Production">
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"
+                integrity="sha512-bnIvzh6FU75ZKxp0GXLH9bewza/OIw6dLVh9ICg0gogclmYGguQJWl8U30WpbsGTqbIiAwxTsbe76DErLq5EDQ=="
+                crossorigin="anonymous"
                 asp-fallback-src="~/lib/jquery/jquery.min.js"
                 asp-fallback-test="window.jQuery">
         </script>
         <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.bundle.min.js"
+                integrity="sha512-TqmAh0/sSbwSuVBODEagAoiUIeGRo8u95a41zykGfq5iPkO9oie8IKCgx7yAr1bfiBjZeuapjLgMdp9UMpCVYQ=="
+                crossorigin="anonymous"
                 asp-fallback-src="~/lib/bootstrap/dist/js/bootstrap.min.js"
                 asp-fallback-test="window.jQuery && window.jQuery.fn && window.jQuery.fn.modal">
         </script>
         <script src="~/js/site.min.js" asp-append-version="true"></script>
     </environment>
 
-    @RenderSection("scripts", required: false)
+    @await RenderSectionAsync("scripts", required: false)
 
     <script type="text/javascript">
         if ('@User.Identity.IsAuthenticated' === 'True') {

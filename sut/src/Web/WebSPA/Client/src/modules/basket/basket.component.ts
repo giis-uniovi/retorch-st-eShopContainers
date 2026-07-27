@@ -36,27 +36,21 @@ export class BasketComponent implements OnInit {
         this.basket.items = this.basket.items.filter(item => item.id !== id);
         this.calculateTotalPrice();
         
-        this.basketSerive.setBasket(this.basket).subscribe(x => 
-            {
-                this.basketSerive.updateQuantity();
-                console.log('basket updated: ' + x)
-            }
-        );
+        this.basketSerive.setBasket(this.basket).subscribe(() => {
+            this.basketSerive.updateQuantity();
+        });
     }
 
     itemQuantityChanged(item: IBasketItem, quantity: number) {
         item.quantity = Math.max(quantity, 1);
         this.calculateTotalPrice();
-        this.basketSerive.setBasket(this.basket).subscribe(x => console.log('basket updated: ' + x));
+        this.basketSerive.setBasket(this.basket).subscribe();
     }
 
     update(event: any) {
         const setBasketObservable = this.basketSerive.setBasket(this.basket);
         setBasketObservable.subscribe({
-            next: x => {
-                this.errorMessages = [];
-                console.log('basket updated: ' + x);
-            },
+            next: () => { this.errorMessages = []; },
             error: errMessage => this.errorMessages = errMessage.messages
         });
         return setBasketObservable;
@@ -65,7 +59,7 @@ export class BasketComponent implements OnInit {
     checkOut(event: any) {
         this.update(event)
             .subscribe(
-                x => {
+                () => {
                     this.errorMessages = [];
                     this.basketWrapperService.basket = this.basket;
                     this.router.navigate(['order']);

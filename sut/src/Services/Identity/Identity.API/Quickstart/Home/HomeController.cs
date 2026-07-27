@@ -9,7 +9,7 @@ namespace IdentityServerHost.Quickstart.UI
     {
         private readonly IIdentityServerInteractionService _interaction;
         private readonly IWebHostEnvironment _environment;
-        private readonly ILogger _logger;
+        private readonly ILogger<HomeController> _logger;
 
         public HomeController(
             IIdentityServerInteractionService interaction,

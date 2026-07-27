@@ -1,5 +1,12 @@
-﻿internal static class Extensions
+﻿namespace Microsoft.eShopOnContainers.Web.Shopping.HttpAggregator.Extensions;
+
+internal static class Extensions
 {
+    private static readonly string[] CatalogApiTags = new string[] { "catalogapi" };
+    private static readonly string[] OrderingApiTags = new string[] { "orderingapi" };
+    private static readonly string[] BasketApiTags = new string[] { "basketapi" };
+    private static readonly string[] IdentityApiTags = new string[] { "identityapi" };
+
     public static IServiceCollection AddReverseProxy(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddReverseProxy().LoadFromConfig(configuration.GetRequiredSection("ReverseProxy"));
@@ -10,10 +17,10 @@
     public static IServiceCollection AddHealthChecks(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddHealthChecks()
-            .AddUrlGroup(_ => new Uri(configuration.GetRequiredValue("CatalogUrlHC")), name: "catalogapi-check", tags: new string[] { "catalogapi" })
-            .AddUrlGroup(_ => new Uri(configuration.GetRequiredValue("OrderingUrlHC")), name: "orderingapi-check", tags: new string[] { "orderingapi" })
-            .AddUrlGroup(_ => new Uri(configuration.GetRequiredValue("BasketUrlHC")), name: "basketapi-check", tags: new string[] { "basketapi" })
-            .AddUrlGroup(_ => new Uri(configuration.GetRequiredValue("IdentityUrlHC")), name: "identityapi-check", tags: new string[] { "identityapi" });
+            .AddUrlGroup(_ => new Uri(configuration.GetRequiredValue("CatalogUrlHC")), name: "catalogapi-check", tags: CatalogApiTags)
+            .AddUrlGroup(_ => new Uri(configuration.GetRequiredValue("OrderingUrlHC")), name: "orderingapi-check", tags: OrderingApiTags)
+            .AddUrlGroup(_ => new Uri(configuration.GetRequiredValue("BasketUrlHC")), name: "basketapi-check", tags: BasketApiTags)
+            .AddUrlGroup(_ => new Uri(configuration.GetRequiredValue("IdentityUrlHC")), name: "identityapi-check", tags: IdentityApiTags);
 
         return services;
     }

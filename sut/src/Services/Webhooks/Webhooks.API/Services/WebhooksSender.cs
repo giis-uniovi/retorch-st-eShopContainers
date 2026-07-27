@@ -3,7 +3,7 @@
 public class WebhooksSender : IWebhooksSender
 {
     private readonly IHttpClientFactory _httpClientFactory;
-    private readonly ILogger _logger;
+    private readonly ILogger<WebhooksSender> _logger;
     public WebhooksSender(IHttpClientFactory httpClientFactory, ILogger<WebhooksSender> logger)
     {
         _httpClientFactory = httpClientFactory;
@@ -18,7 +18,7 @@ public class WebhooksSender : IWebhooksSender
         await Task.WhenAll(tasks.ToArray());
     }
 
-    private Task OnSendData(WebhookSubscription subs, string jsonData, HttpClient client)
+    private Task<HttpResponseMessage> OnSendData(WebhookSubscription subs, string jsonData, HttpClient client)
     {
         var request = new HttpRequestMessage()
         {
@@ -31,7 +31,8 @@ public class WebhooksSender : IWebhooksSender
         {
             request.Headers.Add("X-eshop-whtoken", subs.Token);
         }
-        _logger.LogDebug("Sending hook to {DestUrl} of type {Type}", subs.Type.ToString(), subs.Type.ToString());
+        if (_logger.IsEnabled(LogLevel.Debug))
+            _logger.LogDebug("Sending hook to {DestUrl} of type {Type}", subs.Type.ToString(), subs.Type.ToString());
         return client.SendAsync(request);
     }
 

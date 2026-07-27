@@ -13,7 +13,8 @@ public class AccountController : Controller
     [Authorize(AuthenticationSchemes = OpenIdConnectDefaults.AuthenticationScheme)]
     public IActionResult SignIn(string returnUrl)
     {
-        _logger.LogInformation("User {@User} authenticated", User.Identity.Name);
+        if (_logger.IsEnabled(LogLevel.Information))
+            _logger.LogInformation("User {@User} authenticated", User.Identity.Name);
 
         // "Catalog" because UrlHelper doesn't support nameof() for controllers
         // https://github.com/aspnet/Mvc/issues/5853

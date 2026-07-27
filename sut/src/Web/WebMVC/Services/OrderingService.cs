@@ -4,22 +4,18 @@ using Microsoft.eShopOnContainers.WebMVC.ViewModels;
 
 public class OrderingService : IOrderingService
 {
-    private HttpClient _httpClient;
+    private readonly HttpClient _httpClient;
     private readonly string _remoteServiceBaseUrl;
-    private readonly IOptions<AppSettings> _settings;
-
 
     public OrderingService(HttpClient httpClient, IOptions<AppSettings> settings)
     {
         _httpClient = httpClient;
-        _settings = settings;
-
         _remoteServiceBaseUrl = $"{settings.Value.PurchaseUrl}/o/api/v1/orders";
     }
 
-    async public Task<Order> GetOrder(ApplicationUser user, string id)
+    async public Task<Order> GetOrder(ApplicationUser user, string orderId)
     {
-        var uri = API.Order.GetOrder(_remoteServiceBaseUrl, id);
+        var uri = Api.Order.GetOrder(_remoteServiceBaseUrl, orderId);
 
         var responseString = await _httpClient.GetStringAsync(uri);
 
@@ -30,7 +26,7 @@ public class OrderingService : IOrderingService
 
     async public Task<List<Order>> GetMyOrders(ApplicationUser user)
     {
-        var uri = API.Order.GetAllMyOrders(_remoteServiceBaseUrl);
+        var uri = Api.Order.GetAllMyOrders(_remoteServiceBaseUrl);
 
         var responseString = await _httpClient.GetStringAsync(uri);
 
@@ -43,43 +39,43 @@ public class OrderingService : IOrderingService
 
     async public Task CancelOrder(string orderId)
     {
-        var order = new OrderDTO()
+        var order = new OrderDto()
         {
             OrderNumber = orderId
         };
 
-        var uri = API.Order.CancelOrder(_remoteServiceBaseUrl);
+        var uri = Api.Order.CancelOrder(_remoteServiceBaseUrl);
         var orderContent = new StringContent(JsonSerializer.Serialize(order), Encoding.UTF8, "application/json");
 
         var response = await _httpClient.PutAsync(uri, orderContent);
 
         if (response.StatusCode == System.Net.HttpStatusCode.InternalServerError)
         {
-            throw new Exception("Error cancelling order, try later.");
+            throw new HttpRequestException("Error cancelling order, try later.");
         }
 
         if (!response.IsSuccessStatusCode)
         {
             var errorContent = await response.Content.ReadAsStringAsync();
-            throw new Exception($"Error cancelling order ({response.StatusCode}): {errorContent}");
+            throw new HttpRequestException($"Error cancelling order ({response.StatusCode}): {errorContent}");
         }
     }
 
     async public Task ShipOrder(string orderId)
     {
-        var order = new OrderDTO()
+        var order = new OrderDto()
         {
             OrderNumber = orderId
         };
 
-        var uri = API.Order.ShipOrder(_remoteServiceBaseUrl);
+        var uri = Api.Order.ShipOrder(_remoteServiceBaseUrl);
         var orderContent = new StringContent(JsonSerializer.Serialize(order), Encoding.UTF8, "application/json");
 
         var response = await _httpClient.PutAsync(uri, orderContent);
 
         if (response.StatusCode == System.Net.HttpStatusCode.InternalServerError)
         {
-            throw new Exception("Error in ship order process, try later.");
+            throw new HttpRequestException("Error in ship order process, try later.");
         }
 
         response.EnsureSuccessStatusCode();
@@ -109,17 +105,17 @@ public class OrderingService : IOrderingService
 
         order.CardNumber = user.CardNumber;
         order.CardHolderName = user.CardHolderName;
-        order.CardExpiration = new DateTime(int.Parse("20" + user.Expiration.Split('/')[1]), int.Parse(user.Expiration.Split('/')[0]), 1);
+        order.CardExpiration = new DateTime(int.Parse("20" + user.Expiration.Split('/')[1]), int.Parse(user.Expiration.Split('/')[0]), 1, 0, 0, 0, DateTimeKind.Unspecified);
         order.CardSecurityNumber = user.SecurityNumber;
 
         return order;
     }
 
-    public BasketDTO MapOrderToBasket(Order order)
+    public BasketDto MapOrderToBasket(Order order)
     {
         order.CardExpirationApiFormat();
 
-        return new BasketDTO()
+        return new BasketDto()
         {
             City = order.City,
             Street = order.Street,
@@ -128,11 +124,11 @@ public class OrderingService : IOrderingService
             ZipCode = order.ZipCode,
             CardNumber = order.CardNumber,
             CardHolderName = order.CardHolderName,
-            CardExpiration = order.CardExpiration,
+            CardExpiration = order.CardExpiration.GetValueOrDefault(),
             CardSecurityNumber = order.CardSecurityNumber,
             CardTypeId = 1,
             Buyer = order.Buyer,
-            RequestId = order.RequestId
+            RequestId = order.RequestId.GetValueOrDefault()
         };
     }
 }

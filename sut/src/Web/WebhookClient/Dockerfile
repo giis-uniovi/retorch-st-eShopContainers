@@ -57,4 +57,5 @@ FROM build AS publish
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app .
+USER app
 ENTRYPOINT ["dotnet", "WebhookClient.dll"]

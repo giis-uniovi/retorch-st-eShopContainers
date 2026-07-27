@@ -1,13 +1,13 @@
 namespace Microsoft.eShopOnContainers.BuildingBlocks.EventBusRabbitMQ;
 
-public class DefaultRabbitMQPersistentConnection
+public class DefaultRabbitMQPersistentConnection // NOSONAR S3881
     : IRabbitMQPersistentConnection
 {
     private readonly IConnectionFactory _connectionFactory;
     private readonly ILogger<DefaultRabbitMQPersistentConnection> _logger;
     private readonly int _retryCount;
     private IConnection _connection;
-    public bool Disposed;
+    public bool Disposed { get; private set; }
 
     readonly SemaphoreSlim _syncRoot = new(1, 1);
 
@@ -35,6 +35,7 @@ public class DefaultRabbitMQPersistentConnection
         if (Disposed) return;
 
         Disposed = true;
+        GC.SuppressFinalize(this);
 
         try
         {
@@ -45,7 +46,8 @@ public class DefaultRabbitMQPersistentConnection
         }
         catch (IOException ex)
         {
-            _logger.LogCritical(ex.ToString());
+            if (_logger.IsEnabled(LogLevel.Critical))
+                _logger.LogCritical(ex, "RabbitMQ connection could not be disposed properly.");
         }
     }
 
@@ -60,7 +62,8 @@ public class DefaultRabbitMQPersistentConnection
                 .Or<BrokerUnreachableException>()
                 .WaitAndRetryAsync(_retryCount, retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)), (ex, time) =>
                 {
-                    _logger.LogWarning(ex, "RabbitMQ Client could not connect after {TimeOut}s", $"{time.TotalSeconds:n1}");
+                    if (_logger.IsEnabled(LogLevel.Warning))
+                        _logger.LogWarning(ex, "RabbitMQ Client could not connect after {TimeOut:n1}s", time.TotalSeconds);
                 }
             );
 
@@ -75,7 +78,8 @@ public class DefaultRabbitMQPersistentConnection
                 _connection.CallbackExceptionAsync += OnCallbackExceptionAsync;
                 _connection.ConnectionBlockedAsync += OnConnectionBlockedAsync;
 
-                _logger.LogInformation("RabbitMQ Client acquired a persistent connection to '{HostName}' and is subscribed to failure events", _connection.Endpoint.HostName);
+                if (_logger.IsEnabled(LogLevel.Information))
+                    _logger.LogInformation("RabbitMQ Client acquired a persistent connection to '{HostName}' and is subscribed to failure events", _connection.Endpoint.HostName);
 
                 return true;
             }

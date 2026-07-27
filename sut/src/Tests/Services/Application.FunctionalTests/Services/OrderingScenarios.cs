@@ -5,11 +5,15 @@ namespace FunctionalTests.Services.Ordering;
 
 public class OrderingScenarios
 {
+    private static readonly JsonSerializerOptions s_jsonOptions = new() { PropertyNameCaseInsensitive = true };
+    private const string JsonMediaType = "application/json";
+    private const string RequestIdHeader = "x-requestid";
+
     [Fact]
     public async Task Cancel_basket_and_check_order_status_cancelled()
     {
-        using var orderServer = new OrderingScenarioBase().CreateServer();
-        using var basketServer = new BasketScenarioBase().CreateServer();
+        using var orderServer = OrderingScenarioBase.CreateServer();
+        using var basketServer = BasketScenarioBase.CreateServer();
         // Expected data
         var cityExpected = $"city-{Guid.NewGuid()}";
         var orderStatusExpected = "cancelled";
@@ -18,18 +22,18 @@ public class OrderingScenarios
         var orderClient = orderServer.CreateClient();
 
         // GIVEN a basket is created 
-        var contentBasket = new StringContent(BuildBasket(), UTF8Encoding.UTF8, "application/json")
+        var contentBasket = new StringContent(BuildBasket(), UTF8Encoding.UTF8, JsonMediaType)
         {
-            Headers = { { "x-requestid", Guid.NewGuid().ToString() } }
+            Headers = { { RequestIdHeader, Guid.NewGuid().ToString() } }
         };
         await basketClient.PostAsync(BasketScenarioBase.Post.Basket, contentBasket);
 
         // AND basket checkout is sent
         await basketClient.PostAsync(
             BasketScenarioBase.Post.CheckoutOrder,
-            new StringContent(BuildCheckout(cityExpected), UTF8Encoding.UTF8, "application/json")
+            new StringContent(BuildCheckout(cityExpected), UTF8Encoding.UTF8, JsonMediaType)
             {
-                Headers = { { "x-requestid", Guid.NewGuid().ToString() } }
+                Headers = { { RequestIdHeader, Guid.NewGuid().ToString() } }
             });
 
         // WHEN Order is created in Ordering.api
@@ -37,9 +41,9 @@ public class OrderingScenarios
         Assert.NotNull(newOrder);
 
         // AND Order is cancelled in Ordering.api
-        await orderClient.PutAsync(OrderingScenarioBase.Put.CancelOrder, new StringContent(BuildCancelOrder(newOrder.OrderNumber), UTF8Encoding.UTF8, "application/json")
+        await orderClient.PutAsync(OrderingScenarioBase.Put.CancelOrder, new StringContent(BuildCancelOrder(newOrder.OrderNumber), UTF8Encoding.UTF8, JsonMediaType)
         {
-            Headers = { { "x-requestid", Guid.NewGuid().ToString() } }
+            Headers = { { RequestIdHeader, Guid.NewGuid().ToString() } }
         });
 
         // AND the requested order is retrieved
@@ -49,18 +53,15 @@ public class OrderingScenarios
         Assert.Equal(orderStatusExpected, order.Status);
     }
 
-    async Task<Order> TryGetOrder(string orderNumber, HttpClient orderClient)
+    private static async Task<Order> TryGetOrder(string orderNumber, HttpClient orderClient)
     {
         var ordersGetResponse = await orderClient.GetStringAsync(OrderingScenarioBase.Get.Orders);
-        var orders = JsonSerializer.Deserialize<List<Order>>(ordersGetResponse, new JsonSerializerOptions
-        {
-            PropertyNameCaseInsensitive = true
-        });
+        var orders = JsonSerializer.Deserialize<List<Order>>(ordersGetResponse, s_jsonOptions);
 
         return orders.Single(o => o.OrderNumber == orderNumber);
     }
 
-    private async Task<Order> TryGetNewOrderCreated(string city, HttpClient orderClient)
+    private static async Task<Order> TryGetNewOrderCreated(string city, HttpClient orderClient)
     {
         var counter = 0;
         Order order = null;
@@ -69,10 +70,7 @@ public class OrderingScenarios
         {
             //get the orders and verify that the new order has been created
             var ordersGetResponse = await orderClient.GetStringAsync(OrderingScenarioBase.Get.Orders);
-            var orders = JsonSerializer.Deserialize<List<Order>>(ordersGetResponse, new JsonSerializerOptions
-            {
-                PropertyNameCaseInsensitive = true
-            });
+            var orders = JsonSerializer.Deserialize<List<Order>>(ordersGetResponse, s_jsonOptions);
 
             if (orders == null || orders.Count == 0)
             {
@@ -82,12 +80,9 @@ public class OrderingScenarios
             }
 
             var lastOrder = orders.OrderByDescending(o => o.Date).First();
-            int.TryParse(lastOrder.OrderNumber, out int id);
+            _ = int.TryParse(lastOrder.OrderNumber, out int id);
             var orderDetails = await orderClient.GetStringAsync(OrderingScenarioBase.Get.OrderBy(id));
-            order = JsonSerializer.Deserialize<Order>(orderDetails, new JsonSerializerOptions
-            {
-                PropertyNameCaseInsensitive = true
-            });
+            order = JsonSerializer.Deserialize<Order>(orderDetails, s_jsonOptions);
 
             order.City = city;
 
@@ -100,12 +95,12 @@ public class OrderingScenarios
         return order;
     }
 
-    private bool IsOrderCreated(Order order, string city)
+    private static bool IsOrderCreated(Order order, string city)
     {
         return order.City == city;
     }
 
-    string BuildBasket()
+    private static string BuildBasket()
     {
         var order = new CustomerBasket("9e3163b9-1ae6-4652-9dc6-7898ab7b7a00");
         order.Items = new List<Microsoft.eShopOnContainers.Services.Basket.API.Model.BasketItem>()
@@ -122,18 +117,18 @@ public class OrderingScenarios
         return JsonSerializer.Serialize(order);
     }
 
-    string BuildCancelOrder(string orderId)
+    private static string BuildCancelOrder(string orderId)
     {
-        var order = new OrderDTO()
+        var order = new OrderDto()
         {
             OrderNumber = orderId
         };
         return JsonSerializer.Serialize(order);
     }
 
-    string BuildCheckout(string cityExpected)
+    private static string BuildCheckout(string cityExpected)
     {
-        var checkoutBasket = new BasketDTO()
+        var checkoutBasket = new BasketDto()
         {
             City = cityExpected,
             Street = "street",

@@ -60,7 +60,7 @@ public class CatalogControllerTest
         Assert.Equal(expectedItemsInPage, page.Data.Count());
     }
 
-    private List<CatalogItem> GetFakeCatalog()
+    private static List<CatalogItem> GetFakeCatalog()
     {
         return new List<CatalogItem>()
         {

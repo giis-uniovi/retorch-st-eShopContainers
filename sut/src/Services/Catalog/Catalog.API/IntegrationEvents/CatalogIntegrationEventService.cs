@@ -2,7 +2,6 @@
 
 public class CatalogIntegrationEventService : ICatalogIntegrationEventService, IDisposable
 {
-    private readonly Func<DbConnection, IIntegrationEventLogService> _integrationEventLogServiceFactory;
     private readonly IEventBus _eventBus;
     private readonly CatalogContext _catalogContext;
     private readonly IIntegrationEventLogService _eventLogService;
@@ -17,16 +16,17 @@ public class CatalogIntegrationEventService : ICatalogIntegrationEventService, I
     {
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _catalogContext = catalogContext ?? throw new ArgumentNullException(nameof(catalogContext));
-        _integrationEventLogServiceFactory = integrationEventLogServiceFactory ?? throw new ArgumentNullException(nameof(integrationEventLogServiceFactory));
+        ArgumentNullException.ThrowIfNull(integrationEventLogServiceFactory);
         _eventBus = eventBus ?? throw new ArgumentNullException(nameof(eventBus));
-        _eventLogService = _integrationEventLogServiceFactory(_catalogContext.Database.GetDbConnection());
+        _eventLogService = integrationEventLogServiceFactory(_catalogContext.Database.GetDbConnection());
     }
 
     public async Task PublishThroughEventBusAsync(IntegrationEvent evt)
     {
         try
         {
-            _logger.LogInformation("Publishing integration event: {IntegrationEventId_published} - ({@IntegrationEvent})", evt.Id, evt);
+            if (_logger.IsEnabled(LogLevel.Information))
+                _logger.LogInformation("Publishing integration event: {IntegrationEventId_published} - ({@IntegrationEvent})", evt.Id, evt);
 
             await _eventLogService.MarkEventAsInProgressAsync(evt.Id);
             _eventBus.Publish(evt);
@@ -41,7 +41,8 @@ public class CatalogIntegrationEventService : ICatalogIntegrationEventService, I
 
     public async Task SaveEventAndCatalogContextChangesAsync(IntegrationEvent evt)
     {
-        _logger.LogInformation("CatalogIntegrationEventService - Saving changes and integrationEvent: {IntegrationEventId}", evt.Id);
+        if (_logger.IsEnabled(LogLevel.Information))
+            _logger.LogInformation("CatalogIntegrationEventService - Saving changes and integrationEvent: {IntegrationEventId}", evt.Id);
 
         //Use of an EF Core resiliency strategy when using multiple DbContexts within an explicit BeginTransaction():
         //See: https://docs.microsoft.com/en-us/ef/core/miscellaneous/connection-resiliency            

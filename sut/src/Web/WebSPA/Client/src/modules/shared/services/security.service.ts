@@ -5,6 +5,7 @@ import { Observable, Subject } from 'rxjs';
 import { Router, ActivatedRoute } from '@angular/router';
 import { ConfigurationService } from './configuration.service';
 import { StorageService } from './storage.service';
+import { Guid } from '../../../guid';
 
 @Injectable()
 export class SecurityService {
@@ -23,7 +24,7 @@ export class SecurityService {
     ) {
         this.storage = _storageService;
 
-        this._configurationService.settingsLoaded$.subscribe(x => {
+        this._configurationService.settingsLoaded$.subscribe(() => {
             this.authorityUrl = this._configurationService.serverSettings.identityUrl;
             this.storage.store('IdentityUrl', this.authorityUrl);
         });
@@ -70,7 +71,7 @@ export class SecurityService {
                     globalThis.location.href = location.origin;
                 },
                 error: error => this.HandleError(error),
-                complete: () => { console.log(this.UserData); }
+                complete: () => { }
             });
     }
 
@@ -82,8 +83,8 @@ export class SecurityService {
         const redirect_uri = location.origin + '/';
         const response_type = 'id_token token';
         const scope = 'openid profile orders basket webshoppingagg orders.signalrhub';
-        const nonce = 'N' + Math.random() + '' + Date.now();
-        const state = Date.now() + '' + Math.random();
+        const nonce = Guid.newGuid();
+        const state = Guid.newGuid();
 
         this.storage.store('authStateControl', state);
         this.storage.store('authNonce', nonce);
@@ -111,8 +112,6 @@ export class SecurityService {
             return result;
         }, {});
 
-        console.log(result);
-
         let token = '';
         let id_token = '';
         let authResponseIsValid = false;
@@ -132,12 +131,7 @@ export class SecurityService {
                 this.storage.store('authStateControl', '');
 
                 authResponseIsValid = true;
-                console.log('AuthorizedCallback state and nonce validated, returning access token');
-            } else {
-                console.log('AuthorizedCallback incorrect nonce');
             }
-        } else {
-            console.log('AuthorizedCallback incorrect state');
         }
 
         if (authResponseIsValid) {
@@ -162,10 +156,9 @@ export class SecurityService {
     }
 
     public HandleError(error: any) {
-        console.log(error);
-        if (error.status == 403) {
+        if (error.status === 403) {
             this._router.navigate(['/Forbidden']);
-        } else if (error.status == 401) {
+        } else if (error.status === 401) {
             this._router.navigate(['/Unauthorized']);
         }
     }

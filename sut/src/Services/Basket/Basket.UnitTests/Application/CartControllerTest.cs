@@ -2,14 +2,12 @@
 
 public class CartControllerTest
 {
-    private readonly Mock<ICatalogService> _catalogServiceMock;
     private readonly Mock<IBasketService> _basketServiceMock;
     private readonly Mock<IIdentityParser<ApplicationUser>> _identityParserMock;
     private readonly Mock<HttpContext> _contextMock;
 
     public CartControllerTest()
     {
-        _catalogServiceMock = new Mock<ICatalogService>();
         _basketServiceMock = new Mock<IBasketService>();
         _identityParserMock = new Mock<IIdentityParser<ApplicationUser>>();
         _contextMock = new Mock<HttpContext>();
@@ -35,7 +33,7 @@ public class CartControllerTest
             .Returns(Task.FromResult(fakeBasket));
 
         //Act
-        var cartController = new CartController(_basketServiceMock.Object, _catalogServiceMock.Object, _identityParserMock.Object);
+        var cartController = new CartController(_basketServiceMock.Object, _identityParserMock.Object);
         cartController.ControllerContext.HttpContext = _contextMock.Object;
         var actionResult = await cartController.Index(fakeQuantities, action);
 
@@ -63,7 +61,7 @@ public class CartControllerTest
             .Returns(Task.FromResult(fakeBasket));
 
         //Act
-        var orderController = new CartController(_basketServiceMock.Object, _catalogServiceMock.Object, _identityParserMock.Object);
+        var orderController = new CartController(_basketServiceMock.Object, _identityParserMock.Object);
         orderController.ControllerContext.HttpContext = _contextMock.Object;
         var actionResult = await orderController.Index(fakeQuantities, action);
 
@@ -83,7 +81,7 @@ public class CartControllerTest
             .Returns(Task.FromResult(1));
 
         //Act
-        var orderController = new CartController(_basketServiceMock.Object, _catalogServiceMock.Object, _identityParserMock.Object);
+        var orderController = new CartController(_basketServiceMock.Object, _identityParserMock.Object);
         orderController.ControllerContext.HttpContext = _contextMock.Object;
         var actionResult = await orderController.AddToCart(fakeCatalogItem);
 
@@ -93,7 +91,7 @@ public class CartControllerTest
         Assert.Equal("Index", redirectToActionResult.ActionName);
     }
 
-    private BasketModel GetFakeBasket(string buyerId)
+    private static BasketModel GetFakeBasket(string buyerId)
     {
         return new BasketModel()
         {
@@ -101,7 +99,7 @@ public class CartControllerTest
         };
     }
 
-    private CatalogItem GetFakeCatalogItem()
+    private static CatalogItem GetFakeCatalogItem()
     {
         return new CatalogItem()
         {

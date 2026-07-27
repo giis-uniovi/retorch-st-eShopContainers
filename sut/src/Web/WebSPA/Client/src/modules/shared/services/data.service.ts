@@ -11,7 +11,7 @@ import { Guid } from '../../../guid';
 export class DataService {
     constructor(private readonly http: HttpClient, private readonly securityService: SecurityService) { }
 
-    get(url: string, params?: any): Observable<Response> {
+    get(url: string): Observable<Response> {
         const options = { };
         this.setHeaders(options);
 
@@ -24,19 +24,19 @@ export class DataService {
             );
     }
 
-    postWithId(url: string, data: any, params?: any): Observable<Response> {
-        return this.doPost(url, data, true, params);
+    postWithId(url: string, data: any): Observable<Response> {
+        return this.doPost(url, data, true);
     }
 
-    post(url: string, data: any, params?: any): Observable<Response> {
-        return this.doPost(url, data, false, params);
+    post(url: string, data: any): Observable<Response> {
+        return this.doPost(url, data, false);
     }
 
-    putWithId(url: string, data: any, params?: any): Observable<Response> {
-        return this.doPut(url, data, true, params);
+    putWithId(url: string, data: any): Observable<Response> {
+        return this.doPut(url, data, true);
     }
 
-    private doPost(url: string, data: any, needId: boolean, params?: any): Observable<Response> {
+    private doPost(url: string, data: any, needId: boolean): Observable<Response> {
         const options = { };
         this.setHeaders(options, needId);
 
@@ -49,30 +49,18 @@ export class DataService {
             );
     }
 
-    delete(url: string, params?: any) {
+    delete(url: string) {
         const options = { };
         this.setHeaders(options);
 
-        console.log('data.service deleting');
-
-        this.http.delete(url, options)
-            .subscribe((res) => { console.log('deleted'); });
+        this.http.delete(url, options).subscribe();
     }
 
     private handleError(error: any) {
-        if (error.error instanceof ErrorEvent) {
-            console.error('Client side network error occurred:', error.error.message);
-        } else {
-            console.error('Backend - ' +
-                `status: ${error.status}, ` +
-                `statusText: ${error.statusText}, ` +
-                `message: ${error.error.message}`);
-        }
-
         return throwError(() => new Error(String(error || 'server error')));
     }
 
-    private doPut(url: string, data: any, needId: boolean, params?: any): Observable<Response> {
+    private doPut(url: string, data: any, needId: boolean): Observable<Response> {
         const options = { };
         this.setHeaders(options, needId);
 

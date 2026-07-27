@@ -7,7 +7,7 @@ public class ExternalController : Controller
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly SignInManager<ApplicationUser> _signInManager;
     private readonly IIdentityServerInteractionService _interaction;
-    private readonly IClientStore _clientStore;
+
     private readonly IEventService _events;
     private readonly ILogger<ExternalController> _logger;
 
@@ -15,14 +15,12 @@ public class ExternalController : Controller
         UserManager<ApplicationUser> userManager,
         SignInManager<ApplicationUser> signInManager,
         IIdentityServerInteractionService interaction,
-        IClientStore clientStore,
         IEventService events,
         ILogger<ExternalController> logger)
     {
         _userManager = userManager;
         _signInManager = signInManager;
         _interaction = interaction;
-        _clientStore = clientStore;
         _events = events;
         _logger = logger;
     }
@@ -36,10 +34,10 @@ public class ExternalController : Controller
         if (string.IsNullOrEmpty(returnUrl)) returnUrl = "~/";
 
         // validate returnUrl - either it is a valid OIDC URL or back to a local page
-        if (Url.IsLocalUrl(returnUrl) == false && _interaction.IsValidReturnUrl(returnUrl) == false)
+        if (!Url.IsLocalUrl(returnUrl) && !_interaction.IsValidReturnUrl(returnUrl))
         {
             // user might have clicked on a malicious link - should be logged
-            throw new Exception("invalid return URL");
+            throw new InvalidOperationException("invalid return URL");
         }
 
         // start challenge and roundtrip the return URL and scheme 
@@ -67,13 +65,13 @@ public class ExternalController : Controller
         var result = await HttpContext.AuthenticateAsync(IdentityServerConstants.ExternalCookieAuthenticationScheme);
         if (result?.Succeeded != true)
         {
-            throw new Exception("External authentication error");
+            throw new InvalidOperationException("External authentication error");
         }
 
         if (_logger.IsEnabled(LogLevel.Debug))
         {
             var externalClaims = result.Principal.Claims.Select(c => $"{c.Type}: {c.Value}");
-            _logger.LogDebug("External claims: {@claims}", externalClaims);
+            _logger.LogDebug("External claims: {@Claims}", externalClaims);
         }
 
         // lookup our user and external provider info
@@ -119,14 +117,11 @@ public class ExternalController : Controller
         var context = await _interaction.GetAuthorizationContextAsync(returnUrl, HttpContext.RequestAborted);
         await _events.RaiseAsync(new UserLoginSuccessEvent(provider, providerUserId, user.Id, name, true, context?.Client.ClientId), HttpContext.RequestAborted);
 
-        if (context != null)
+        if (context != null && context.IsNativeClient())
         {
-            if (context.IsNativeClient())
-            {
-                // The client is native, so this change in how to
-                // return the response is for better UX for the end user.
-                return this.LoadingPage("Redirect", returnUrl);
-            }
+            // The client is native, so this change in how to
+            // return the response is for better UX for the end user.
+            return this.LoadingPage("Redirect", returnUrl);
         }
 
         return Redirect(returnUrl);
@@ -142,7 +137,7 @@ public class ExternalController : Controller
         // depending on the external provider, some other claim type might be used
         var userIdClaim = externalUser.FindFirst(JwtClaimTypes.Subject) ??
                           externalUser.FindFirst(ClaimTypes.NameIdentifier) ??
-                          throw new Exception("Unknown userid");
+                          throw new InvalidOperationException("Unknown userid");
 
         // remove the user id claim so we don't include it as an extra claim if/when we provision the user
         var claims = externalUser.Claims.ToList();
@@ -202,23 +197,23 @@ public class ExternalController : Controller
             UserName = Guid.NewGuid().ToString(),
         };
         var identityResult = await _userManager.CreateAsync(user);
-        if (!identityResult.Succeeded) throw new Exception(identityResult.Errors.First().Description);
+        if (!identityResult.Succeeded) throw new InvalidOperationException(identityResult.Errors.First().Description);
 
-        if (filtered.Any())
+        if (filtered.Count != 0)
         {
             identityResult = await _userManager.AddClaimsAsync(user, filtered);
-            if (!identityResult.Succeeded) throw new Exception(identityResult.Errors.First().Description);
+            if (!identityResult.Succeeded) throw new InvalidOperationException(identityResult.Errors.First().Description);
         }
 
         identityResult = await _userManager.AddLoginAsync(user, new UserLoginInfo(provider, providerUserId, provider));
-        if (!identityResult.Succeeded) throw new Exception(identityResult.Errors.First().Description);
+        if (!identityResult.Succeeded) throw new InvalidOperationException(identityResult.Errors.First().Description);
 
         return user;
     }
 
     // if the external login is OIDC-based, there are certain things we need to preserve to make logout work
     // this will be different for WS-Fed, SAML2p or other protocols
-    private void ProcessLoginCallback(AuthenticateResult externalResult, List<Claim> localClaims, AuthenticationProperties localSignInProps)
+    private static void ProcessLoginCallback(AuthenticateResult externalResult, List<Claim> localClaims, AuthenticationProperties localSignInProps)
     {
         // if the external system sent a session id claim, copy it over
         // so we can use it for single sign-out

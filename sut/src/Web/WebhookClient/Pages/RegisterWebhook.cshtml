@@ -9,7 +9,7 @@
 <p>This page registers the "OrderPaid" Webhook by sending a POST to the WebHooks API. Once the Webhook is set, you will be able to see new paid orders from the <a asp-page="Index">Index</a> page.</p>
 
 <form method="post">
-    <p>Token: <input type="text" asp-for="Token" /></p>
+    <p><label asp-for="Token">Token:</label> <input type="text" asp-for="Token" /></p>
     <input type="submit" value="send" />
 </form>
 

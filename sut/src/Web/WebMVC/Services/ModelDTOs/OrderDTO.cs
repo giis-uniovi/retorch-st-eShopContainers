@@ -1,6 +1,6 @@
 ﻿namespace WebMVC.Services.ModelDTOs;
 
-public record OrderDTO
+public record OrderDto
 {
     [Required]
     public string OrderNumber { get; init; }

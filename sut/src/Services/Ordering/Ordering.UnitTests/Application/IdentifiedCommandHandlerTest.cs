@@ -4,13 +4,13 @@ public class IdentifiedCommandHandlerTest
 {
     private readonly Mock<IRequestManager> _requestManager;
     private readonly Mock<IMediator> _mediator;
-    private readonly Mock<ILogger<IdentifiedCommandHandler<CreateOrderCommand, bool>>> _loggerMock;
+    private readonly Mock<ILogger<CreateOrderIdentifiedCommandHandler>> _loggerMock;
 
     public IdentifiedCommandHandlerTest()
     {
         _requestManager = new Mock<IRequestManager>();
         _mediator = new Mock<IMediator>();
-        _loggerMock = new Mock<ILogger<IdentifiedCommandHandler<CreateOrderCommand, bool>>>();
+        _loggerMock = new Mock<ILogger<CreateOrderIdentifiedCommandHandler>>();
     }
 
     [Fact]
@@ -56,21 +56,21 @@ public class IdentifiedCommandHandlerTest
         _mediator.Verify(x => x.Send(It.IsAny<IRequest<bool>>(), default), Times.Never());
     }
 
-    private CreateOrderCommand FakeOrderRequest(Dictionary<string, object> args = null)
+    private static CreateOrderCommand FakeOrderRequest(Dictionary<string, object> args = null)
     {
         return new CreateOrderCommand(
             new List<BasketItem>(),
-            userId: args != null && args.ContainsKey("userId") ? (string)args["userId"] : null,
-            userName: args != null && args.ContainsKey("userName") ? (string)args["userName"] : null,
-            city: args != null && args.ContainsKey("city") ? (string)args["city"] : null,
-            street: args != null && args.ContainsKey("street") ? (string)args["street"] : null,
-            state: args != null && args.ContainsKey("state") ? (string)args["state"] : null,
-            country: args != null && args.ContainsKey("country") ? (string)args["country"] : null,
-            zipcode: args != null && args.ContainsKey("zipcode") ? (string)args["zipcode"] : null,
-            cardNumber: args != null && args.ContainsKey("cardNumber") ? (string)args["cardNumber"] : "1234",
-            cardExpiration: args != null && args.ContainsKey("cardExpiration") ? (DateTime)args["cardExpiration"] : DateTime.MinValue,
-            cardSecurityNumber: args != null && args.ContainsKey("cardSecurityNumber") ? (string)args["cardSecurityNumber"] : "123",
-            cardHolderName: args != null && args.ContainsKey("cardHolderName") ? (string)args["cardHolderName"] : "XXX",
-            cardTypeId: args != null && args.ContainsKey("cardTypeId") ? (int)args["cardTypeId"] : 0);
+            userId: args != null && args.TryGetValue("userId", out var userId) ? (string)userId : null,
+            userName: args != null && args.TryGetValue("userName", out var userName) ? (string)userName : null,
+            city: args != null && args.TryGetValue("city", out var city) ? (string)city : null,
+            street: args != null && args.TryGetValue("street", out var street) ? (string)street : null,
+            state: args != null && args.TryGetValue("state", out var state) ? (string)state : null,
+            country: args != null && args.TryGetValue("country", out var country) ? (string)country : null,
+            zipcode: args != null && args.TryGetValue("zipcode", out var zipcode) ? (string)zipcode : null,
+            cardNumber: args != null && args.TryGetValue("cardNumber", out var cardNumber) ? (string)cardNumber : "1234",
+            cardExpiration: args != null && args.TryGetValue("cardExpiration", out var cardExpiration) ? (DateTime)cardExpiration : DateTime.MinValue,
+            cardSecurityNumber: args != null && args.TryGetValue("cardSecurityNumber", out var cardSecurityNumber) ? (string)cardSecurityNumber : "123",
+            cardHolderName: args != null && args.TryGetValue("cardHolderName", out var cardHolderName) ? (string)cardHolderName : "XXX",
+            cardTypeId: args != null && args.TryGetValue("cardTypeId", out var cardTypeId) ? (int)cardTypeId : 0);
     }
 }

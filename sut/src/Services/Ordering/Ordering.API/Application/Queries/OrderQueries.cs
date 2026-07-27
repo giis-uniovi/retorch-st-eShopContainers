@@ -3,7 +3,7 @@
 public class OrderQueries
     : IOrderQueries
 {
-    private string _connectionString = string.Empty;
+    private readonly string _connectionString;
 
     public OrderQueries(string constr)
     {
@@ -14,7 +14,7 @@ public class OrderQueries
     public async Task<Order> GetOrderAsync(int id)
     {
         using var connection = new SqlConnection(_connectionString);
-        connection.Open();
+        await connection.OpenAsync();
 
         var result = await connection.QueryAsync<dynamic>(
             @"select o.[Id] as ordernumber,o.OrderDate as date, o.Description as description,
@@ -37,7 +37,7 @@ public class OrderQueries
     public async Task<IEnumerable<OrderSummary>> GetOrdersFromUserAsync(Guid userId)
     {
         using var connection = new SqlConnection(_connectionString);
-        connection.Open();
+        await connection.OpenAsync();
 
         return await connection.QueryAsync<OrderSummary>(@"SELECT o.[Id] as ordernumber,o.[OrderDate] as [date],os.[Name] as [status], SUM(oi.units*oi.unitprice) as total
                     FROM [ordering].[Orders] o
@@ -52,12 +52,12 @@ public class OrderQueries
     public async Task<IEnumerable<CardType>> GetCardTypesAsync()
     {
         using var connection = new SqlConnection(_connectionString);
-        connection.Open();
+        await connection.OpenAsync();
 
         return await connection.QueryAsync<CardType>("SELECT * FROM ordering.cardtypes");
     }
 
-    private Order MapOrderItems(dynamic result)
+    private static Order MapOrderItems(dynamic result)
     {
         var order = new Order
         {

@@ -1,7 +1,7 @@
 ﻿namespace WebMVC.ViewModels.Annotations;
 
 [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field, AllowMultiple = true)]
-public class LongitudeCoordinate : ValidationAttribute
+public class LongitudeCoordinateAttribute : ValidationAttribute
 {
     protected override ValidationResult
             IsValid(object value, ValidationContext validationContext)

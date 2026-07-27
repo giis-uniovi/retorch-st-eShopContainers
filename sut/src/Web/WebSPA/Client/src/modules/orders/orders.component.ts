@@ -13,8 +13,6 @@ import { SignalrService } from '../shared/services/signalr.service';
     templateUrl: './orders.component.html'
 })
 export class OrdersComponent implements OnInit {
-    private oldOrders: IOrder[];
-    private readonly interval = null;
     errorReceived: boolean;
 
     orders: IOrder[];
@@ -30,13 +28,13 @@ export class OrdersComponent implements OnInit {
         if (this.configurationService.isReady) {
             this.getOrders();
         } else {
-            this.configurationService.settingsLoaded$.subscribe(x => {
+            this.configurationService.settingsLoaded$.subscribe(() => {
                 this.getOrders();
             });
         }
 
         this.signalrService.msgReceived$
-            .subscribe(x => this.getOrders());
+            .subscribe(() => this.getOrders());
     }
 
     getOrders() {
@@ -45,8 +43,6 @@ export class OrdersComponent implements OnInit {
             .pipe(catchError((err) => this.handleError(err)))
             .subscribe(orders => {
                 this.orders = orders;
-                this.oldOrders = this.orders;
-                console.log('orders items retrieved: ' + orders.length);
                 this.cdr.detectChanges();
         });
     }
@@ -55,9 +51,7 @@ export class OrdersComponent implements OnInit {
         this.errorReceived = false;
         this.service.cancelOrder(orderNumber)
             .pipe(catchError((err) => this.handleError(err)))
-            .subscribe(() => {
-                console.log('order canceled: ' + orderNumber);
-        });
+            .subscribe();
     }
 
     private handleError(error: any) {

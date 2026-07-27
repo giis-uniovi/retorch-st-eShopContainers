@@ -42,7 +42,7 @@ public abstract class Entity
 
     public override bool Equals(object obj)
     {
-        if (obj == null || !(obj is Entity))
+        if (obj is not Entity)
             return false;
 
         if (Object.ReferenceEquals(this, obj))
@@ -59,23 +59,23 @@ public abstract class Entity
             return item.Id == this.Id;
     }
 
-    public override int GetHashCode()
+    public override int GetHashCode() // NOSONAR - S2328: Id's setter is protected (EF Core needs it to materialize entities),
+                                       // but the value is cached below on first call so the hash code is still stable for the
+                                       // object's lifetime once it may be used in a hash-based collection.
     {
-        if (!IsTransient())
+        if (!_requestedHashCode.HasValue)
         {
-            if (!_requestedHashCode.HasValue)
-                _requestedHashCode = this.Id.GetHashCode() ^ 31; // XOR for random distribution (http://blogs.msdn.com/b/ericlippert/archive/2011/02/28/guidelines-and-rules-for-gethashcode.aspx)
-
-            return _requestedHashCode.Value;
+            _requestedHashCode = IsTransient()
+                ? System.Runtime.CompilerServices.RuntimeHelpers.GetHashCode(this)
+                : this.Id.GetHashCode() ^ 31; // XOR for random distribution (http://blogs.msdn.com/b/ericlippert/archive/2011/02/28/guidelines-and-rules-for-gethashcode.aspx)
         }
-        else
-            return base.GetHashCode();
 
+        return _requestedHashCode.Value;
     }
-    public static bool operator ==(Entity left, Entity right)
+    public static bool operator ==(Entity left, Entity right) // NOSONAR
     {
         if (Object.Equals(left, null))
-            return (Object.Equals(right, null)) ? true : false;
+            return Object.Equals(right, null);
         else
             return left.Equals(right);
     }

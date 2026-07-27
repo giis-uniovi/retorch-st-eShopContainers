@@ -15,7 +15,7 @@ namespace Microsoft.eShopOnContainers.Services.Ordering.Domain.Events
         public DateTime CardExpiration { get; }
         public Order Order { get; }
 
-        public OrderStartedDomainEvent(Order order, string userId, string userName,
+        public OrderStartedDomainEvent(Order order, string userId, string userName, // NOSONAR S107
                                        int cardTypeId, string cardNumber,
                                        string cardSecurityNumber, string cardHolderName,
                                        DateTime cardExpiration)

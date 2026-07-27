@@ -30,7 +30,7 @@
                 <section class="esh-orders-item col-2">
                     <form asp-action="OrderProcess" id="orderForm+@item.OrderNumber" method="post">
                         <input type="hidden" name="orderId" value="@item.OrderNumber" />
-                        <select name="actionCode" asp-items="@item.ActionCodeSelectList"
+                        <select name="actionCode" aria-label="Select action" asp-items="@item.ActionCodeSelectList"
                                 disabled=@(item.Status != "paid")
                                 onchange="document.getElementById('orderForm+@item.OrderNumber').submit()">
                             <option value="">&nbsp;&nbsp;Select Action</option>

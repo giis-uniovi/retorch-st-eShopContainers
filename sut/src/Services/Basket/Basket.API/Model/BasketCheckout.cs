@@ -16,13 +16,15 @@ public class BasketCheckout
 
     public string CardHolderName { get; set; }
 
-    public DateTime CardExpiration { get; set; }
+    [Required]
+    public DateTime? CardExpiration { get; set; }
 
     public string CardSecurityNumber { get; set; }
 
-    public int CardTypeId { get; set; }
+    [Required]
+    public int? CardTypeId { get; set; }
 
     public string Buyer { get; set; }
 
-    public Guid RequestId { get; set; }
+    public Guid? RequestId { get; set; }
 }
