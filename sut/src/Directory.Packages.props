@@ -19,11 +19,11 @@
     <PackageVersion Include="BuildBundlerMinifier" Version="3.2.449" />
     <PackageVersion Include="Dapper" Version="2.1.79" />
     <PackageVersion Include="Duende.IdentityModel" Version="8.1.0" />
-    <PackageVersion Include="Duende.IdentityServer" Version="8.0.2" />
-    <PackageVersion Include="Duende.IdentityServer.AspNetIdentity" Version="8.0.2" />
+    <PackageVersion Include="Duende.IdentityServer" Version="8.0.3" />
+    <PackageVersion Include="Duende.IdentityServer.AspNetIdentity" Version="8.0.3" />
     <PackageVersion Include="Duende.IdentityServer.EntityFramework" Version="8.0.2" />
-    <PackageVersion Include="Duende.IdentityServer.EntityFramework.Storage" Version="8.0.2" />
-    <PackageVersion Include="Duende.IdentityServer.Storage" Version="8.0.2" />
+    <PackageVersion Include="Duende.IdentityServer.EntityFramework.Storage" Version="8.0.3" />
+    <PackageVersion Include="Duende.IdentityServer.Storage" Version="8.0.3" />
     <PackageVersion Include="FluentValidation.AspNetCore" Version="11.3.1" />
     <PackageVersion Include="Google.Protobuf" Version="3.35.1" />
     <PackageVersion Include="Grpc.AspNetCore.Server" Version="2.51.0" />
@@ -32,7 +32,7 @@
     <PackageVersion Include="Grpc.Core" Version="2.46.6" />
     <PackageVersion Include="Grpc.Net.Client" Version="2.51.0" />
     <PackageVersion Include="Grpc.Net.ClientFactory" Version="2.51.0" />
-    <PackageVersion Include="Grpc.Tools" Version="2.82.0" PrivateAssets="All" />
+    <PackageVersion Include="Grpc.Tools" Version="2.83.0" PrivateAssets="All" />
     <PackageVersion Include="MediatR" Version="14.1.0" />
     <PackageVersion Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.23.0" />
     <PackageVersion Include="Microsoft.ApplicationInsights.DependencyCollector" Version="2.23.0" />
