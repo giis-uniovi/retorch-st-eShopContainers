@@ -225,7 +225,7 @@ select::-ms-expand {
     position: absolute;
     margin-top: 2px;
     margin-left: 14px;
-    background-color: #83d01b;
+    background-color: #4a760f;
     padding: 1px;
     color: white;
     border-radius: 50%;
@@ -272,15 +272,15 @@ select::-ms-expand {
 
 .btn-primary:hover {
     color: #fff;
-    background-color: #f44e3d;
-    border-color: #f34331;
+    background-color: #c62828;
+    border-color: #b71c1c;
 }
 
 .btn-primary:focus {
     box-shadow: none;
     opacity: .7;
     color: #fff !important;
-    background-color: #f44e3d !important;
+    background-color: #c62828 !important;
     border-color: #f34331 !important;
 }
 
@@ -288,7 +288,7 @@ select::-ms-expand {
     box-shadow: none;
     opacity: .7;
     color: #fff !important;
-    background-color: #f44e3d !important;
+    background-color: #c62828 !important;
     border-color: #f34331 !important;
 }
 
@@ -364,9 +364,6 @@ select::-ms-expand {
     border-color: #FFF;
 }
 
-/*.navbar-inverse li {
-        margin-top: 10px;
-    }*/
 
 .btn-login {
     border: 1px solid #00A69C;
@@ -374,7 +371,7 @@ select::-ms-expand {
     margin-right: 10px;
     margin-top: 10px;
     background-color: white;
-    color: #00a69c;
+    color: #006b65;
     text-transform: uppercase;
     max-width: 140px;
     width: 140px;
@@ -469,12 +466,11 @@ select::-ms-expand {
 .home-catalog-item-image {
     width: 100%;
     object-fit: cover;
-    /* max-width: 320px; */
     text-align: center;
 }
 
 .home-catalog-item-image-addCart {
-    background-color: #83D01B;
+    background-color: #4a760f;
     color: white;
     display: inline-block;
     height: 43px;
@@ -547,11 +543,11 @@ footer .text {
 }
 
 .text {
-    color: #83D01B;
+    color: #4a760f;
 }
 
 .text:hover {
-    color: #83D01B;
+    color: #4a760f;
 }
 
 form .col-md-4 {
@@ -569,7 +565,6 @@ form .col-md-4 {
     opacity: 0.5;
     margin-top: 25px;
     margin-left: 10px;
-    /*float: right;*/
     cursor: pointer;
     color: white;
 }
@@ -773,7 +768,7 @@ form .col-md-4 {
 .form-login-details {
     background-color: #fff;
     border-top: 3px solid #F3F4F3;
-    color: #81828D;
+    color: #6b6b78;
     font-size: 16px;
     margin: 0 auto 0 auto;
     padding-bottom: 2rem;
@@ -899,7 +894,6 @@ form .col-md-4 {
     background-color: #FFFFFF;
     min-width: 160px;
     box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
-    /*left: 100px;*/
     right: 0px;
 }
 
@@ -998,7 +992,7 @@ form .col-md-4 {
 }
 
 .footer {
-    background-color:#81828d;
+    background-color:#6b6b78;
     color:#fff;
     font-size: 1rem;
     display: flex;

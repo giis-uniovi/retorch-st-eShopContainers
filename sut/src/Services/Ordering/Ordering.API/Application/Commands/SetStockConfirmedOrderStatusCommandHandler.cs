@@ -39,7 +39,7 @@ public class SetStockConfirmedOrderStatusIdentifiedCommandHandler : IdentifiedCo
     public SetStockConfirmedOrderStatusIdentifiedCommandHandler(
         IMediator mediator,
         IRequestManager requestManager,
-        ILogger<IdentifiedCommandHandler<SetStockConfirmedOrderStatusCommand, bool>> logger)
+        ILogger<SetStockConfirmedOrderStatusIdentifiedCommandHandler> logger)
         : base(mediator, requestManager, logger)
     {
     }

@@ -34,7 +34,7 @@ public record UserCheckoutAcceptedIntegrationEvent : IntegrationEvent
 
     public CustomerBasket Basket { get; }
 
-    public UserCheckoutAcceptedIntegrationEvent(string userId, string userName, string city, string street,
+    public UserCheckoutAcceptedIntegrationEvent(string userId, string userName, string city, string street, // NOSONAR S107
         string state, string country, string zipCode, string cardNumber, string cardHolderName,
         DateTime cardExpiration, string cardSecurityNumber, int cardTypeId, string buyer, Guid requestId,
         CustomerBasket basket)

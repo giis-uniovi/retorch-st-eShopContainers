@@ -15,4 +15,5 @@ global using Services.Common;
 global using Webhooks.API.Infrastructure;
 global using Webhooks.API.IntegrationEvents;
 global using Webhooks.API.Model;
+global using Webhooks.API.Extensions;
 global using Webhooks.API.Services;

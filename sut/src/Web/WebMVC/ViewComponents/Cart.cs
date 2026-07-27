@@ -17,7 +17,7 @@ public class Cart : ViewComponent
         }
         catch
         {
-            ViewBag.IsBasketInoperative = true;
+            vm.IsBasketInoperative = true;
         }
 
         return View(vm);

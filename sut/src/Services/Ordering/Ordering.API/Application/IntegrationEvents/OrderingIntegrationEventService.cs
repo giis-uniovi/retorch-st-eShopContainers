@@ -2,7 +2,6 @@
 
 public class OrderingIntegrationEventService : IOrderingIntegrationEventService
 {
-    private readonly Func<DbConnection, IIntegrationEventLogService> _integrationEventLogServiceFactory;
     private readonly IEventBus _eventBus;
     private readonly OrderingContext _orderingContext;
     private readonly IIntegrationEventLogService _eventLogService;
@@ -15,9 +14,9 @@ public class OrderingIntegrationEventService : IOrderingIntegrationEventService
         ILogger<OrderingIntegrationEventService> logger)
     {
         _orderingContext = orderingContext ?? throw new ArgumentNullException(nameof(orderingContext));
-        _integrationEventLogServiceFactory = integrationEventLogServiceFactory ?? throw new ArgumentNullException(nameof(integrationEventLogServiceFactory));
+        ArgumentNullException.ThrowIfNull(integrationEventLogServiceFactory);
         _eventBus = eventBus ?? throw new ArgumentNullException(nameof(eventBus));
-        _eventLogService = _integrationEventLogServiceFactory(_orderingContext.Database.GetDbConnection());
+        _eventLogService = integrationEventLogServiceFactory(_orderingContext.Database.GetDbConnection());
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
@@ -27,7 +26,8 @@ public class OrderingIntegrationEventService : IOrderingIntegrationEventService
 
         foreach (var logEvt in pendingLogEvents)
         {
-            _logger.LogInformation("Publishing integration event: {IntegrationEventId} - ({@IntegrationEvent})", logEvt.EventId, logEvt.IntegrationEvent);
+            if (_logger.IsEnabled(LogLevel.Information))
+                _logger.LogInformation("Publishing integration event: {IntegrationEventId} - ({@IntegrationEvent})", logEvt.EventId, logEvt.IntegrationEvent);
 
             try
             {
@@ -46,7 +46,8 @@ public class OrderingIntegrationEventService : IOrderingIntegrationEventService
 
     public async Task AddAndSaveEventAsync(IntegrationEvent evt)
     {
-        _logger.LogInformation("Enqueuing integration event {IntegrationEventId} to repository ({@IntegrationEvent})", evt.Id, evt);
+        if (_logger.IsEnabled(LogLevel.Information))
+            _logger.LogInformation("Enqueuing integration event {IntegrationEventId} to repository ({@IntegrationEvent})", evt.Id, evt);
 
         await _eventLogService.SaveEventAsync(evt, _orderingContext.GetCurrentTransaction());
     }

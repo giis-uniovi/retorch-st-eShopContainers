@@ -22,11 +22,12 @@ public class UserCheckoutAcceptedIntegrationEventHandler : IIntegrationEventHand
     /// order items.
     /// </param>
     /// <returns></returns>
-    public async Task Handle(UserCheckoutAcceptedIntegrationEvent @event)
+    public async Task Handle(UserCheckoutAcceptedIntegrationEvent @event) // NOSONAR S3776
     {
         using (_logger.BeginScope(new List<KeyValuePair<string, object>> { new ("IntegrationEventContext", @event.Id) }))
         {
-            _logger.LogInformation("Handling integration event: {IntegrationEventId} - ({@IntegrationEvent})", @event.Id, @event);
+            if (_logger.IsEnabled(LogLevel.Information))
+                _logger.LogInformation("Handling integration event: {IntegrationEventId} - ({@IntegrationEvent})", @event.Id, @event);
 
             var result = false;
 
@@ -41,28 +42,32 @@ public class UserCheckoutAcceptedIntegrationEventHandler : IIntegrationEventHand
 
                     var requestCreateOrder = new IdentifiedCommand<CreateOrderCommand, bool>(createOrderCommand, @event.RequestId);
 
-                    _logger.LogInformation(
-                        "Sending command: {CommandName} - {IdProperty}: {CommandId} ({@Command})",
-                        requestCreateOrder.GetGenericTypeName(),
-                        nameof(requestCreateOrder.Id),
-                        requestCreateOrder.Id,
-                        requestCreateOrder);
+                    if (_logger.IsEnabled(LogLevel.Information))
+                        _logger.LogInformation(
+                            "Sending command: {CommandName} - {IdProperty}: {CommandId} ({@Command})",
+                            requestCreateOrder.GetGenericTypeName(),
+                            nameof(requestCreateOrder.Id),
+                            requestCreateOrder.Id,
+                            requestCreateOrder);
 
                     result = await _mediator.Send(requestCreateOrder);
 
                     if (result)
                     {
-                        _logger.LogInformation("CreateOrderCommand suceeded - RequestId: {RequestId}", @event.RequestId);
+                        if (_logger.IsEnabled(LogLevel.Information))
+                            _logger.LogInformation("CreateOrderCommand suceeded - RequestId: {RequestId}", @event.RequestId);
                     }
                     else
                     {
-                        _logger.LogWarning("CreateOrderCommand failed - RequestId: {RequestId}", @event.RequestId);
+                        if (_logger.IsEnabled(LogLevel.Warning))
+                            _logger.LogWarning("CreateOrderCommand failed - RequestId: {RequestId}", @event.RequestId);
                     }
                 }
             }
             else
             {
-                _logger.LogWarning("Invalid IntegrationEvent - RequestId is missing - {@IntegrationEvent}", @event);
+                if (_logger.IsEnabled(LogLevel.Warning))
+                    _logger.LogWarning("Invalid IntegrationEvent - RequestId is missing - {@IntegrationEvent}", @event);
             }
         }
     }

@@ -6,9 +6,9 @@ public class OrderItem
     // DDD Patterns comment
     // Using private fields, allowed since EF Core 1.1, is a much better encapsulation
     // aligned with DDD Aggregates and Domain Entities (Instead of properties and property collections)
-    private string _productName;
-    private string _pictureUrl;
-    private decimal _unitPrice;
+    private readonly string _productName;
+    private readonly string _pictureUrl;
+    private readonly decimal _unitPrice;
     private decimal _discount;
     private int _units;
 

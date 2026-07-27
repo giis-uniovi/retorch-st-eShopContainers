@@ -7,4 +7,5 @@ global using Microsoft.eShopOnContainers.Services.Ordering.SignalrHub;
 global using Microsoft.eShopOnContainers.Services.Ordering.SignalrHub.IntegrationEvents;
 global using Microsoft.eShopOnContainers.Services.Ordering.SignalrHub.IntegrationEvents.EventHandling;
 global using Microsoft.eShopOnContainers.Services.Ordering.SignalrHub.IntegrationEvents.Events;
+global using Microsoft.eShopOnContainers.Services.Ordering.SignalrHub.Extensions;
 global using Services.Common;

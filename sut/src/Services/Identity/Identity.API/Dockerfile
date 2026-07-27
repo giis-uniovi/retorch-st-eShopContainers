@@ -56,4 +56,6 @@ FROM build AS publish
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app .
+RUN chown app /app
+USER app
 ENTRYPOINT ["dotnet", "Identity.API.dll"]

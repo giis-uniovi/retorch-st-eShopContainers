@@ -4,7 +4,9 @@ using Microsoft.eShopOnContainers.Services.Ordering.Domain.AggregatesModel.Buyer
 
 public class OrderingContextSeed
 {
-    public async Task SeedAsync(OrderingContext context, IWebHostEnvironment env, IOptions<OrderingSettings> settings, ILogger<OrderingContextSeed> logger)
+    protected OrderingContextSeed() { }
+
+    public static async Task SeedAsync(OrderingContext context, IWebHostEnvironment env, IOptions<OrderingSettings> settings, ILogger<OrderingContextSeed> logger)
     {
         var policy = CreatePolicy(logger, nameof(OrderingContextSeed));
 
@@ -19,9 +21,9 @@ public class OrderingContextSeed
 
             using (context)
             {
-                context.Database.Migrate();
+                await context.Database.MigrateAsync();
 
-                if (!context.CardTypes.Any())
+                if (!await context.CardTypes.AnyAsync())
                 {
                     context.CardTypes.AddRange(useCustomizationData
                                             ? GetCardTypesFromFile(contentRootPath, logger)
@@ -30,7 +32,7 @@ public class OrderingContextSeed
                     await context.SaveChangesAsync();
                 }
 
-                if (!context.OrderStatus.Any())
+                if (!await context.OrderStatus.AnyAsync())
                 {
                     context.OrderStatus.AddRange(useCustomizationData
                                             ? GetOrderStatusFromFile(contentRootPath, logger)
@@ -42,7 +44,7 @@ public class OrderingContextSeed
         });
     }
 
-    private IEnumerable<CardType> GetCardTypesFromFile(string contentRootPath, ILogger<OrderingContextSeed> log)
+    private static IEnumerable<CardType> GetCardTypesFromFile(string contentRootPath, ILogger<OrderingContextSeed> log)
     {
         string csvFileCardTypes = Path.Combine(contentRootPath, "Setup", "CardTypes.csv");
 
@@ -51,11 +53,10 @@ public class OrderingContextSeed
             return GetPredefinedCardTypes();
         }
 
-        string[] csvheaders;
         try
         {
             string[] requiredHeaders = { "CardType" };
-            csvheaders = GetHeaders(requiredHeaders, csvFileCardTypes);
+            GetHeaders(requiredHeaders, csvFileCardTypes);
         }
         catch (Exception ex)
         {
@@ -71,22 +72,22 @@ public class OrderingContextSeed
                                     .Where(x => x != null);
     }
 
-    private CardType CreateCardType(string value, ref int id)
+    private static CardType CreateCardType(string value, ref int id)
     {
         if (string.IsNullOrEmpty(value))
         {
-            throw new Exception("Orderstatus is null or empty");
+            throw new InvalidOperationException("Orderstatus is null or empty");
         }
 
         return new CardType(id++, value.Trim('"').Trim());
     }
 
-    private IEnumerable<CardType> GetPredefinedCardTypes()
+    private static IEnumerable<CardType> GetPredefinedCardTypes()
     {
         return Enumeration.GetAll<CardType>();
     }
 
-    private IEnumerable<OrderStatus> GetOrderStatusFromFile(string contentRootPath, ILogger<OrderingContextSeed> log)
+    private static IEnumerable<OrderStatus> GetOrderStatusFromFile(string contentRootPath, ILogger<OrderingContextSeed> log)
     {
         string csvFileOrderStatus = Path.Combine(contentRootPath, "Setup", "OrderStatus.csv");
 
@@ -95,11 +96,10 @@ public class OrderingContextSeed
             return GetPredefinedOrderStatus();
         }
 
-        string[] csvheaders;
         try
         {
             string[] requiredHeaders = { "OrderStatus" };
-            csvheaders = GetHeaders(requiredHeaders, csvFileOrderStatus);
+            GetHeaders(requiredHeaders, csvFileOrderStatus);
         }
         catch (Exception ex)
         {
@@ -115,17 +115,17 @@ public class OrderingContextSeed
                                     .Where(x => x != null);
     }
 
-    private OrderStatus CreateOrderStatus(string value, ref int id)
+    private static OrderStatus CreateOrderStatus(string value, ref int id)
     {
         if (string.IsNullOrEmpty(value))
         {
-            throw new Exception("Orderstatus is null or empty");
+            throw new InvalidOperationException("Orderstatus is null or empty");
         }
 
         return new OrderStatus(id++, value.Trim('"').Trim().ToLowerInvariant());
     }
 
-    private IEnumerable<OrderStatus> GetPredefinedOrderStatus()
+    private static List<OrderStatus> GetPredefinedOrderStatus()
     {
         return new List<OrderStatus>()
         {
@@ -138,28 +138,22 @@ public class OrderingContextSeed
         };
     }
 
-    private string[] GetHeaders(string[] requiredHeaders, string csvfile)
+    private static void GetHeaders(string[] requiredHeaders, string csvfile)
     {
         string[] csvheaders = File.ReadLines(csvfile).First().ToLowerInvariant().Split(',');
 
-        if (csvheaders.Count() != requiredHeaders.Count())
+        if (csvheaders.Length != requiredHeaders.Length)
         {
-            throw new Exception($"requiredHeader count '{requiredHeaders.Count()}' is different then read header '{csvheaders.Count()}'");
+            throw new InvalidOperationException($"requiredHeader count '{requiredHeaders.Length}' is different then read header '{csvheaders.Length}'");
         }
 
-        foreach (var requiredHeader in requiredHeaders)
-        {
-            if (!csvheaders.Contains(requiredHeader))
-            {
-                throw new Exception($"does not contain required header '{requiredHeader}'");
-            }
-        }
-
-        return csvheaders;
+        var missingHeader = requiredHeaders.FirstOrDefault(h => !csvheaders.Contains(h));
+        if (missingHeader != null)
+            throw new InvalidOperationException($"does not contain required header '{missingHeader}'");
     }
 
 
-    private AsyncRetryPolicy CreatePolicy(ILogger<OrderingContextSeed> logger, string prefix, int retries = 3)
+    private static AsyncRetryPolicy CreatePolicy(ILogger<OrderingContextSeed> logger, string prefix, int retries = 3)
     {
         return Policy.Handle<SqlException>().
             WaitAndRetryAsync(
@@ -167,7 +161,7 @@ public class OrderingContextSeed
                 sleepDurationProvider: retry => TimeSpan.FromSeconds(5),
                 onRetry: (exception, timeSpan, retry, ctx) =>
                 {
-                    logger.LogWarning(exception, "[{prefix}] Error seeding database (attempt {retry} of {retries})", prefix, retry, retries);
+                    logger.LogWarning(exception, "[{Prefix}] Error seeding database (attempt {Retry} of {Retries})", prefix, retry, retries);
                 }
             );
     }

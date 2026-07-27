@@ -7,11 +7,19 @@
 <h1>Configuration Values</h1>
 
 <table>
-    @foreach (var item in Model)
-    {
+    <thead>
         <tr>
-            <td>@item.Key</td>
-            <td>@item.Value</td>
+            <th>Key</th>
+            <th>Value</th>
         </tr>
-    }
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.Key</td>
+                <td>@item.Value</td>
+            </tr>
+        }
+    </tbody>
 </table>

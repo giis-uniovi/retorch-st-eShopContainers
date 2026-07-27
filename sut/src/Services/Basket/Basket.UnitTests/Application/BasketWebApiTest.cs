@@ -1,20 +1,20 @@
-﻿namespace UnitTest.Basket.Application;
+namespace UnitTest.Basket.Application;
 
 using Microsoft.eShopOnContainers.Services.Basket.API.Model;
 
 public class BasketWebApiTest
 {
+    private const string TestUserId = "testuser";
+
     private readonly Mock<IBasketRepository> _basketRepositoryMock;
     private readonly Mock<IBasketIdentityService> _identityServiceMock;
     private readonly Mock<IEventBus> _serviceBusMock;
-    private readonly Mock<ILogger<BasketController>> _loggerMock;
 
     public BasketWebApiTest()
     {
         _basketRepositoryMock = new Mock<IBasketRepository>();
         _identityServiceMock = new Mock<IBasketIdentityService>();
         _serviceBusMock = new Mock<IEventBus>();
-        _loggerMock = new Mock<ILogger<BasketController>>();
     }
 
     [Fact]
@@ -32,7 +32,6 @@ public class BasketWebApiTest
 
         //Act
         var basketController = new BasketController(
-            _loggerMock.Object,
             _basketRepositoryMock.Object,
             _identityServiceMock.Object,
             _serviceBusMock.Object);
@@ -40,8 +39,8 @@ public class BasketWebApiTest
         var actionResult = await basketController.GetBasketByIdAsync(fakeCustomerId);
 
         //Assert
-        Assert.Equal((actionResult.Result as OkObjectResult).StatusCode, (int)System.Net.HttpStatusCode.OK);
-        Assert.Equal((((ObjectResult)actionResult.Result).Value as CustomerBasket).BuyerId, fakeCustomerId);
+        Assert.Equal((int)System.Net.HttpStatusCode.OK, (actionResult.Result as OkObjectResult).StatusCode);
+        Assert.Equal(fakeCustomerId, (((ObjectResult)actionResult.Result).Value as CustomerBasket).BuyerId);
     }
 
     [Fact]
@@ -58,7 +57,6 @@ public class BasketWebApiTest
 
         //Act
         var basketController = new BasketController(
-            _loggerMock.Object,
             _basketRepositoryMock.Object,
             _identityServiceMock.Object,
             _serviceBusMock.Object);
@@ -66,8 +64,8 @@ public class BasketWebApiTest
         var actionResult = await basketController.UpdateBasketAsync(fakeCustomerBasket);
 
         //Assert
-        Assert.Equal((actionResult.Result as OkObjectResult).StatusCode, (int)System.Net.HttpStatusCode.OK);
-        Assert.Equal((((ObjectResult)actionResult.Result).Value as CustomerBasket).BuyerId, fakeCustomerId);
+        Assert.Equal((int)System.Net.HttpStatusCode.OK, (actionResult.Result as OkObjectResult).StatusCode);
+        Assert.Equal(fakeCustomerId, (((ObjectResult)actionResult.Result).Value as CustomerBasket).BuyerId);
     }
 
     [Fact]
@@ -80,7 +78,6 @@ public class BasketWebApiTest
 
         //Act
         var basketController = new BasketController(
-            _loggerMock.Object,
             _basketRepositoryMock.Object,
             _identityServiceMock.Object,
             _serviceBusMock.Object);
@@ -101,7 +98,6 @@ public class BasketWebApiTest
         _identityServiceMock.Setup(x => x.GetUserIdentity()).Returns(fakeCustomerId);
 
         var basketController = new BasketController(
-            _loggerMock.Object,
             _basketRepositoryMock.Object,
             _identityServiceMock.Object,
             _serviceBusMock.Object);
@@ -112,9 +108,9 @@ public class BasketWebApiTest
             {
                 User = new ClaimsPrincipal(
                     new ClaimsIdentity(new Claim[] {
-                        new Claim("sub", "testuser"),
-                        new Claim("unique_name", "testuser"),
-                        new Claim(ClaimTypes.Name, "testuser")
+                        new Claim("sub", TestUserId),
+                        new Claim("unique_name", TestUserId),
+                        new Claim(ClaimTypes.Name, TestUserId)
                             }))
             }
         };
@@ -127,7 +123,7 @@ public class BasketWebApiTest
         Assert.NotNull(result);
     }
 
-    private CustomerBasket GetCustomerBasketFake(string fakeCustomerId)
+    private static CustomerBasket GetCustomerBasketFake(string fakeCustomerId)
     {
         return new CustomerBasket(fakeCustomerId)
         {

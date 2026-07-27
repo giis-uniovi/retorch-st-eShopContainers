@@ -56,6 +56,41 @@ updates:
           - "Microsoft.Extensions.*"
           - "Microsoft.IdentityModel.*"
           - "System.IdentityModel.*"
+      # Duende.IdentityServer.* packages are all released together at the same
+      # version. A partial update breaks Identity.API at startup.
+      duende:
+        patterns:
+          - "Duende.*"
+      # RabbitMQ.Client 7.x replaced IModel with IChannel; AspNetCore.HealthChecks.Rabbitmq
+      # must stay >= 9.0 to use the new async API or the healthcheck throws
+      # TypeLoadException at runtime (build passes, deploy fails).
+      rabbitmq:
+        patterns:
+          - "RabbitMQ.Client"
+          - "AspNetCore.HealthChecks.Rabbitmq"
+      # Swashbuckle.AspNetCore and .Newtonsoft must stay on the same version.
+      swashbuckle:
+        patterns:
+          - "Swashbuckle.AspNetCore*"
+      # Grpc packages are released together as a single ecosystem.
+      grpc:
+        patterns:
+          - "Grpc.*"
+          - "Google.Protobuf"
+      # AspNetCore.HealthChecks.* packages are released together (except
+      # AzureStorage which tracks a different version line).
+      healthchecks:
+        patterns:
+          - "AspNetCore.HealthChecks.*"
+      # Azure SDK packages share a release cadence.
+      azure:
+        patterns:
+          - "Azure.*"
+      # xunit runner and test SDK must stay compatible with each other.
+      testing:
+        patterns:
+          - "xunit*"
+          - "Microsoft.NET.Test.Sdk"
     ignore:
       # Block ALL .NET major-version bumps (runtime, ASP.NET Core, EF Core, etc.)
       - dependency-name: "Microsoft.AspNetCore.*"

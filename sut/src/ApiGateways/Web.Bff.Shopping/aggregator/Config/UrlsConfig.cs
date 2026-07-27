@@ -3,7 +3,7 @@
 public class UrlsConfig
 {
 
-    public class CatalogOperations
+    public static class CatalogOperations
     {
         // grpc call under REST must go trough port 80
         public static string GetItemById(int id) => $"/api/v1/catalog/items/{id}";
@@ -14,16 +14,16 @@ public class UrlsConfig
         public static string GetItemsById(IEnumerable<int> ids) => $":5000/api/v1/catalog/items?ids={string.Join(',', ids)}";
     }
 
-    public class BasketOperations
+    public static class BasketOperations
     {
         public static string GetItemById(string id) => $"/api/v1/basket/{id}";
 
-        public static string UpdateBasket() => "/api/v1/basket";
+        public const string UpdateBasket = "/api/v1/basket";
     }
 
-    public class OrdersOperations
+    public static class OrdersOperations
     {
-        public static string GetOrderDraft() => "/api/v1/orders/draft";
+        public const string GetOrderDraft = "/api/v1/orders/draft";
     }
 
     public string Basket { get; set; }

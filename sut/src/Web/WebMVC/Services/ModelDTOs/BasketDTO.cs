@@ -1,6 +1,6 @@
 ﻿namespace WebMVC.Services.ModelDTOs;
 
-public record BasketDTO
+public record BasketDto
 {
     [Required]
     public string City { get; init; }

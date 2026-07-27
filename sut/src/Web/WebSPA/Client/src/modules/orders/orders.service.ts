@@ -24,7 +24,7 @@ export class OrdersService {
         if (this.configurationService.isReady)
             this.ordersUrl = this.configurationService.serverSettings.purchaseUrl;
         else
-            this.configurationService.settingsLoaded$.subscribe(x => this.ordersUrl = this.configurationService.serverSettings.purchaseUrl);
+            this.configurationService.settingsLoaded$.subscribe(() => this.ordersUrl = this.configurationService.serverSettings.purchaseUrl);
     }
 
     getOrders(): Observable<IOrder[]> {
@@ -54,9 +54,6 @@ export class OrdersService {
         const order = <IOrder>{};
         const basket = this.basketService.basket;
         const identityInfo = this.identityService.UserData;
-
-        console.log(basket);
-        console.log(identityInfo);
 
         order.street = identityInfo.address_street;
         order.city = identityInfo.address_city;

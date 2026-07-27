@@ -13,7 +13,7 @@ public abstract class IdentifiedCommandHandler<T, R> : IRequestHandler<Identifie
     private readonly IRequestManager _requestManager;
     private readonly ILogger<IdentifiedCommandHandler<T, R>> _logger;
 
-    public IdentifiedCommandHandler(
+    protected IdentifiedCommandHandler(
         IMediator mediator,
         IRequestManager requestManager,
         ILogger<IdentifiedCommandHandler<T, R>> logger)
@@ -76,23 +76,25 @@ public abstract class IdentifiedCommandHandler<T, R> : IRequestHandler<Identifie
                         break;
                 }
 
-                _logger.LogInformation(
-                    "Sending command: {CommandName} - {IdProperty}: {CommandId} ({@Command})",
-                    commandName,
-                    idProperty,
-                    commandId,
-                    command);
+                if (_logger.IsEnabled(LogLevel.Information))
+                    _logger.LogInformation(
+                        "Sending command: {CommandName} - {IdProperty}: {CommandId} ({@Command})",
+                        commandName,
+                        idProperty,
+                        commandId,
+                        command);
 
                 // Send the embeded business command to mediator so it runs its related CommandHandler 
                 var result = await _mediator.Send(command, cancellationToken);
 
-                _logger.LogInformation(
-                    "Command result: {@Result} - {CommandName} - {IdProperty}: {CommandId} ({@Command})",
-                    result,
-                    commandName,
-                    idProperty,
-                    commandId,
-                    command);
+                if (_logger.IsEnabled(LogLevel.Information))
+                    _logger.LogInformation(
+                        "Command result: {@Result} - {CommandName} - {IdProperty}: {CommandId} ({@Command})",
+                        result,
+                        commandName,
+                        idProperty,
+                        commandId,
+                        command);
 
                 return result;
             }

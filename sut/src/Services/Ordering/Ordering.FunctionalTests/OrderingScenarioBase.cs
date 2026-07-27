@@ -30,7 +30,7 @@ public class OrderingScenarioBase
         }
     }
 
-    public TestServer CreateServer()
+    public static TestServer CreateServer()
     {
         var factory = new OrderingApplication();
         return factory.CreateServer();
@@ -38,7 +38,7 @@ public class OrderingScenarioBase
 
     public static class Get
     {
-        public static string Orders = "api/v1/orders";
+        public const string Orders = "api/v1/orders";
 
         public static string OrderBy(int id)
         {
@@ -48,8 +48,8 @@ public class OrderingScenarioBase
 
     public static class Put
     {
-        public static string CancelOrder = "api/v1/orders/cancel";
-        public static string ShipOrder = "api/v1/orders/ship";
+        public const string CancelOrder = "api/v1/orders/cancel";
+        public const string ShipOrder = "api/v1/orders/ship";
     }
 
     private class AuthStartupFilter : IStartupFilter

@@ -1,16 +1,18 @@
 ﻿namespace Basket.FunctionalTests;
 
-public class BasketScenarios : 
+public class BasketScenarios :
     BasketScenarioBase
 {
+    private const string JsonMediaType = "application/json";
+
     [Fact]
     public async Task Post_basket_and_response_ok_status_code()
     {
         using var server = CreateServer();
-        var content = new StringContent(BuildBasket(), UTF8Encoding.UTF8, "application/json");
+        var content = new StringContent(BuildBasket(), UTF8Encoding.UTF8, JsonMediaType);
         var uri = "/api/v1/basket/";
         var response = await server.CreateClient().PostAsync(uri, content);
-        response.EnsureSuccessStatusCode();
+        Assert.True(response.IsSuccessStatusCode);
     }
 
     [Fact]
@@ -19,19 +21,19 @@ public class BasketScenarios :
         using var server = CreateServer();
         var response = await server.CreateClient()
             .GetAsync(Get.GetBasket(1));
-        response.EnsureSuccessStatusCode();
+        Assert.True(response.IsSuccessStatusCode);
     }
 
     [Fact]
     public async Task Send_Checkout_basket_and_response_ok_status_code()
     {
         using var server = CreateServer();
-        var contentBasket = new StringContent(BuildBasket(), UTF8Encoding.UTF8, "application/json");
+        var contentBasket = new StringContent(BuildBasket(), UTF8Encoding.UTF8, JsonMediaType);
 
         await server.CreateClient()
             .PostAsync(Post.Basket, contentBasket);
 
-        var contentCheckout = new StringContent(BuildCheckout(), UTF8Encoding.UTF8, "application/json")
+        var contentCheckout = new StringContent(BuildCheckout(), UTF8Encoding.UTF8, JsonMediaType)
         {
              Headers = { { "x-requestid", Guid.NewGuid().ToString() } }
         };
@@ -39,10 +41,10 @@ public class BasketScenarios :
         var response = await server.CreateClient()
             .PostAsync(Post.CheckoutOrder, contentCheckout);
 
-        response.EnsureSuccessStatusCode();
+        Assert.True(response.IsSuccessStatusCode);
     }
 
-    string BuildBasket()
+    static string BuildBasket()
     {
         var order = new CustomerBasket(AutoAuthorizeMiddleware.IDENTITY_ID);
 
@@ -57,7 +59,7 @@ public class BasketScenarios :
         return JsonSerializer.Serialize(order);
     }
 
-    string BuildCheckout()
+    static string BuildCheckout()
     {
         var checkoutBasket = new
         {

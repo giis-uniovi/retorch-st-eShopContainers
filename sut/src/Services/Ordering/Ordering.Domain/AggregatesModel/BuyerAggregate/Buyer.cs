@@ -7,7 +7,7 @@ public class Buyer
 
     public string Name { get; private set; }
 
-    private List<PaymentMethod> _paymentMethods;
+    private readonly List<PaymentMethod> _paymentMethods;
 
     public IEnumerable<PaymentMethod> PaymentMethods => _paymentMethods.AsReadOnly();
 

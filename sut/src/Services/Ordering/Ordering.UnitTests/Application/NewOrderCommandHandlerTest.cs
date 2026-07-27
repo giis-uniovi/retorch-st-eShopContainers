@@ -38,7 +38,7 @@ public class NewOrderRequestHandlerTest
 
         var LoggerMock = new Mock<ILogger<CreateOrderCommandHandler>>();
         //Act
-        var handler = new CreateOrderCommandHandler(_mediator.Object, _orderingIntegrationEventService.Object, _orderRepositoryMock.Object, _identityServiceMock.Object, LoggerMock.Object);
+        var handler = new CreateOrderCommandHandler(_orderingIntegrationEventService.Object, _orderRepositoryMock.Object, LoggerMock.Object);
         var cltToken = new System.Threading.CancellationToken();
         var result = await handler.Handle(fakeOrderCmd, cltToken);
 
@@ -53,31 +53,31 @@ public class NewOrderRequestHandlerTest
         Assert.Throws<ArgumentNullException>(() => new Buyer(string.Empty, string.Empty));
     }
 
-    private Buyer FakeBuyer()
+    private static Buyer FakeBuyer()
     {
         return new Buyer(Guid.NewGuid().ToString(), "1");
     }
 
-    private Order FakeOrder()
+    private static Order FakeOrder()
     {
         return new Order("1", "fakeName", new Address("street", "city", "state", "country", "zipcode"), 1, "12", "111", "fakeName", DateTime.Now.AddYears(1));
     }
 
-    private CreateOrderCommand FakeOrderRequestWithBuyer(Dictionary<string, object> args = null)
+    private static CreateOrderCommand FakeOrderRequestWithBuyer(Dictionary<string, object> args = null)
     {
         return new CreateOrderCommand(
             new List<BasketItem>(),
-            userId: args != null && args.ContainsKey("userId") ? (string)args["userId"] : null,
-            userName: args != null && args.ContainsKey("userName") ? (string)args["userName"] : null,
-            city: args != null && args.ContainsKey("city") ? (string)args["city"] : null,
-            street: args != null && args.ContainsKey("street") ? (string)args["street"] : null,
-            state: args != null && args.ContainsKey("state") ? (string)args["state"] : null,
-            country: args != null && args.ContainsKey("country") ? (string)args["country"] : null,
-            zipcode: args != null && args.ContainsKey("zipcode") ? (string)args["zipcode"] : null,
-            cardNumber: args != null && args.ContainsKey("cardNumber") ? (string)args["cardNumber"] : "1234",
-            cardExpiration: args != null && args.ContainsKey("cardExpiration") ? (DateTime)args["cardExpiration"] : DateTime.MinValue,
-            cardSecurityNumber: args != null && args.ContainsKey("cardSecurityNumber") ? (string)args["cardSecurityNumber"] : "123",
-            cardHolderName: args != null && args.ContainsKey("cardHolderName") ? (string)args["cardHolderName"] : "XXX",
-            cardTypeId: args != null && args.ContainsKey("cardTypeId") ? (int)args["cardTypeId"] : 0);
+            userId: args != null && args.TryGetValue("userId", out var userId) ? (string)userId : null,
+            userName: args != null && args.TryGetValue("userName", out var userName) ? (string)userName : null,
+            city: args != null && args.TryGetValue("city", out var city) ? (string)city : null,
+            street: args != null && args.TryGetValue("street", out var street) ? (string)street : null,
+            state: args != null && args.TryGetValue("state", out var state) ? (string)state : null,
+            country: args != null && args.TryGetValue("country", out var country) ? (string)country : null,
+            zipcode: args != null && args.TryGetValue("zipcode", out var zipcode) ? (string)zipcode : null,
+            cardNumber: args != null && args.TryGetValue("cardNumber", out var cardNumber) ? (string)cardNumber : "1234",
+            cardExpiration: args != null && args.TryGetValue("cardExpiration", out var cardExpiration) ? (DateTime)cardExpiration : DateTime.MinValue,
+            cardSecurityNumber: args != null && args.TryGetValue("cardSecurityNumber", out var cardSecurityNumber) ? (string)cardSecurityNumber : "123",
+            cardHolderName: args != null && args.TryGetValue("cardHolderName", out var cardHolderName) ? (string)cardHolderName : "XXX",
+            cardTypeId: args != null && args.TryGetValue("cardTypeId", out var cardTypeId) ? (int)cardTypeId : 0);
     }
 }

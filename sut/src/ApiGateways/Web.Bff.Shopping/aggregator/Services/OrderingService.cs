@@ -13,16 +13,18 @@ public class OrderingService : IOrderingService
 
     public async Task<OrderData> GetOrderDraftAsync(BasketData basketData)
     {
-        _logger.LogDebug(" grpc client created, basketData={@basketData}", basketData);
+        if (_logger.IsEnabled(LogLevel.Debug))
+            _logger.LogDebug(" grpc client created, basketData={@BasketData}", basketData);
 
         var command = MapToOrderDraftCommand(basketData);
         var response = await _orderingGrpcClient.CreateOrderDraftFromBasketDataAsync(command);
-        _logger.LogDebug(" grpc response: {@response}", response);
+        if (_logger.IsEnabled(LogLevel.Debug))
+            _logger.LogDebug(" grpc response: {@Response}", response);
 
         return MapToResponse(response, basketData);
     }
 
-    private OrderData MapToResponse(GrpcOrdering.OrderDraftDTO orderDraft, BasketData basketData)
+    private static OrderData MapToResponse(GrpcOrdering.OrderDraftDTO orderDraft, BasketData basketData)
     {
         if (orderDraft == null)
         {
@@ -48,7 +50,7 @@ public class OrderingService : IOrderingService
         return data;
     }
 
-    private GrpcOrdering.CreateOrderDraftCommand MapToOrderDraftCommand(BasketData basketData)
+    private static GrpcOrdering.CreateOrderDraftCommand MapToOrderDraftCommand(BasketData basketData)
     {
         var command = new GrpcOrdering.CreateOrderDraftCommand
         {
