@@ -32,6 +32,52 @@ jobs:
         with:
           dotnet-version: '10.x'
 
+      - name: Run SUT unit tests
+        run: |
+          set +e  # keep running every project even if one fails, so the summary covers all of them
+          PROJECTS=(
+            "EventBus.Tests|sut/src/BuildingBlocks/EventBus/EventBus.Tests/EventBus.Tests.csproj"
+            "Basket.UnitTests|sut/src/Services/Basket/Basket.UnitTests/Basket.UnitTests.csproj"
+            "Catalog.UnitTests|sut/src/Services/Catalog/Catalog.UnitTests/Catalog.UnitTests.csproj"
+            "Ordering.UnitTests|sut/src/Services/Ordering/Ordering.UnitTests/Ordering.UnitTests.csproj"
+          )
+
+          {
+            echo "## SUT unit test results"
+            echo
+            echo "| Project | Result | Passed | Failed | Skipped | Total | Duration |"
+            echo "|---|---|---|---|---|---|---|"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+          OVERALL_EXIT=0
+          for entry in "${PROJECTS[@]}"; do
+            NAME="${entry%%|*}"
+            CSPROJ="${entry#*|}"
+
+            OUTPUT=$(dotnet test "$CSPROJ" 2>&1)
+            EXIT_CODE=$?
+            echo "$OUTPUT"
+
+            SUMMARY_LINE=$(echo "$OUTPUT" | grep -E "^(Passed|Failed)!" | tail -1)
+            if [ -n "$SUMMARY_LINE" ]; then
+              RESULT=$(echo "$SUMMARY_LINE" | grep -oE "^(Passed|Failed)")
+              PASSED=$(echo "$SUMMARY_LINE" | grep -oE "Passed:[[:space:]]*[0-9]+" | grep -oE "[0-9]+")
+              FAILED=$(echo "$SUMMARY_LINE" | grep -oE "Failed:[[:space:]]*[0-9]+" | grep -oE "[0-9]+")
+              SKIPPED=$(echo "$SUMMARY_LINE" | grep -oE "Skipped:[[:space:]]*[0-9]+" | grep -oE "[0-9]+")
+              TOTAL=$(echo "$SUMMARY_LINE" | grep -oE "Total:[[:space:]]*[0-9]+" | grep -oE "[0-9]+")
+              DURATION=$(echo "$SUMMARY_LINE" | grep -oE "Duration:[[:space:]]*[^-]+" | sed -E 's/Duration:[[:space:]]*//; s/[[:space:]]+$//')
+              ICON="✅"
+              [ "$RESULT" = "Failed" ] && ICON="❌"
+              echo "| $NAME | $ICON $RESULT | $PASSED | $FAILED | $SKIPPED | $TOTAL | $DURATION |" >> "$GITHUB_STEP_SUMMARY"
+            else
+              echo "| $NAME | ⚠️ build/crash (see log) | - | - | - | - | - |" >> "$GITHUB_STEP_SUMMARY"
+            fi
+
+            [ "$EXIT_CODE" -ne 0 ] && OVERALL_EXIT=1
+          done
+
+          exit $OVERALL_EXIT
+
       - name: Init jenkins commit status (optional)
         run: |
           curl -L -X POST  https://api.github.com/repos/${{ github.repository }}/statuses/${{ github.sha }} \
