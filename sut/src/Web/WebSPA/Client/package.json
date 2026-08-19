@@ -83,7 +83,7 @@
     "@angular/compiler-cli": "^21.2.20",
     "@angular/language-service": "^21.2.20",
     "@types/jasmine": "~6.0.0",
-    "@types/node": "^26.1.1",
+    "@types/node": "^26.2.0",
     "jasmine-core": "^7.0.1",
     "jasmine-spec-reporter": "7.0.0",
     "karma": "^6.4.3",
