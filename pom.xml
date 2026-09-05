@@ -21,7 +21,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <!--Separate all dependencies by a blank line to avoid problems creating combined dependencies in dependabot.-->
 
-        <surefire.version>3.5.6</surefire.version>
+        <surefire.version>3.6.0</surefire.version>
 
         <slf4j-api.version>2.0.18</slf4j-api.version>
 
@@ -29,7 +29,7 @@
 
         <junit-jupiter-api.version>6.1.3</junit-jupiter-api.version>
 
-        <selenium-java.version>4.47.0</selenium-java.version>
+        <selenium-java.version>4.48.0</selenium-java.version>
 
 		<selema.version>4.1.0</selema.version>
 
