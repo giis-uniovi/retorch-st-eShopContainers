@@ -155,4 +155,14 @@ updates:
       # only allow patch bumps within that supported range
       - dependency-name: "typescript"
         update-types: ["version-update:semver-major", "version-update:semver-minor"]
+      # @angular/platform-browser-dynamic is deprecated (superseded by
+      # bootstrapApplication() from @angular/platform-browser, which this repo
+      # already uses) and was NOT actually referenced anywhere in the app.
+      # It repeatedly straggled behind the rest of the "angular" group in
+      # grouped PRs (e.g. #491, #518, #531 bumped common/core/forms/router/...
+      # to a new patch but left platform-browser-dynamic on the older one),
+      # producing an unresolvable npm peer graph (ERESOLVE) that failed
+      # `npm install` in CI. Removed from package.json; ignored here so
+      # dependabot doesn't reintroduce it via a stray future PR.
+      - dependency-name: "@angular/platform-browser-dynamic"
     open-pull-requests-limit: 20
