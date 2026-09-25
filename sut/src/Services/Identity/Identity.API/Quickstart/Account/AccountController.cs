@@ -80,13 +80,7 @@ namespace IdentityServerHost.Quickstart.UI
                         return this.LoadingPage("Redirect", model.ReturnUrl);
                     }
 
-                    // only ever redirect to a local URL to prevent open-redirect attacks
-                    if (Url.IsLocalUrl(model.ReturnUrl))
-                    {
-                        return Redirect(model.ReturnUrl);
-                    }
-
-                    return Redirect("~/");
+                    return this.RedirectToLocalOrHome(model.ReturnUrl);
                 }
                 else
                 {

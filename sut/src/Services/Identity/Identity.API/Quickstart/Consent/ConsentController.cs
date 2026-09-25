@@ -60,13 +60,7 @@ public class ConsentController : Controller
                 return this.LoadingPage("Redirect", result.RedirectUri);
             }
 
-            // only ever redirect to a local URL to prevent open-redirect attacks
-            if (Url.IsLocalUrl(result.RedirectUri))
-            {
-                return Redirect(result.RedirectUri);
-            }
-
-            return Redirect("~/");
+            return this.RedirectToLocalOrHome(result.RedirectUri);
         }
 
         if (result.HasValidationError)

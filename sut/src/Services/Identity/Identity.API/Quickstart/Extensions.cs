@@ -19,4 +19,19 @@ public static class Extensions
 
         return controller.View(viewName, new RedirectViewModel { RedirectUrl = redirectUri });
     }
+
+    /// <summary>
+    /// Redirects to the given URL, but only if it is local to this host; otherwise
+    /// falls back to the home page. Prevents open-redirect attacks (CWE-601) from
+    /// untrusted return URLs.
+    /// </summary>
+    public static IActionResult RedirectToLocalOrHome(this Controller controller, string returnUrl)
+    {
+        if (controller.Url.IsLocalUrl(returnUrl))
+        {
+            return controller.Redirect(returnUrl);
+        }
+
+        return controller.Redirect("~/");
+    }
 }
