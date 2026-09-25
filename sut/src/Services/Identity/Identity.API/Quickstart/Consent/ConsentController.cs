@@ -60,7 +60,13 @@ public class ConsentController : Controller
                 return this.LoadingPage("Redirect", result.RedirectUri);
             }
 
-            return Redirect(result.RedirectUri);
+            // only ever redirect to a local URL to prevent open-redirect attacks
+            if (Url.IsLocalUrl(result.RedirectUri))
+            {
+                return Redirect(result.RedirectUri);
+            }
+
+            return Redirect("~/");
         }
 
         if (result.HasValidationError)
@@ -88,7 +94,7 @@ public class ConsentController : Controller
         ConsentResponse grantedConsent = null;
 
         // user clicked 'no' - send back the standard 'access_denied' response
-        if (model?.Button == "no")
+        if (model.Button == "no")
         {
             grantedConsent = new ConsentResponse { Error = InteractionError.AccessDenied };
             await _events.RaiseAsync(new ConsentDeniedEvent(User.GetSubjectId(), request.Client.ClientId, request.ValidatedResources.RawScopeValues), HttpContext.RequestAborted);
