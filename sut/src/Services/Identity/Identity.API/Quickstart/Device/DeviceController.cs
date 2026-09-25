@@ -65,20 +65,9 @@ public class DeviceController : Controller
         var request = await _interaction.GetAuthorizationContextAsync(model.UserCode, HttpContext.RequestAborted);
         if (request == null) return result;
 
-        ConsentResponse grantedConsent = null;
-
-        // user clicked 'no' - send back the standard 'access_denied' response
-        if (model.Button == "no")
-        {
-            grantedConsent = new ConsentResponse { Error = InteractionError.AccessDenied };
-            await _events.RaiseAsync(new ConsentDeniedEvent(User.GetSubjectId(), request.Client.ClientId, request.ValidatedResources.RawScopeValues), HttpContext.RequestAborted);
-        }
-        else
-        {
-            grantedConsent = await ScopeViewModelHelper.BuildConsentResponseAsync(
-                model, result, _events, User.GetSubjectId(), request.Client.ClientId,
-                request.ValidatedResources.RawScopeValues, HttpContext.RequestAborted);
-        }
+        var grantedConsent = await ScopeViewModelHelper.ResolveConsentResponseAsync(
+            model, result, _events, User.GetSubjectId(), request.Client.ClientId,
+            request.ValidatedResources.RawScopeValues, HttpContext.RequestAborted);
 
         if (grantedConsent != null)
         {
