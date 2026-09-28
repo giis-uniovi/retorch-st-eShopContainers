@@ -108,7 +108,7 @@ services:
 
   sqldata:
     environment:
-      - MSSQL_SA_PASSWORD=Pass@word
+      - MSSQL_SA_PASSWORD=Pass@word  # NOSONAR S7539: local dev-only sample compose file, not a production credential
       - ACCEPT_EULA=Y
     ports:
       - "5433:1433"

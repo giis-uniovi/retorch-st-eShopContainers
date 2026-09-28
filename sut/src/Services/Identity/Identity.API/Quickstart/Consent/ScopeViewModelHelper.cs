@@ -72,6 +72,22 @@ public static class ScopeViewModelHelper
         vm.ApiScopes = apiScopes;
     }
 
+    // Shared by ConsentController and DeviceController
+    public static async Task<ConsentResponse> ResolveConsentResponseAsync(
+        ConsentInputModel model, ProcessConsentResult result, IEventService events,
+        string subjectId, string clientId, IEnumerable<string> rawScopeValues, CancellationToken ct)
+    {
+        // user clicked 'no' - send back the standard 'access_denied' response
+        if (model.Button == "no")
+        {
+            var deniedConsent = new ConsentResponse { Error = InteractionError.AccessDenied };
+            await events.RaiseAsync(new ConsentDeniedEvent(subjectId, clientId, rawScopeValues), ct);
+            return deniedConsent;
+        }
+
+        return await BuildConsentResponseAsync(model, result, events, subjectId, clientId, rawScopeValues, ct);
+    }
+
     public static async Task<ConsentResponse> BuildConsentResponseAsync(
         ConsentInputModel model, ProcessConsentResult result, IEventService events,
         string subjectId, string clientId, IEnumerable<string> rawScopeValues, CancellationToken ct)

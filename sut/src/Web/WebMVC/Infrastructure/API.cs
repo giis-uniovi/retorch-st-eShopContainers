@@ -23,7 +23,9 @@ public static class Api
     {
         public static string GetOrder(string baseUri, string orderId)
         {
-            return $"{baseUri}/{orderId}";
+            // orderId comes from user input (route/query); encode it so it can't
+            // inject extra path segments or query parameters into the request URI
+            return $"{baseUri}/{Uri.EscapeDataString(orderId)}";
         }
 
         public static string GetAllMyOrders(string baseUri)
@@ -61,7 +63,7 @@ public static class Api
             }
             else if (brand.HasValue)
             {
-                var brandQs = (brand.HasValue) ? brand.Value.ToString() : string.Empty;
+                var brandQs = brand.Value.ToString();
                 filterQs = $"/type/all/brand/{brandQs}";
             }
             else

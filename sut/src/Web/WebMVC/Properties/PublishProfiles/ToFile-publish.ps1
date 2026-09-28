@@ -4,7 +4,7 @@ param($publishProperties=@{}, $packOutput, $pubProfilePath)
 # to learn more about this file visit https://go.microsoft.com/fwlink/?LinkId=524327
 
 try{
-    if ($publishProperties['ProjectGuid'] -eq $null){
+    if ($null -eq $publishProperties['ProjectGuid']){
         $publishProperties['ProjectGuid'] = 'f0333d8e-0b27-42b7-b2c6-78f3657624e2'
     }
 

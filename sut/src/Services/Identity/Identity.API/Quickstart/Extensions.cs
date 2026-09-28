@@ -19,4 +19,15 @@ public static class Extensions
 
         return controller.View(viewName, new RedirectViewModel { RedirectUrl = redirectUri });
     }
+
+    // Prevents open-redirect: only follows returnUrl if it's local, else goes home
+    public static IActionResult RedirectToLocalOrHome(this Controller controller, string returnUrl)
+    {
+        if (controller.Url.IsLocalUrl(returnUrl))
+        {
+            return controller.Redirect(returnUrl);
+        }
+
+        return controller.Redirect("~/");
+    }
 }
