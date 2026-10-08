@@ -82,7 +82,7 @@
     "@angular/compiler-cli": "^21.2.24",
     "@angular/language-service": "^21.2.24",
     "@angular/localize": "^21.2.24",
-    "@types/jasmine": "~6.0.0",
+    "@types/jasmine": "~7.0.0",
     "@types/node": "^26.6.2",
     "jasmine-core": "^7.0.2",
     "jasmine-spec-reporter": "7.0.0",
