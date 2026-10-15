@@ -31,7 +31,15 @@ function Invoke-Compose {
         "--env-file", $EnvFile,
         "-p", $ProjectName
     )
-    & docker @baseArgs @CommandArgs
+    # docker writes warnings/progress to stderr; with ErrorActionPreference=Stop PowerShell 5.1
+    # would turn those into terminating errors, so rely on the exit code only.
+    $prevPref = $ErrorActionPreference
+    $ErrorActionPreference = "Continue"
+    try {
+        & docker @baseArgs @CommandArgs 2>&1 | ForEach-Object { "$_" }
+    } finally {
+        $ErrorActionPreference = $prevPref
+    }
     if ($LASTEXITCODE -ne 0) {
         throw "docker compose failed with exit code $LASTEXITCODE"
     }
@@ -108,4 +116,6 @@ Write-Host "    --env-file .retorch\envfiles\local.env ``"
 Write-Host "    -p local down --volumes"
 
 Write-Host "Process complete."
-Read-Host -Prompt "Press Enter to exit"
+if ([Environment]::UserInteractive -and -not [Console]::IsInputRedirected) {
+    Read-Host -Prompt "Press Enter to exit"
+}

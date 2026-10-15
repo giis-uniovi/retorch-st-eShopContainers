@@ -6,8 +6,6 @@ import org.junit.jupiter.api.BeforeAll;
 import org.openqa.selenium.By;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.StaleElementReferenceException;
-import org.openqa.selenium.WebElement;
-import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
@@ -103,7 +101,7 @@ public class BaseWebSPALoggedClass extends BaseLoggedClass {
     }
 
     /**
-     * Logs out via the WebSPA frontend using Actions hover + click to work around the
+     * Logs out via the WebSPA frontend via the shared identity-menu helper, which works around the
      * CSS hover-gated visibility that Selenium cannot otherwise interact with.
      */
     @Override
@@ -112,15 +110,7 @@ public class BaseWebSPALoggedClass extends BaseLoggedClass {
         By identityDropLocator = By.className("esh-identity-drop");
         waiter.waitUntil(ExpectedConditions.presenceOfElementLocated(identityDropLocator),
                 "WebSPA identity drop not found");
-        WebElement identityDrop = driver.findElement(identityDropLocator);
-        new Actions(driver)
-                .moveToElement(identityDrop)
-                .perform();
-        By logoutLocator = By.xpath(
-                "//*[contains(@class,'esh-identity-item')]//*[normalize-space(text())='Log Out']");
-        waiter.waitUntil(ExpectedConditions.visibilityOfElementLocated(logoutLocator),
-                "WebSPA 'Log Out' item not visible after hover");
-        Click.element(driver, waiter, driver.findElement(logoutLocator));
+        NavigationWebSPA.clickIdentityMenuItem(driver, waiter, "Log Out");
         isLogged = false;
         log.debug("WebSPA logout successful");
     }

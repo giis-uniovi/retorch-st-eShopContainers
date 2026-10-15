@@ -2,12 +2,17 @@ package giis.eshopcontainers.e2e.functional.utils;
 
 import giis.eshopcontainers.e2e.functional.common.ElementNotFoundException;
 import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.time.Duration;
 
 /**
  * Navigation helpers for the WebSPA frontends.
@@ -32,19 +37,40 @@ public class NavigationWebSPA extends Navigation {
         // Wait for .esh-identity-drop to confirm authenticated (rendered via *ngIf="authenticated")
         waiter.waitUntil(ExpectedConditions.presenceOfElementLocated(By.className("esh-identity-drop")),
                 "Identity drop not found (user not authenticated)");
-        // Hover over .esh-identity (the parent) to trigger CSS :hover -> .esh-identity-drop expands.
-        // Hovering .esh-identity-drop directly is unreliable: its height is 0 and its top edge
-        // sits at exactly 2.5rem from the parent, making the cursor land on the boundary.
-        WebElement identityContainer = driver.findElement(By.className("esh-identity"));
-        new Actions(driver)
-                .moveToElement(identityContainer)
-                .perform();
-        By myOrdersLocator = By.xpath(
-                "//*[contains(@class,'esh-identity-item')]//*[normalize-space(text())='My orders']");
-        waiter.waitUntil(ExpectedConditions.visibilityOfElementLocated(myOrdersLocator),
-                "'My orders' link not visible after hover");
-        Click.element(driver, waiter, driver.findElement(myOrdersLocator));
+        clickIdentityMenuItem(driver, waiter, "My orders");
         waiter.waitUntil(ExpectedConditions.urlContains("orders"), "Orders page did not load");
+    }
+
+    /**
+     * Clicks an item of the identity dropdown ("My orders", "Log Out") defined in identity.html.
+     * The dropdown expands with CSS :hover on .esh-identity (from height:0), so we hover the visible user name.
+     * The grid browser sometimes drops the :hover state (e.g. cursor already resting over the element), so the
+     * cursor is moved away and back, retrying a few times before falling back to a JS click: the item is in the
+     * DOM (rendered by *ngIf="authenticated") even while the dropdown is collapsed.
+     */
+    public static void clickIdentityMenuItem(WebDriver driver, Waiter waiter, String label) throws ElementNotFoundException {
+        By identityNameLocator = By.cssSelector(".esh-identity > .esh-identity-section .esh-identity-name");
+        By itemLocator = By.xpath("//*[contains(@class,'esh-identity-item')]//*[normalize-space(text())='" + label + "']");
+        boolean visible = false;
+        for (int attempt = 0; attempt < 3 && !visible; attempt++) {
+            Actions actions = new Actions(driver);
+            actions.moveToElement(driver.findElement(By.className("esh-app-header-brand"))).perform();
+            actions.moveToElement(driver.findElement(identityNameLocator)).perform();
+            try {
+                new WebDriverWait(driver, Duration.ofSeconds(4))
+                        .until(ExpectedConditions.visibilityOfElementLocated(itemLocator));
+                visible = true;
+            } catch (TimeoutException e) {
+                log.debug("'{}' not visible after hover, retrying ({})...", label, attempt + 1);
+            }
+        }
+        WebElement item = driver.findElement(itemLocator);
+        if (visible) {
+            Click.element(driver, waiter, item);
+        } else {
+            log.debug("Hover did not expand the dropdown, clicking '{}' through JavaScript", label);
+            ((JavascriptExecutor) driver).executeScript("arguments[0].click();", item);
+        }
     }
 
     /**
