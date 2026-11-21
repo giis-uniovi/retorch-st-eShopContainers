@@ -51,3 +51,10 @@ e.g. modifying the `/etc/sysctl.conf` including:
 fs.inotify.max_user_instances=2048
 fs.inotify.max_user_watches=1048576
 ```
+
+---
+
+<p align="center">
+  <img src="img/giis-logo.svg" alt="GIIS logo" width="48" style="vertical-align: middle;"/>
+  &nbsp;GIIS - Software Engineering Research Group, University of Oviedo
+</p>
