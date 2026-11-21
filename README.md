@@ -10,6 +10,10 @@ architecture
 using Docker containers. See more details in the [forked version](https://github.com/erjain/eShopOnContainers)
 or [official repository](https://github.com/dotnet-architecture/eShopOnContainers)
 
+<p align="center">
+  <img src="img/hero-eshopcontainers.svg" alt="Catalog of eShopContainers with the WebMVC and WebSPA frontends, on desktop and mobile" width="900"/>
+</p>
+
 ## SUT Deployment
 
 ### Local deployment
