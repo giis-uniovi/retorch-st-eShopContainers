@@ -11,3 +11,6 @@ org.sonarlint.eclipse.core.prefs
 
 ## Ignore Sonar local
 .sonarqube/
+
+# Never commit binaries (e.g. the RETORCH standalone orchestration jar)
+*.jar
