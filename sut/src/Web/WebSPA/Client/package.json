@@ -68,7 +68,7 @@
     "core-js": "^3.51.0",
     "font-awesome": "4.7.0",
     "isomorphic-fetch": "3.0.0",
-    "jquery": "^4.0.0",
+    "jquery": "^4.1.0",
     "ngx-toastr": "^20.0.5",
     "normalize.css": "8.0.1",
     "rxjs": "^7.8.0",
