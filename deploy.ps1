@@ -1,12 +1,13 @@
-# Tear down any existing local SUT deployment and redeploy eShopContainers.
-# Run from the project root directory.
+# deploy.ps1 - Deploy (or tear down) the eShopContainers SUT locally. Run from the project root directory.
 #
 # Usage:
-#   .\redeploy-local.ps1             # full build + deploy
-#   .\redeploy-local.ps1 -NoBuild    # skip image build, just redeploy
+#   .\deploy.ps1             # tear down any previous deployment, build the images and deploy
+#   .\deploy.ps1 -NoBuild    # skip the image build, just redeploy
+#   .\deploy.ps1 -Down       # tear down the local deployment
 
 param(
-    [switch]$NoBuild
+    [switch]$NoBuild,
+    [switch]$Down
 )
 
 $ErrorActionPreference = "Stop"
@@ -43,6 +44,12 @@ function Invoke-Compose {
     if ($LASTEXITCODE -ne 0) {
         throw "docker compose failed with exit code $LASTEXITCODE"
     }
+}
+
+if ($Down) {
+    Write-Host "=== Tearing down the local SUT deployment ===" -ForegroundColor Cyan
+    Invoke-Compose @("down", "--volumes", "--remove-orphans")
+    exit 0
 }
 
 Write-Host "=== [1/4] Tearing down existing SUT deployment ===" -ForegroundColor Cyan
@@ -109,11 +116,7 @@ Write-Host "  Seq (logs)  http://localhost:5340"
 Write-Host "  RabbitMQ    http://localhost:15672  (guest/guest)"
 Write-Host "  SQL Server  localhost:5433         (sa/Pass@word)"
 Write-Host ""
-Write-Host "To tear down:"
-Write-Host "  docker compose -f sut\src\docker-compose.yml ``"
-Write-Host "    -f sut\src\docker-compose.local-override.yml ``"
-Write-Host "    --env-file .retorch\envfiles\local.env ``"
-Write-Host "    -p local down --volumes"
+Write-Host "To tear down:  .\deploy.ps1 -Down"
 
 Write-Host "Process complete."
 if ([Environment]::UserInteractive -and -not [Console]::IsInputRedirected) {

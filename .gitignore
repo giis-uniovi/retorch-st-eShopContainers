@@ -14,3 +14,10 @@ org.sonarlint.eclipse.core.prefs
 
 # Never commit binaries (e.g. the RETORCH standalone orchestration jar)
 *.jar
+
+# Eclipse
+.project
+.classpath
+.settings/
+.factorypath
+.apt_generated/

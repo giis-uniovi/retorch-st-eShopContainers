@@ -1,10 +1,10 @@
 #!/bin/bash
-# Tear down any existing local SUT deployment and redeploy eShopContainers.
-# Run from the project root directory.
+# deploy.sh - Deploy (or tear down) the eShopContainers SUT locally. Run from the project root directory.
 #
 # Usage:
-#   ./redeploy-local.sh           # full build + deploy
-#   ./redeploy-local.sh --no-build  # skip image build, just redeploy
+#   ./deploy.sh               # tear down any previous deployment, build the images and deploy
+#   ./deploy.sh --no-build    # skip the image build, just redeploy
+#   ./deploy.sh --down        # tear down the local deployment
 
 set -e
 
@@ -15,9 +15,14 @@ COMPOSE_FILE="$SUT_SRC/docker-compose.yml"
 OVERRIDE_FILE="$SUT_SRC/docker-compose.local-override.yml"
 PROJECT_NAME="local"
 SKIP_BUILD=false
+DOWN=false
 
 for arg in "$@"; do
-  [ "$arg" = "--no-build" ] && SKIP_BUILD=true
+  case "$arg" in
+    --no-build) SKIP_BUILD=true ;;
+    --down) DOWN=true ;;
+    *) echo "Unknown argument: $arg. Valid options: --no-build, --down"; exit 1 ;;
+  esac
 done
 
 # Compose command prefix shared by all steps
@@ -26,6 +31,12 @@ COMPOSE="docker compose \
   -f $OVERRIDE_FILE \
   --env-file $ENV_FILE \
   -p $PROJECT_NAME"
+
+if [ "$DOWN" = true ]; then
+  echo "=== Tearing down the local SUT deployment ==="
+  $COMPOSE down --volumes --remove-orphans
+  exit 0
+fi
 
 echo "=== [1/4] Tearing down existing SUT deployment ==="
 $COMPOSE down --volumes --remove-orphans 2>/dev/null || true
@@ -74,8 +85,4 @@ echo "  Seq (logs)  http://localhost:5340"
 echo "  RabbitMQ    http://localhost:15672  (guest/guest)"
 echo "  SQL Server  localhost:5433         (sa/Pass@word)"
 echo ""
-echo "To tear down:"
-echo "  docker compose -f sut/src/docker-compose.yml \\"
-echo "    -f sut/src/docker-compose.local-override.yml \\"
-echo "    --env-file .retorch/envfiles/local.env \\"
-echo "    -p local down --volumes"
+echo "To tear down:  ./deploy.sh --down"
