@@ -94,12 +94,9 @@ mvn test -Dtest=<TestClass>
 mvn test -Dtest="<TestClass>#<testMethod>"
 ```
 
-The target of the tests is resolved in this order: the `SUT_URL` system property, the `SUT_URL` environment variable and, if
-none is set, the default local URL (`http://localhost:5100`). To test another deployment:
-
-```bash
-mvn test -DSUT_URL=http://my-host:5100
-```
+Locally, **do not pass `-DSUT_URL`**: without it the tests use the `LOCALHOST_*` URLs of `src/test/resources/test.properties`
+(WebMVC at http://localhost:5100). When `SUT_URL` is set (as the CI does) the API tests switch to the Docker-internal host names
+of the TJob (`identity_api_<tjob>`...), which are not reachable from the host.
 
 The CI pipeline also passes `-DTJOB_NAME=<tjob>` (the name of the TJob running the tests) together with `-DSUT_URL`.
 

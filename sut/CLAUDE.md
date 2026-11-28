@@ -1,14 +1,9 @@
-# CLAUDE.md — eShopContainers E2E Test Suite
+# CLAUDE.md — eShopContainers SUT (`sut/`)
 
-> **Maintenance rule:** whenever a file in this repo is created, modified, or deleted in a conversation with Claude, update this file before closing the task. Record *current state* and *non-obvious gotchas* only — change history lives in `git log`.
-
-## Project overview
-
-E2E test suite for the [eShopOnContainers](https://github.com/dotnet-architecture/eShopOnContainers) microservices app, covering the WebMVC and WebSPA frontends and the REST APIs (Basket, Catalog, Ordering, Identity, Payment). Uses **Retorch** for parallel test orchestration (Jenkins) and **Selenoid** for browser automation.
+The system under test of the RETORCH demonstrator. The end-to-end suite, the RETORCH rules and how to run the tests are in the
+[root `CLAUDE.md`](../CLAUDE.md). Record current state and non-obvious gotchas only (history is in `git log`).
 
 ## Technology stack
-
-**Test suite (Java, project root):** JUnit 5 + Selenium 4, Maven 3 (Surefire 3.5.5), Selenoid (`chrome-node`/`chrome-video`/`selenium-hub`), `giis-uniovi/selema`, Jenkins + Retorch, SonarLint/SpotBugs.
 
 **SUT (`sut/src/`):**
 
@@ -26,24 +21,14 @@ E2E test suite for the [eShopOnContainers](https://github.com/dotnet-architectur
 | OpenAPI | Swashbuckle 6.9.0 (pinned, see gotchas) |
 | NuGet | Central version management: `sut/src/Directory.Packages.props` (transitive pinning enabled) |
 
-## Repository structure
+## SUT layout (`sut/src/`)
 
 ```
-.retorch/
-  configurations/   resource model JSON
-  envfiles/         one .env per TJob (tjoba.env … tjobp.env, local.env)
-  scripts/          coilifecycles/, tjoblifecycles/, waitforSUT.sh, printLog.sh, …
-src/test/java/giis/eshopcontainers/e2e/functional/
-  common/           BaseLoggedClass, BaseWebSPALoggedClass, BaseAPIClass …
-  tests/            webmvc/ (WebMVC*Tests), webspa/ (WebSPA*Tests)
-  utils/            Navigation*, Basket*, Orders*, Click, Waiter …
-sut/src/            docker-compose.yml + microservice source
-  Services/         Basket, Catalog, Identity, Ordering, Payment, Webhooks
-  Web/              WebMVC, WebSPA, WebStatus, WebhookClient
-  ApiGateways/      Envoy configs, Mobile.Bff.Shopping, Web.Bff.Shopping
-  BuildingBlocks/   EventBus, EventBusRabbitMQ, IntegrationEventLogEF …
-Jenkinsfile         16 parallel TJobs across 3 stages
-redeploy-local.ps1 / .sh   local SUT deployment helpers
+docker-compose.yml  (+ docker-compose.local-override.yml used by deploy.sh / deploy.ps1)
+Services/       Basket, Catalog, Identity, Ordering, Payment, Webhooks
+Web/            WebMVC, WebSPA, WebStatus, WebhookClient
+ApiGateways/    Envoy configs, Mobile.Bff.Shopping, Web.Bff.Shopping
+BuildingBlocks/ EventBus, EventBusRabbitMQ, IntegrationEventLogEF …
 ```
 
 ## SUT microservices (21 compose services)
@@ -56,38 +41,6 @@ Internal-only: `mobileshoppingagg`, `basket-api` (Redis+gRPC), `catalog-api` (SQ
 
 - CI names every service `{service}_{tjobName}` (e.g. `webmvc_tjoba`) via `TJOB_NAME` from `.retorch/envfiles/{tjob}.env`; locally `-p local` yields `{service}_local`.
 - 16 TJobs `tjoba`…`tjobp`: Stage 0 (a–f), Stage 1 (g–k), Stage 2 (l–p).
-
-## Running tests locally (sequential)
-
-> **Do NOT pass `-DSUT_URL`** locally. Its presence makes `BaseAPIClass` use Docker-internal hostnames (`identity_api_local:80`), unreachable from the host. Without it, tests use the `LOCALHOST_*` URLs from `src/test/resources/test.properties`.
-
-```powershell
-.\redeploy-local.ps1            # build images + deploy (add -NoBuild to skip rebuild)
-mvn test -DTJOB_NAME=local      # all tests, or add -Dtest=WebSPACatalogTests
-# teardown:
-docker compose -f sut\src\docker-compose.yml -f sut\src\docker-compose.local-override.yml `
-  --env-file .retorch\envfiles\local.env -p local down --volumes
-```
-
-## Key classes (test suite)
-
-| Class | Purpose |
-|---|---|
-| `BaseLoggedClass` | Browser lifecycle, login/logout, `clearUserBasket()` |
-| `BaseWebSPALoggedClass` | SPA URL/helper overrides |
-| `BaseAPIClass` | OAuth2 token + HTTP client for API tests |
-| `BasketWebSPA` | SPA basket helpers; `PAGER_INFO_LOCATOR`, `waitForPagerUpdate()` |
-| `NavigationWebSPA` | SPA navigation (basket, orders, hover menus) |
-| `Waiter` / `Click` | `waitUntil()` with friendly timeouts / safe click with stale-element retry |
-
-## Development conventions
-
-- No comments unless the *why* is non-obvious (hidden constraint, workaround, invariant).
-- Catch only checked exceptions — `catch (IOException | JsonParseException e)`, never `catch (Exception e)`.
-- CSS-class Selenium locators need a comment referencing the template file/element.
-- JWT guards (`jwtParts.length != 3`, `!payloadObj.has("sub")`) must precede JWT indexing.
-- `set -e` is active in all lifecycle shell scripts.
-- Prefer editing existing files; no new abstractions unless logic repeats 3+ times.
 
 ## CI / SonarCloud
 
